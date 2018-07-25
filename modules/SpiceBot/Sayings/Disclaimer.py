@@ -14,7 +14,7 @@ specifics = ['brightlights', 'doctor', 'EULA', 'IT', 'legal', 'law', 'Cipher-0',
 
 @sopel.module.commands('disclaimer')
 def mainfunction(bot, trigger):
-    enablestatus, triggerargsarray = spicebot_prerun(bot, trigger, 'disclaimer')
+    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'disclaimer')
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 

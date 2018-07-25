@@ -15,9 +15,13 @@ from BotShared import *
 
 # author jimender2
 
-testarray = ["doubled recommends these new drapes https://goo.gl/BMTMde",
+testarray = ["DoubleD recommends these new drapes https://goo.gl/BMTMde",
              "Spiceduck for spicerex mascot 2k18",
-             "Deathbybandaid is looking for developers for spicebot and spicethings"]
+             "Deathbybandaid is looking for developers for spicebot and spicethings",
+             "Upgrade to premium to remove ads",
+             "Selling panties cheap. Msg DoubleD for more info.",
+             "On sale now: tears of an orphan child!",
+             "One-way ticket to hell just $199"]
 
 databasekey = 'ads'
 
@@ -70,24 +74,6 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         if message == '':
             message = "No response found. Have any been added?"
         osd(bot, trigger.sender, 'say', message)
-
-
-def get_database_value(bot, nick, databasekey):
-    databasecolumn = str(databasekey)
-    database_value = bot.db.get_nick_value(nick, databasecolumn) or 0
-    return database_value
-
-
-def database_initialize(bot, nick, array, database):
-    databasekey = str(database)
-    existingarray = get_database_value(bot, bot.nick, databasekey)
-    if not existingarray:
-        arraycount = (len(array) - 1)
-        i = 0
-        while (i <= arraycount):
-            inputstring = array[i]
-            adjust_database_array(bot, bot.nick, inputstring, databasekey, 'add')
-            i = i + 1
 
 
 @sopel.module.interval(120)

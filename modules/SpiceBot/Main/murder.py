@@ -4,6 +4,7 @@ from __future__ import unicode_literals, absolute_import, print_function, divisi
 import sopel.module
 import sys
 import os
+import random
 moduledir = os.path.dirname(__file__)
 shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
@@ -52,7 +53,16 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         message = get_trigger_arg(bot, existingarray, "last")
         osd(bot, trigger.sender, 'say', message)
     elif command in ["crows", 'crow']:
-        osd(bot, trigger.sender, 'say', "A Murder of Crows swarms the room looking for dead bodies.")
+        rand = random.randint(1, 5)
+        if rand == 1:
+            
+            # allUsers = get_database_value(bot, 'channel', 'users_all') or []
+            allUsers = get_database_value(bot, bot.nick, 'botusers') or []
+
+            user = get_trigger_arg(bot, allUsers, "random") or 'spicebot'
+            osd(bot, trigger.sender, 'say', "A murder of Crows swarms the room and carries " + user + " off.")
+        else:
+            osd(bot, trigger.sender, 'say', "A Murder of Crows swarms the room looking for dead bodies.")
         return
 
     else:

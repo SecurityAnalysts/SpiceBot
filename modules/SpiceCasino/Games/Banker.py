@@ -28,7 +28,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     channel = botcom.channel_current
     player = trigger.nick
     if commandused == '':
-        message = "Welcome to the SpiceBank.  Your options are payday, tax, , and bank."
+        message = "Welcome to the Casino.  Your options are payday, tax, , and bank."
         osd(bot, trigger.sender, 'say', message)
     elif commandused == 'checkbank':
         bot.say("Target: " + target + " Player:" + player)
@@ -39,7 +39,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         paydayamount, msg = checkpayday(bot, botcom, player)
         if paydayamount > 0:
             addbucks(bot, botcom, player, paydayamount)
-            message = "You haven't been paid yet today. Here's your " + str(paydayamount) + " spicebucks."
+            message = "You haven't been paid yet today. Here's your " + str(paydayamount) + " spicy chips."
             osd(bot, trigger.sender, 'say', message)
         else:
             message = player + ", you've already been paid today. Now go do some work."
@@ -60,7 +60,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
                 if amount.isdigit():
                     amount = int(amount)
                     if amount >= 0 and amount < 10000001:
-                        set_database_value(bot, target, 'spicebucks_bank', amount)
+                        set_database_value(bot, target, 'spicychips_bank', amount)
                         targetbalance = bank(bot, botcom, target)
                         osd(bot, trigger.sender, 'say', target + ' now has ' + str(targetbalance) + ' in the bank')
                     else:
@@ -129,7 +129,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         if target == 'notarget':
             target = player
         balance = bank(bot, botcom, target)
-        osd(bot, trigger.sender, 'say', target + " has " + str(balance) + " in the Spicebank.")
+        osd(bot, trigger.sender, 'say', target + " has " + str(balance) + " spicy chips.")
 
     elif commandused == 'bankreset' and trigger.admin:  # admin only command
         target = get_trigger_arg(bot, triggerargsarray, 2) or 'notarget'
@@ -145,8 +145,8 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
 
 # admin command reset user values
 def reset(bot, target):
-    reset_database_value(bot, target, 'spicebucks_payday')
-    reset_database_value(bot, target, 'spicebucks_taxday')
+    reset_database_value(bot, target, 'spicychips_payday')
+    reset_database_value(bot, target, 'spicychips_taxday')
     reset_database_value(bot, target, 'usedtaxes')
 
 
@@ -155,10 +155,10 @@ def audit(bot, botcom, player):
     auditamount = int(inbank * .20)
     msg = ""
     if auditamount > 0:
-        msg = "carries out an audit on " + player + " and takes " + str(auditamount) + " spicebucks for the pleasure."
+        msg = "carries out an audit on " + player + " and takes " + str(auditamount) + " spicy chips for the pleasure."
         transfer(bot, botcom, player, 'casino', auditamount)
     else:
-        msg = "carries out an audit on " + player + " but finds no spicebucks to take."
+        msg = "carries out an audit on " + player + " but finds no spicy chips to take."
         reset_database_value(bot, player, 'usedtaxes')
     return msg
 
@@ -171,10 +171,10 @@ def checkpayday(bot, botcom, target):
     paydaymsg = "none"
     if spicebank <= 0:
         spicebank = 500
-    lastpayday = get_database_value(bot, target, 'spicebucks_payday') or 0
+    lastpayday = get_database_value(bot, target, 'spicychips_payday') or 0
     if lastpayday == 0 or lastpayday < datetoday:
         paydayamount = int(spicebank * 0.01)
-        set_database_value(bot, target, 'spicebucks_payday', datetoday)
+        set_database_value(bot, target, 'spicychips_payday', datetoday)
         paydaymsg = "Pay day found"
     else:
         paydaymsg = "Spicbank: " + str(spicebank) + "lastpay: " + str(lastpayday) + "Today: " + str(datetoday)
@@ -184,7 +184,7 @@ def checkpayday(bot, botcom, target):
 def paytaxes(bot, botcom, target):
     now = datetime.datetime.now()
     datetoday = int(now.strftime("%Y%j"))
-    lasttaxday = get_database_value(bot, target, 'spicebucks_taxday') or 0
+    lasttaxday = get_database_value(bot, target, 'spicychips_taxday') or 0
     inbank = bank(bot, botcom, target) or 0
     taxtotal = 0
     message = ""
@@ -195,8 +195,8 @@ def paytaxes(bot, botcom, target):
             taxtotal = 1
         if taxtotal > 0:
             transfer(bot, botcom, 'casino', target, taxtotal)
-            set_database_value(bot, target, 'spicebucks_taxday', datetoday)
-            message = "Thank you for reminding me that " + target + " has not paid their taxes today. " + str(taxtotal) + " spicebucks will be transfered to the SpiceBank."
+            set_database_value(bot, target, 'spicychips_taxday', datetoday)
+            message = "Thank you for reminding me that " + target + " has not paid their taxes today. " + str(taxtotal) + " spicy chips will be transfered to the Casino."
         else:
             message = target + " is broke and cannot pay taxes today"
     else:

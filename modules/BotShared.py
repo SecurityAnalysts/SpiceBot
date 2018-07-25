@@ -463,6 +463,30 @@ def adjust_database_array(bot, nick, entries, databasekey, adjustmentdirection):
         set_database_value(bot, nick, databasekey, adjustarray)
 
 
+def database_initialize(bot, nick, array, database):
+    databasekey = str(database)
+    existingarray = get_database_value(bot, bot.nick, databasekey)
+    if not existingarray:
+        arraycount = (len(array) - 1)
+        i = 0
+        while (i <= arraycount):
+            inputstring = array[i]
+            adjust_database_array(bot, bot.nick, inputstring, databasekey, 'add')
+            i = i + 1
+
+
+"""
+# Sayings Functions
+"""
+
+
+def sayingsmodule(bot,databasekey,triggerargsarray,thingtodo):
+    """Handle the creation and manipulation of modules that return sayings."""
+    # add, remove, last, count, list, initialise?
+    resultstring = "test"
+    return resultstring
+
+
 """
 ###########
 # On Screen Text #

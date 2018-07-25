@@ -26,6 +26,10 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     isvalid, validmsg = targetcheck(bot, botcom, target, instigator)
     if not target:
         osd(bot, trigger.sender, 'say', "Who are you pissed at now?")
+    elif target == 'cert':
+        osd(bot, trigger.sender, 'say', "Here is the link to DD link for the noobs who have never seen it before. https://ibb.co/ibxD2n")
+    elif target == 'certification':
+        osd(bot, trigger.sender, 'say', "Here is the link to DD link for the noobs who have never seen it before. https://ibb.co/ibxD2n")
     elif isvalid == 1:
         osd(bot, trigger.sender, 'action', 'punches ' + target + ', who is clearly a ' + str(insult) + ', in the mouth.')
     elif isvalid == 0:

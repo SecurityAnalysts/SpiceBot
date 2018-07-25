@@ -81,7 +81,7 @@ def getwebbytime():
     for r in (("['", ""), ("']", ""), ("\\n", ""), ("\\t", ""), ("@ ", "")):
         webbytime = webbytime.replace(*r)
     webbytz = pytz.timezone('US/Eastern')
-    webbytime = parser.parse(webbytime)
+    webbytime = parser.parse(str(webbytime))
     webbytime = webbytz.localize(webbytime)
     return webbytime
 

@@ -455,7 +455,7 @@ def subcommands(bot, trigger, triggerargsarray, command_full, command_main, duel
                 duels_check_nick_condition(bot, player, duels)
 
     # If the above passes all above checks
-    duels_command_function_run = str('duels_command_function_' + command_main.lower() + '(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio, trigger)')
+    duels_command_function_run = str('duels_command_function_' + command_main.lower() + '(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio)')
     eval(duels_command_function_run)
     # Don't allow event repetition
     if command_main.lower() in duels_commands_events:
@@ -915,7 +915,7 @@ def duels_command_function_classic(bot, triggerargsarray, command_main, trigger,
         duels_classic_timeout = 600
         if duels.channel_current in duels.duels_dev_channels or duels.admin:
             duels_classic_timeout = 0
-        duelclassic_combat(bot, duels.channel_current, duels.instigator, target, duels_classic_timeout, trigger, duels.admin)
+        duelclassic_combat(bot, duels.channel_current, duels.instigator, target, duels_classic_timeout, trigger, is_admin=trigger.admin)
         return
 
 
@@ -7382,7 +7382,7 @@ Classic Duels by DGW
 """
 
 
-def duelclassic_combat(bot, channel, instigator, target, duels_classic_timeout, trigger, is_admin):
+def duelclassic_combat(bot, channel, instigator, target, duels_classic_timeout, trigger, is_admin=False, warn_nonexistent=True):
     if target == bot.nick:
         osd(bot, trigger.sender, 'say', "I refuse to duel with the yeller-bellied likes of you!")
         return module.NOLIMIT

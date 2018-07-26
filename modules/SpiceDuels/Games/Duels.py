@@ -915,7 +915,7 @@ def duels_command_function_classic(bot, triggerargsarray, command_main, trigger,
         duels_classic_timeout = 600
         if duels.channel_current in duels.duels_dev_channels or duels.admin:
             duels_classic_timeout = 0
-        duelclassic_combat(bot, duels.channel_current, duels.instigator, target, duels_classic_timeout, is_admin=trigger.admin)
+        duelclassic_combat(bot, duels.channel_current, duels.instigator, target, duels_classic_timeout, is_admin=duels.admin)
         return
 
 

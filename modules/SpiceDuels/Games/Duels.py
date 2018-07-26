@@ -352,7 +352,7 @@ def command_main_process(bot, trigger, triggerargsarray, command_full, command_m
     if command_main.lower() in duels.commands_valid:
         # If command was issued as an action
         if duels.command_type != 'actionduel' or command_main.lower() in duels_action_subcommands:
-            subcommands(bot, trigger, triggerargsarray, command_full, command_main, duels, instigatorbio, trigger)
+            subcommands(bot, trigger, triggerargsarray, command_full, command_main, duels, instigatorbio)
         else:
             osd(bot, duels.instigator, 'notice', "Action duels should not be able to run commands. Targets Only")
         return
@@ -381,7 +381,7 @@ def command_main_process(bot, trigger, triggerargsarray, command_full, command_m
 
 
 # process commands, and run
-def subcommands(bot, trigger, triggerargsarray, command_full, command_main, duels, instigatorbio, trigger):
+def subcommands(bot, trigger, triggerargsarray, command_full, command_main, duels, instigatorbio):
 
     command_restructure = get_trigger_arg(bot, triggerargsarray, '2+')
     duels.command_restructure = get_trigger_arg(bot, command_restructure, 'create')

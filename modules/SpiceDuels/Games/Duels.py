@@ -455,10 +455,7 @@ def subcommands(bot, trigger, triggerargsarray, command_full, command_main, duel
                 duels_check_nick_condition(bot, player, duels)
 
     # If the above passes all above checks
-    if command_main.lower() != 'classic':
-        duels_command_function_run = str('duels_command_function_' + command_main.lower() + '(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio)')
-    else:
-        duels_command_function_run = str('duels_command_function_' + command_main.lower() + '(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio, trigger)')
+    duels_command_function_run = str('duels_command_function_' + command_main.lower() + '(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio, trigger)')
     eval(duels_command_function_run)
     # Don't allow event repetition
     if command_main.lower() in duels_commands_events:
@@ -852,7 +849,7 @@ def duels_docs_combat(bot):
 """ Classic Duels by DGW, simple coinflip winning """
 
 
-def duels_command_function_classic(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio, trigger):
+def duels_command_function_classic(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
     # Who is the target
     target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
@@ -918,7 +915,7 @@ def duels_command_function_classic(bot, triggerargsarray, command_main, trigger,
         duels_classic_timeout = 600
         if duels.channel_current in duels.duels_dev_channels or duels.admin:
             duels_classic_timeout = 0
-        duelclassic_combat(bot, duels.channel_current, duels.instigator, target, duels_classic_timeout, is_admin=duels.admin)
+        duelclassic_combat(bot, duels.channel_current, duels.instigator, target, duels_classic_timeout, trigger, is_admin=duels.admin)
         return
 
 

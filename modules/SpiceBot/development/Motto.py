@@ -4,7 +4,7 @@ from __future__ import unicode_literals, absolute_import, print_function, divisi
 import sopel.module
 import sys
 import os
-import datetime
+import random
 moduledir = os.path.dirname(__file__)
 shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
@@ -12,18 +12,20 @@ from BotShared import *
 
 # author jimender2
 
+databasekey = 'motto'
 
-@sopel.module.commands('til')
+
+@sopel.module.commands('motto', 'tag', 'flair')
 def mainfunction(bot, trigger):
-    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'til')
+    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'motto')
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
+    inchannel = trigger.sender
 
-    databasekey = 'til'
     command = get_trigger_arg(bot, triggerargsarray, 1)
     inputstring = get_trigger_arg(bot, triggerargsarray, '2+')
     existingarray = get_database_value(bot, instigator, databasekey) or []
@@ -45,24 +47,18 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
             osd(bot, trigger.sender, 'say', message)
     elif command == "count":
         messagecount = len(existingarray)
-        message = "There are currently " + str(messagecount) + " responses for that in the database."
+        message = "There are currently " + str(messagecount) + " mottos in the database."
         osd(bot, trigger.sender, 'say', message)
     elif command == "last":
         message = get_trigger_arg(bot, existingarray, "last")
         osd(bot, trigger.sender, 'say', message)
 
     else:
-        day = get_trigger_arg(bot, existingarray, "random") or ''
-        if weapontype == '':
-            message = "No response found. Have any been added?"
-    target = get_trigger_arg(bot, triggerargsarray, 1)
-    reason = get_trigger_arg(bot, triggerargsarray, '2+')
-    msg = "a " + weapontype
+        motto = get_trigger_arg(bot, existingarray, "random") or ''
+        osd(bot, trigger.sender, 'say', motto)
 
-    # Target is fine
-    if not reason:
-        message = instigator + " tils " + target + " with " + msg + "."
-        osd(bot, trigger.sender, 'say', message)
-    else:
-        message = instigator + " tils " + target + " with " + msg + " for " + reason + "."
-        osd(bot, trigger.sender, 'say', message)
+
+def get_database_value(bot, nick, databasekey):
+    databasecolumn = str('duels_' + databasekey)
+    database_value = bot.db.get_nick_value(nick, databasecolumn) or 0
+    return database_value

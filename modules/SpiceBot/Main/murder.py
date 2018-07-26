@@ -55,7 +55,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     elif command in ["crows", 'crow']:
         rand = random.randint(1, 5)
         if rand == 1:
-            
+
             # allUsers = get_database_value(bot, 'channel', 'users_all') or []
             allUsers = get_database_value(bot, bot.nick, 'botusers') or []
 

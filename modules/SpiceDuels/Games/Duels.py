@@ -5023,7 +5023,8 @@ def duels_user_lists(bot, duels):
         current_channel = current_channel.strip()
 
         # Current Channel users
-        exec("duels.users_current_" + current_channel + " = []")
+        current_chan_str = str("duels.users_current_" + current_channel + " = []")
+        exec(current_chan_str)
         users_current_channel = eval("duels.users_current_" + current_channel)
         for user in bot.privileges[channel]:
             if user not in duels.commands_valid and user not in duels.commands_alt and user.lower() not in target_ignore_list:

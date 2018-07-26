@@ -9,22 +9,24 @@ shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
+
 @sopel.module.commands('usage','moduleusage','totalusage')
 def mainfunction(bot, trigger):
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, trigger.group(1))
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
+
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    ## Initial ARGS
-    #triggerargsarray = create_args_array(trigger.group(3))
+    # # Initial ARGS
+    # triggerargsarray = create_args_array(trigger.group(3))
     triggerargsarray = get_trigger_arg(bot, trigger.group(3), 'create')
-    #commandused = get_trigger_arg(bot, triggerargsarray, 0)
+    # commandused = get_trigger_arg(bot, triggerargsarray, 0)
     commandused = trigger.group(1)
     target = get_trigger_arg(bot, triggerargsarray, 1)
     instigator = trigger.nick
     GITWIKIURL = 'https://github.com/SpiceBot/sopel-modules/wiki/Usage'
-    ## Variable ARGS
+    # # Variable ARGS
     moduletocheck = get_trigger_arg(bot, triggerargsarray, 1) or instigator
     checktarget = get_trigger_arg(bot, triggerargsarray, 2)
     usagefor = ''

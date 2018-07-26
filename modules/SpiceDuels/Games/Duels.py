@@ -352,7 +352,7 @@ def command_main_process(bot, trigger, triggerargsarray, command_full, command_m
     if command_main.lower() in duels.commands_valid:
         # If command was issued as an action
         if duels.command_type != 'actionduel' or command_main.lower() in duels_action_subcommands:
-            subcommands(bot, trigger, triggerargsarray, command_full, command_main, duels, instigatorbio)
+            subcommands(bot, trigger, triggerargsarray, command_full, command_main, duels, instigatorbio, trigger)
         else:
             osd(bot, duels.instigator, 'notice', "Action duels should not be able to run commands. Targets Only")
         return
@@ -381,7 +381,7 @@ def command_main_process(bot, trigger, triggerargsarray, command_full, command_m
 
 
 # process commands, and run
-def subcommands(bot, trigger, triggerargsarray, command_full, command_main, duels, instigatorbio):
+def subcommands(bot, trigger, triggerargsarray, command_full, command_main, duels, instigatorbio, trigger):
 
     command_restructure = get_trigger_arg(bot, triggerargsarray, '2+')
     duels.command_restructure = get_trigger_arg(bot, command_restructure, 'create')
@@ -455,7 +455,10 @@ def subcommands(bot, trigger, triggerargsarray, command_full, command_main, duel
                 duels_check_nick_condition(bot, player, duels)
 
     # If the above passes all above checks
-    duels_command_function_run = str('duels_command_function_' + command_main.lower() + '(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio)')
+    if command_main.lower() != 'classic':
+        duels_command_function_run = str('duels_command_function_' + command_main.lower() + '(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio)')
+    else:
+        duels_command_function_run = str('duels_command_function_' + command_main.lower() + '(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio, trigger)')
     eval(duels_command_function_run)
     # Don't allow event repetition
     if command_main.lower() in duels_commands_events:
@@ -849,7 +852,7 @@ def duels_docs_combat(bot):
 """ Classic Duels by DGW, simple coinflip winning """
 
 
-def duels_command_function_classic(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
+def duels_command_function_classic(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio, trigger):
 
     # Who is the target
     target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
@@ -7382,7 +7385,7 @@ Classic Duels by DGW
 """
 
 
-def duelclassic_combat(bot, channel, instigator, target, duels_classic_timeout, is_admin=False, warn_nonexistent=True):
+def duelclassic_combat(bot, channel, instigator, target, duels_classic_timeout, trigger, is_admin=False, warn_nonexistent=True):
     if target == bot.nick:
         osd(bot, trigger.sender, 'say', "I refuse to duel with the yeller-bellied likes of you!")
         return module.NOLIMIT

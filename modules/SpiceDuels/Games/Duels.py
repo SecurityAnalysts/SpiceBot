@@ -174,6 +174,9 @@ def execute_main(bot, trigger, triggerargsarray, duels):
     # All Channels
     duels = duels_channel_lists(bot, trigger, duels)
 
+    # Instigator variable to describe the nickname that initiated the command
+    duels.instigator = trigger.nick
+
     # First Command
     command_full = get_trigger_arg(bot, triggerargsarray, 0)
     if not command_full:
@@ -190,9 +193,6 @@ def execute_main(bot, trigger, triggerargsarray, duels):
 
     # Time when Module use started
     duels.now = time.time()
-
-    # Instigator variable to describe the nickname that initiated the command
-    duels.instigator = trigger.nick
 
     # Valid Commands and stats
     duels.commands_valid = duels_valid_commands(bot)

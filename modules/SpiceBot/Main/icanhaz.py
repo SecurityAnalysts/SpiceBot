@@ -30,5 +30,5 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     while i <= rand:
         z = z + 'z'
         i = i + 1
-    message = "I can ha" + z + " " + command
+    message = "I can ha" + z + " " + command + "??"
     osd(bot, trigger.sender, 'say', message)

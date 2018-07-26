@@ -33,5 +33,5 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
             message = "I fucked the code up real well"
     else:
         instigator = trigger.nick
-        message = instigator + " thinks that " + command + " is totes obvious."
+        message = instigator + " thinks that " + command + " is totes obvi."
     osd(bot, trigger.sender, 'say', message)

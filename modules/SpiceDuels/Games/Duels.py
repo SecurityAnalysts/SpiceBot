@@ -7382,7 +7382,7 @@ Classic Duels by DGW
 """
 
 
-def duelclassic_combat(bot, channel, instigator, target, duels_classic_timeout, trigger, is_admin=False, warn_nonexistent=True):
+def duelclassic_combat(bot, channel, instigator, target, duels_classic_timeout, trigger, is_admin=False):
     if target == bot.nick:
         osd(bot, trigger.sender, 'say', "I refuse to duel with the yeller-bellied likes of you!")
         return module.NOLIMIT

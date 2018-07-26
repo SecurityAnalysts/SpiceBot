@@ -77,7 +77,8 @@ def getwebbytimeuntil():
 def getwebbytime():
     now = datetime.datetime.utcnow()
     tree = gettree()
-    webbytime = str(tree.xpath('//*[@id="HeaderUpcoming"]/div/div[1]/cite/span[1]/text()'))
+    webbytime = str(tree.xpath('//*[@id="HeaderUpcoming"]/div/div[1]/cite/time/text()'))
+    # webbytime = str(tree.xpath('//*[@id="HeaderUpcoming"]/div/div[1]/cite/span[1]/text()'))
     for r in (("['", ""), ("']", ""), ("\\n", ""), ("\\t", ""), ("@ ", "")):
         webbytime = webbytime.replace(*r)
     webbytz = pytz.timezone('US/Eastern')

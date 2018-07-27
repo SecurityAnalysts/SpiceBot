@@ -55,16 +55,15 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     elif command in ["crows", 'crow']:
         rand = random.randint(1, 5)
         if rand == 1:
-
-            # allUsers = get_database_value(bot, 'channel', 'users_all') or []
-            allUsers = get_database_value(bot, bot.nick, 'botusers') or []
-
+            allUsers = [u.lower() for u in bot.users]
+            # allUsers = get_database_value(bot, bot.nick, 'botusers') or []
             user = get_trigger_arg(bot, allUsers, "random") or 'spicebot'
             osd(bot, trigger.sender, 'say', "A murder of Crows swarms the room and carries " + user + " off.")
         else:
             osd(bot, trigger.sender, 'say', "A Murder of Crows swarms the room looking for dead bodies.")
         return
 
+    # if all is fine
     else:
         weapontype = get_trigger_arg(bot, existingarray, "random") or ''
         if weapontype == '':
@@ -73,30 +72,30 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         reason = get_trigger_arg(bot, triggerargsarray, '2+')
         msg = "a " + weapontype
 
-    # No target specified
-    if not target:
-        osd(bot, trigger.sender, 'say', "Who/what would you like to murder?")
+        # No target specified
+        if not target:
+            osd(bot, trigger.sender, 'say', "Who/what would you like to murder?")
 
-    # Cannot kill spicebot
-    elif target == bot.nick:
-        osd(bot, trigger.sender, 'say', "You cannot kill a nonliving entity")
+        # Cannot kill spicebot
+        elif target == bot.nick:
+            osd(bot, trigger.sender, 'say', "You cannot kill a nonliving entity")
 
-    # Cannot kill self
-    elif target == instigator:
-        message = "Killing yourself would be suicide, " + instigator + ", not murder. Idiot."
-        osd(bot, trigger.sender, 'say', message)
-
-    # Target is fine
-    else:
-        if not reason:
-            message = instigator + " murders " + target + " with " + msg + "."
+        # Cannot kill self
+        elif target == instigator:
+            message = "Killing yourself would be suicide, " + instigator + ", not murder. Idiot."
             osd(bot, trigger.sender, 'say', message)
+
+        # Target is fine
         else:
-            message = instigator + " murders " + target + " with " + msg + " for " + reason + "."
-            osd(bot, trigger.sender, 'say', message)
+            if not reason:
+                message = instigator + " murders " + target + " with " + msg + "."
+                osd(bot, trigger.sender, 'say', message)
+            else:
+                message = instigator + " murders " + target + " with " + msg + " for " + reason + "."
+                osd(bot, trigger.sender, 'say', message)
 
 
 def get_database_value(bot, nick, databasekey):
-    databasecolumn = str('duels_' + databasekey)
+    databasecolumn = str(databasekey)
     database_value = bot.db.get_nick_value(nick, databasecolumn) or 0
     return database_value

@@ -12,13 +12,12 @@ from BotShared import *
 # author jimender2
 
 
-@sopel.module.commands('doesitall', 'dia')
+@sopel.module.commands('bwtm', 'butwaittheresmore')
 def mainfunction(bot, trigger):
-    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'doesitall')
+    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'bwtm')
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    osd(bot, trigger.sender, 'say', "Sneeze more than once a week? Want to have sex with attractive women? Wish your penis was larger? Try Doesitall™!")
-    osd(bot, trigger.sender, 'say', "Side effects include: Anal leakage, penile shrinkage, halitosis, HIV, GhonoherpesyphilAIDS, and a wonky eye")
+    osd(bot, trigger.sender, 'say', "But Wait.... Theres more")

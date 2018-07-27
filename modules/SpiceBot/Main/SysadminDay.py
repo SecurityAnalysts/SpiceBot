@@ -26,7 +26,33 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         message = "There are " + str(daystillsysadminday.days) + " days till SysAdmin day"
     elif sysadminday < today:
         daystillsysadminday = sysadminday - today
-        message = "We SysAdmin day happened " + str(daystillsysadminday.days) + " ago."
+        message = "SysAdmin day happened " + str(daystillsysadminday.days) + " ago."
     else:
         message = "Happy Sysadmin day"
     osd(bot, trigger.sender, 'say', message)
+
+
+# @sopel.module.interval(60)
+# def getpackt(bot):
+#     now = datetime.datetime.now(tz)
+#     if now.hour == int(packthour) and now.minute == int(packtminute):
+#         dispmsg = packt_osd(bot)
+#         for channel in bot.channels:
+#             osd(bot, channel, 'say', dispmsg)
+#
+#
+# def packt_osd(bot):
+#     dispmsg = []
+#     dispmsg.append("[Packt] " + getPacktTitle())
+#     dispmsg.append("Next Book: " + getpackttimediff(bot))
+#     dispmsg.append("URL: " + packturl)
+#     return dispmsg
+#
+#
+# def getpackttimediff(bot):
+#     nowtime = datetime.datetime.now(tz)
+#     tomorrow = nowtime + timedelta(days=1)
+#     packtnext = datetime.datetime(tomorrow.year, tomorrow.month, tomorrow.day, int(packthour), int(packtminute), 0, 0)
+#     timecompare = get_timeuntil(nowtime, packtnext)
+#     packttimediff = str(timecompare)
+#     return packttimediff

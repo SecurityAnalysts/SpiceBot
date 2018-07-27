@@ -108,8 +108,8 @@ def transfer(bot, botcom, target, instigator, amount):
     if amount >= 0:
         instigator_balance = bank(bot, botcom, instigator)
         if amount <= instigator_balance:
-            adjust_database_value(bot, target, 'spicychips_bank', -(amount))
-            adjust_database_value(bot, instigator, 'spicychips_bank', amount)
+            adjust_database_value(bot, target, 'spicychips_bank', amount)
+            adjust_database_value(bot, instigator, 'spicychips_bank', -(amount))
             success = True
     return success
 

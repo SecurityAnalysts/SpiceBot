@@ -11,14 +11,18 @@ from BotShared import *
 
 # author jimender2
 
+responselist = ["KILL THE GRAMMAR NAZI!",
+                "Grammar fucker, do you understand it?",
+                "Eats, Shoots and Leaves or Eats Shoots and Leaves?"]
 
-@sopel.module.commands('doesitall', 'dia')
+
+@sopel.module.commands('grammar')
 def mainfunction(bot, trigger):
-    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'doesitall')
+    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'grammar')
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    osd(bot, trigger.sender, 'say', "Sneeze more than once a week? Want to have sex with attractive women? Wish your penis was larger? Try Doesitall™!")
-    osd(bot, trigger.sender, 'say', "Side effects include: Anal leakage, penile shrinkage, halitosis, HIV, GhonoherpesyphilAIDS, and a wonky eye")
+    displaymsg = get_trigger_arg(bot, responselist, 'random')
+    osd(bot, trigger.sender, 'say', displaymsg)

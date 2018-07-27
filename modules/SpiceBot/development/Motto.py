@@ -59,6 +59,6 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
 
 
 def get_database_value(bot, nick, databasekey):
-    databasecolumn = str('duels_' + databasekey)
+    databasecolumn = str(databasekey)
     database_value = bot.db.get_nick_value(nick, databasecolumn) or 0
     return database_value

@@ -50,6 +50,8 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     else:
         if target == instigator:
             osd(bot, trigger.sender, 'action', "Stupid person. You can't bribe yourself")
+        elif target == bot.nick:
+            osd(bot, trigger.sender, 'action', "Moron. You can't bribe me with money. Try terabytes")
         elif target.lower() in [u.lower() for u in bot.users]:
             balance = bank(bot, instigator)
             money = random.randint(0, balance)

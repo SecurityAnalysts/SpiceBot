@@ -21,11 +21,20 @@ testarray = ["DoubleD recommends these new drapes https://goo.gl/BMTMde",
              "Upgrade to premium to remove ads",
              "Selling panties cheap. Msg DoubleD for more info.",
              "On sale now: tears of an orphan child!",
-             "One-way ticket to hell just $199"]
+             "One-way ticket to hell just $199",
+             "Get a free xboner here",
+             "Extra, Extra, read all about it. A giant Bever is attacking Canadian people",
+             "Want to make fast money? Sell Drugs",
+             "Syrup",
+             "I love Apple products .... In the trash",
+             "Did you know that I am a female?",
+             "Wanna be friends?",
+             "New Features released every day",
+             "I feel neglected. Use me more. Duel assult in me!"]
 
 databasekey = 'ads'
 
-hardcoded_not_in_this_chan = ["#spiceworks"]
+hardcoded_not_in_this_chan = ["#spiceworks", "##spicebottest"]
 
 
 @sopel.module.commands('ads', 'advertisements', 'ad', 'advertisement')
@@ -76,7 +85,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         osd(bot, trigger.sender, 'say', message)
 
 
-@sopel.module.interval(120)
+@sopel.module.interval(600)
 def advertisement(bot):
     rand = random.randint(1, 5)
     if rand == 5:
@@ -85,10 +94,9 @@ def advertisement(bot):
         message = get_trigger_arg(bot, existingarray, "random") or ''
         if not message:
             message = "Spiceduck for Spiceworks mascot 2k18"
+
         for channel in bot.channels:
-            channelmodulesarray = get_database_value(bot, channel, 'modules_enabled') or []
-            if channel in channelmodulesarray:
-                if channel not in hardcoded_not_in_this_chan:
-                    osd(bot, channel, 'say', message)
+            if channel not in hardcoded_not_in_this_chan:
+                osd(bot, channel, 'say', message)
     else:
         message = "none"

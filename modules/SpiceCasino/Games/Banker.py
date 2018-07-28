@@ -34,9 +34,6 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         bot.say("Target: " + target + " Player:" + player)
         validbank = buckscheck(bot, botcom, target)
         bot.say(str(validbank))
-    elif commandused == 'transfer':
-        done = transfer(bot,botcom,target,player,amount)
-        bot.say(str(done))
     elif commandused == 'payday':
         paydayamount = 0
         paydayamount, msg = checkpayday(bot, botcom, player)
@@ -125,8 +122,11 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
                     transfer(bot, botcom, 'casino', player, fine)
                 else:
                     payout = int(balance * .01)
-                    osd(bot, trigger.sender, 'say', player + " pickpockets " + str(payout) + " from " + target)
-                    transfer(bot, botcom, target, player, payout)
+                    if payout > 0:
+                        osd(bot, trigger.sender, 'say', player + " pickpockets " + str(payout) + " from " + target)
+                        transfer(bot, botcom, target, player, payout)
+                    else:
+                        osd(bot, trigger.sender, 'say', target + "'s pockets are empty")
         # Bank
     elif commandused == 'banker' or commandused == 'banking':
         if target == 'notarget':

@@ -44,18 +44,16 @@ Main Command Usage
 @module.intent('ACTION')
 @sopel.module.thread(True)
 def duel_action(bot, trigger):
-    duels = duels_class()
-    duels.command_type = 'actionduel'
+    command_type = 'actionduel'
     triggerargsarray = get_trigger_arg(bot, trigger.group(1), 'create')
-    execute_main(bot, trigger, triggerargsarray, duels)
+    execute_main(bot, trigger, triggerargsarray, command_type)
 
 
 # bot.nick do this
 @nickname_commands('duel', 'challenge', 'duels', 'challenges')
 @sopel.module.thread(True)
 def duel_nickcom(bot, trigger):
-    duels = duels_class()
-    duels.command_type = 'botnick'
+    command_type = 'botnick'
     osd(bot, trigger.sender, 'say', "Don't tell me what to do!")
     # TODO maybe add the non-combat functions here?
 
@@ -64,10 +62,9 @@ def duel_nickcom(bot, trigger):
 @sopel.module.commands('duel', 'challenge', 'duels', 'challenges')
 @sopel.module.thread(True)
 def mainfunction(bot, trigger):
-    duels = duels_class()
-    duels.command_type = 'normalcom'
+    command_type = 'normalcom'
     triggerargsarray = get_trigger_arg(bot, trigger.group(2), 'create')
-    execute_main(bot, trigger, triggerargsarray, duels)
+    execute_main(bot, trigger, triggerargsarray, command_type)
 
 
 # respond to alternate start for command
@@ -85,19 +82,17 @@ def mainfunction(bot, trigger):
 @module.rule('^(?:,challenges)\s+?.*')
 @sopel.module.thread(True)
 def mainfunctionnobeguine(bot, trigger):
-    duels = duels_class()
-    duels.command_type = 'normalcom'
+    command_type = 'normalcom'
     triggerargsarray = get_trigger_arg(bot, trigger.group(0), 'create')
     triggerargsarray = get_trigger_arg(bot, triggerargsarray, '2+')
     triggerargsarray = get_trigger_arg(bot, triggerargsarray, 'create')
-    execute_main(bot, trigger, triggerargsarray, duels)
+    execute_main(bot, trigger, triggerargsarray, command_type)
 
 
 # rule for "use"
 @module.rule('^(?:use)\s+?.*')
 def mainfunctionuse(bot, trigger):
-    duels = duels_class()
-    duels.command_type = 'normalcom'
+    command_type = 'normalcom'
     triggerargsarray = get_trigger_arg(bot, trigger.group(0), 'create')
     triggerargsarray = get_trigger_arg(bot, triggerargsarray, '2+')
     triggerargsarray = get_trigger_arg(bot, triggerargsarray, 'create')
@@ -106,7 +101,7 @@ def mainfunctionuse(bot, trigger):
         restoftheline = get_trigger_arg(bot, triggerargsarray, "2+")
         triggerargsarray = str("loot use " + lootitem + " " + restoftheline)
         triggerargsarray = get_trigger_arg(bot, triggerargsarray, 'create')
-        execute_main(bot, trigger, triggerargsarray, duels)
+        execute_main(bot, trigger, triggerargsarray, command_type)
 
 
 # Misspellings
@@ -168,14 +163,60 @@ monster mutates,,, enraged itsy bitsy
 """
 
 
+def execute_start(bot, trigger, triggerargsarray, command_type):
+
+    # duels dynamic Class
+    duels = class_create('main')
+
+    # Type of command
+    duels.command_type = command_type
+
+    # Time when Module use started
+    duels.start = time.time()
+
+    # instigator
+    instigator = class_create('instigator')
+    instigator.default = trigger.nick
+    duels.instigator = trigger.nick
+
+    # Channel Listing
+    duels = duels_command_channels(bot, duels, trigger)
+
+    # Bacic User List
+    duels = duels_command_users(bot, duels)
+
+    # Commands list
+    duels = duels_valid_commands_all(bot, duels)
+
+    # Alternative Commands
+    duels = duels_commands_valid_alts(bot, duels)
+
+    # TODO valid stats
+
+    # Error Display System Create
+    duels_errors_start(bot, duels)
+
+    # Run the Process
+    execute_main(bot, duels, instigator, trigger, triggerargsarray)
+
+    # Error Display System Display
+    duels_errors_end(bot, duels)
+
+
 # Check the Instigator, Build basic variables, and divide Multi-commands, Chance of deathblow at end
-def execute_main(bot, trigger, triggerargsarray, duels):
+def execute_main(bot, trigger, triggerargsarray, command_type):
+
+    # duels dynamic Class
+    duels = class_create('main')
 
     # All Channels
     duels = duels_channel_lists(bot, trigger, duels)
 
     # Instigator variable to describe the nickname that initiated the command
     duels.instigator = trigger.nick
+
+    # Type of command
+    duels.command_type = command_type
 
     # First Command
     command_full = get_trigger_arg(bot, triggerargsarray, 0)
@@ -2530,7 +2571,7 @@ def duels_command_function_loot(bot, triggerargsarray, command_main, trigger, co
             else:
                 mainlootusemessage.append(duels.instigator + " used " + str(quantity) + " " + lootitem + "s on " + targetbio.nametext)
 
-        lootusing = duels_lootuse()
+        lootusing = class_create('loot_use')
         for x in loot_use_effects:
             currentvalue = str("lootusing."+x+"=0")
             exec(currentvalue)
@@ -3697,7 +3738,7 @@ def duels_command_function_tavern(bot, triggerargsarray, command_main, trigger, 
     else:
         mainlootusemessage.append(targetbio.actual + " bought a " + beveragetype + " for " + str(coinrequired) + "$")
 
-    lootusing = duels_lootuse()
+    lootusing = class_create('loot_use')
     for x in loot_use_effects:
         currentvalue = str("lootusing."+x+"=0")
         exec(currentvalue)
@@ -4665,7 +4706,7 @@ Chance Events
 @sopel.module.thread(True)
 def duels_chanceevents(bot):
 
-    duels = duels_class()
+    duels = class_create('main')
 
     # Timestamp
     duels.now = time.time()
@@ -4764,7 +4805,7 @@ def duels_halfhourtimer(bot):
     chance_event_last_timesince = duels_time_since(bot, 'duelrecorduser', "halfhour_last_time") or 0
     if chance_event_last_timesince > 1800:
 
-        duels = duels_class()
+        duels = class_create('main')
 
         duels.duels_enabled_channels = get_database_value(bot, 'duelrecorduser', 'gameenabled') or []
 
@@ -4836,7 +4877,7 @@ channel enter/exit
 # @rule('.*')
 # @sopel.module.thread(True)
 # def duel_player_return(bot, trigger):
-#    duels = duels_class()
+#    duels = class_create('main')
 #    duels.admin = 0
 #    duels.channel_current = trigger.sender
 #    duels.inchannel = 0
@@ -4857,7 +4898,7 @@ channel enter/exit
 # @rule('.*')
 # @sopel.module.thread(True)
 # def duel_player_leave(bot, trigger):
-#    duels = duels_class()
+#    duels = class_create('main')
 #    duels.admin = 0
 #    duels.channel_current = trigger.sender
 #    duels.inchannel = 0
@@ -5305,9 +5346,9 @@ def duel_combat_playerbios(bot, playerone, playertwo, typeofduel, duels):
     for player in playersarray:
         selectedplayer = selectedplayer + 1
         if selectedplayer == 1:
-            playerbio = duels_player_one()
+            playerbio = class_create('player_one')
         else:
-            playerbio = duels_player_two()
+            playerbio = class_create('player_two')
 
         # Actual Nick
         if player == 'monster' or player == 'duelsmonster':
@@ -5401,9 +5442,9 @@ def duel_target_playerbio(bot, duels, player):
 
     # Open Class
     if player != duels.instigator:
-        playerbio = duels_target()
+        playerbio = class_create('targetbio')
     else:
-        playerbio = duels_instigator()
+        playerbio = class_create('instigatorbio')
 
     # Actual Nick
     if player == 'monster':
@@ -6509,7 +6550,7 @@ def duels_merchant_restock(bot):
 # How much inventory does the merchant have?
 def duels_merchant_inventory(bot):
 
-    merchinv = duels_merchant()
+    merchinv = class_create('merchant')
 
     # New Vendor?
     merchantinitialinv = get_database_value(bot, 'duelsmerchant', 'newvendor')
@@ -7687,7 +7728,7 @@ On Screen Text
 """
 
 
-def osd(bot, target_array, text_type, text_array):
+def osd(bot, target_array, text_type_array, text_array):
 
     # if text_array is a string, make it an array
     textarraycomplete = []
@@ -7709,71 +7750,105 @@ def osd(bot, target_array, text_type, text_array):
                 target = nick_actual(bot, str(target))
             texttargetarray.append(target)
 
-    # Make sure we don't cross over IRC limits
-    for target in texttargetarray:
-        temptextarray = []
-        if text_type == 'notice':
-            temptextarray.append(target + ", ")
-        for part in textarraycomplete:
-            temptextarray.append(part)
+    # Handling for text_type
+    texttypearray = []
+    if not isinstance(text_type_array, list):
+        for i in range(len(texttargetarray)):
+            texttypearray.append(str(text_type_array))
+    else:
+        for x in text_type_array:
+            texttypearray.append(str(x))
+    text_array_common = max(((item, texttypearray.count(item)) for item in set(texttypearray)), key=lambda a: a[1])[0]
 
-        # Make sure no individual string ins longer than it needs to be
-        currentstring = ''
-        texttargetarray = []
-        for textstring in temptextarray:
-            if len(textstring) > osd_limit:
-                chunks = textstring.split()
-                for chunk in chunks:
-                    if currentstring == '':
-                        currentstring = chunk
-                    else:
-                        tempstring = str(currentstring + " " + chunk)
-                        if len(tempstring) <= osd_limit:
-                            currentstring = tempstring
-                        else:
-                            texttargetarray.append(currentstring)
+    # make sure len() equals
+    if len(texttargetarray) > len(texttypearray):
+        while len(texttargetarray) > len(texttypearray):
+            texttypearray.append(text_array_common)
+    elif len(texttargetarray) < len(texttypearray):
+        while len(texttargetarray) < len(texttypearray):
+            texttargetarray.append('osd_error_handle')
+
+    # Rebuild the text array to ensure string lengths
+
+    for target, text_type in zip(texttargetarray, texttypearray):
+
+        if target == 'osd_error_handle':
+            dont_say_it = 1
+        else:
+
+            bot.say(str(target) + "  " + str(text_type))
+
+            # Text array
+            temptextarray = []
+
+            # Notice handling
+            if text_type == 'notice':
+                temptextarray.insert(0, target + ", ")
+                # temptextarray.append(target + ", ")
+            for part in textarraycomplete:
+                temptextarray.append(part)
+
+            # 'say' can equal 'priv'
+            if text_type == 'say' and not str(target).startswith("#"):
+                text_type = 'priv'
+
+            # Make sure no individual string ins longer than it needs to be
+            currentstring = ''
+            texttargetarray = []
+            for textstring in temptextarray:
+                if len(textstring) > osd_limit:
+                    chunks = textstring.split()
+                    for chunk in chunks:
+                        if currentstring == '':
                             currentstring = chunk
-                if currentstring != '':
-                    texttargetarray.append(currentstring)
-            else:
-                texttargetarray.append(textstring)
-
-        # Split text to display nicely
-        combinedtextarray = []
-        currentstring = ''
-        for textstring in texttargetarray:
-            if currentstring == '':
-                currentstring = textstring
-            elif len(textstring) > osd_limit:
-                if currentstring != '':
-                    combinedtextarray.append(currentstring)
-                    currentstring = ''
-                combinedtextarray.append(textstring)
-            else:
-                tempstring = str(currentstring + "   " + textstring)
-                if len(tempstring) <= osd_limit:
-                    currentstring = tempstring
+                        else:
+                            tempstring = str(currentstring + " " + chunk)
+                            if len(tempstring) <= osd_limit:
+                                currentstring = tempstring
+                            else:
+                                texttargetarray.append(currentstring)
+                                currentstring = chunk
+                    if currentstring != '':
+                        texttargetarray.append(currentstring)
                 else:
-                    combinedtextarray.append(currentstring)
-                    currentstring = textstring
-        if currentstring != '':
-            combinedtextarray.append(currentstring)
+                    texttargetarray.append(textstring)
 
-        # display
-        textparts = len(combinedtextarray)
-        textpartsleft = textparts
-        for combinedline in combinedtextarray:
-            if text_type == 'action' and textparts == textpartsleft:
-                bot.action(combinedline, target)
-            elif str(target).startswith("#"):
-                bot.msg(target, combinedline)
-            elif text_type == 'notice' or text_type == 'priv':
-                bot.notice(combinedline, target)
-            elif text_type == 'say':
-                bot.say(combinedline)
-            else:
-                bot.say(combinedline)
-            textpartsleft = textpartsleft - 1
+            # Split text to display nicely
+            combinedtextarray = []
+            currentstring = ''
+            for textstring in texttargetarray:
+                if currentstring == '':
+                    currentstring = textstring
+                elif len(textstring) > osd_limit:
+                    if currentstring != '':
+                        combinedtextarray.append(currentstring)
+                        currentstring = ''
+                    combinedtextarray.append(textstring)
+                else:
+                    tempstring = str(currentstring + "   " + textstring)
+                    if len(tempstring) <= osd_limit:
+                        currentstring = tempstring
+                    else:
+                        combinedtextarray.append(currentstring)
+                        currentstring = textstring
+            if currentstring != '':
+                combinedtextarray.append(currentstring)
+
+            # display
+            textparts = len(combinedtextarray)
+            textpartsleft = textparts
+            for combinedline in combinedtextarray:
+                if text_type == 'action' and textparts == textpartsleft:
+                    bot.action(combinedline, target)
+                elif str(target).startswith("#"):
+                    bot.msg(target, combinedline)
+                elif text_type == 'notice' or text_type == 'priv':
+                    bot.notice(combinedline, target)
+                elif text_type == 'say':
+                    bot.say(combinedline)
+                else:
+                    bot.say(combinedline)
+                textpartsleft = textpartsleft - 1
 
 
 """
@@ -8107,29 +8182,22 @@ Dynamic Classes
 """
 
 
-class duels_class():
-    pass
-
-
-class duels_player_one():
-    pass
-
-
-class duels_player_two():
-    pass
-
-
-class duels_instigator():
-    pass
-
-
-class duels_target():
-    pass
-
-
-class duels_merchant():
-    pass
-
-
-class duels_lootuse():
-    pass
+def class_create(classname):
+    compiletext = """
+        def __init__(self):
+            self.default = str(self.__class__.__name__)
+        def __repr__(self):
+            return repr(self.default)
+        def __str__(self):
+            return str(self.default)
+        def __iter__(self):
+            return str(self.default)
+        def __unicode__(self):
+            return str(u+self.default)
+        def lower(self):
+            return str(self.default).lower()
+        pass
+        """
+    exec(compile("class class_" + str(classname) + ": " + compiletext, "", "exec"))
+    newclass = eval('class_'+classname+"()")
+    return newclass

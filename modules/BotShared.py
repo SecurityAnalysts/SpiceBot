@@ -480,7 +480,7 @@ def database_initialize(bot, nick, array, database):
 """
 
 
-def sayingsmodule(bot,databasekey,triggerargsarray,thingtodo):
+def sayingsmodule(bot, databasekey, triggerargsarray, thingtodo):
     """Handle the creation and manipulation of modules that return sayings."""
     # add, remove, last, count, list, initialise?
     resultstring = "test"
@@ -488,21 +488,19 @@ def sayingsmodule(bot,databasekey,triggerargsarray,thingtodo):
 
 
 """
-###########
-# On Screen Text #
-###########
+On Screen Text
 """
 
 
-def osd(bot, target_array, text_type, text_array):
+def osd(bot, target_array, text_type_array, text_array):
 
     # if text_array is a string, make it an array
     textarraycomplete = []
     if not isinstance(text_array, list):
-        textarraycomplete.append(text_array)
+        textarraycomplete.append(str(text_array))
     else:
         for x in text_array:
-            textarraycomplete.append(x)
+            textarraycomplete.append(str(x))
 
     # if target_array is a string, make it an array
     texttargetarray = []
@@ -516,71 +514,105 @@ def osd(bot, target_array, text_type, text_array):
                 target = nick_actual(bot, str(target))
             texttargetarray.append(target)
 
-    # Make sure we don't cross over IRC limits
-    for target in texttargetarray:
-        temptextarray = []
-        if text_type == 'notice':
-            temptextarray.append(target + ", ")
-        for part in textarraycomplete:
-            temptextarray.append(part)
+    # Handling for text_type
+    texttypearray = []
+    if not isinstance(text_type_array, list):
+        for i in range(len(texttargetarray)):
+            texttypearray.append(str(text_type_array))
+    else:
+        for x in text_type_array:
+            texttypearray.append(str(x))
+    text_array_common = max(((item, texttypearray.count(item)) for item in set(texttypearray)), key=lambda a: a[1])[0]
 
-        # Make sure no individual string ins longer than it needs to be
-        currentstring = ''
-        texttargetarray = []
-        for textstring in temptextarray:
-            if len(textstring) > osd_limit:
-                chunks = textstring.split()
-                for chunk in chunks:
-                    if currentstring == '':
-                        currentstring = chunk
-                    else:
-                        tempstring = str(currentstring + " " + chunk)
-                        if len(tempstring) <= osd_limit:
-                            currentstring = tempstring
-                        else:
-                            texttargetarray.append(currentstring)
+    # make sure len() equals
+    if len(texttargetarray) > len(texttypearray):
+        while len(texttargetarray) > len(texttypearray):
+            texttypearray.append(text_array_common)
+    elif len(texttargetarray) < len(texttypearray):
+        while len(texttargetarray) < len(texttypearray):
+            texttargetarray.append('osd_error_handle')
+
+    # Rebuild the text array to ensure string lengths
+
+    for target, text_type in zip(texttargetarray, texttypearray):
+
+        if target == 'osd_error_handle':
+            dont_say_it = 1
+        else:
+
+            bot.say(str(target) + "  " + str(text_type))
+
+            # Text array
+            temptextarray = []
+
+            # Notice handling
+            if text_type == 'notice':
+                temptextarray.insert(0, target + ", ")
+                # temptextarray.append(target + ", ")
+            for part in textarraycomplete:
+                temptextarray.append(part)
+
+            # 'say' can equal 'priv'
+            if text_type == 'say' and not str(target).startswith("#"):
+                text_type = 'priv'
+
+            # Make sure no individual string ins longer than it needs to be
+            currentstring = ''
+            texttargetarray = []
+            for textstring in temptextarray:
+                if len(textstring) > osd_limit:
+                    chunks = textstring.split()
+                    for chunk in chunks:
+                        if currentstring == '':
                             currentstring = chunk
-                if currentstring != '':
-                    texttargetarray.append(currentstring)
-            else:
-                texttargetarray.append(textstring)
-
-        # Split text to display nicely
-        combinedtextarray = []
-        currentstring = ''
-        for textstring in texttargetarray:
-            if currentstring == '':
-                currentstring = textstring
-            elif len(textstring) > osd_limit:
-                if currentstring != '':
-                    combinedtextarray.append(currentstring)
-                    currentstring = ''
-                combinedtextarray.append(textstring)
-            else:
-                tempstring = str(currentstring + "   " + textstring)
-                if len(tempstring) <= osd_limit:
-                    currentstring = tempstring
+                        else:
+                            tempstring = str(currentstring + " " + chunk)
+                            if len(tempstring) <= osd_limit:
+                                currentstring = tempstring
+                            else:
+                                texttargetarray.append(currentstring)
+                                currentstring = chunk
+                    if currentstring != '':
+                        texttargetarray.append(currentstring)
                 else:
-                    combinedtextarray.append(currentstring)
-                    currentstring = textstring
-        if currentstring != '':
-            combinedtextarray.append(currentstring)
+                    texttargetarray.append(textstring)
 
-        # display
-        textparts = len(combinedtextarray)
-        textpartsleft = textparts
-        for combinedline in combinedtextarray:
-            if text_type == 'action' and textparts == textpartsleft:
-                bot.action(combinedline, target)
-            elif str(target).startswith("#"):
-                bot.msg(target, combinedline)
-            elif text_type == 'notice' or text_type == 'priv':
-                bot.notice(combinedline, target)
-            elif text_type == 'say':
-                bot.say(combinedline)
-            else:
-                bot.say(combinedline)
-            textpartsleft = textpartsleft - 1
+            # Split text to display nicely
+            combinedtextarray = []
+            currentstring = ''
+            for textstring in texttargetarray:
+                if currentstring == '':
+                    currentstring = textstring
+                elif len(textstring) > osd_limit:
+                    if currentstring != '':
+                        combinedtextarray.append(currentstring)
+                        currentstring = ''
+                    combinedtextarray.append(textstring)
+                else:
+                    tempstring = str(currentstring + "   " + textstring)
+                    if len(tempstring) <= osd_limit:
+                        currentstring = tempstring
+                    else:
+                        combinedtextarray.append(currentstring)
+                        currentstring = textstring
+            if currentstring != '':
+                combinedtextarray.append(currentstring)
+
+            # display
+            textparts = len(combinedtextarray)
+            textpartsleft = textparts
+            for combinedline in combinedtextarray:
+                if text_type == 'action' and textparts == textpartsleft:
+                    bot.action(combinedline, target)
+                elif str(target).startswith("#"):
+                    bot.msg(target, combinedline)
+                elif text_type == 'notice' or text_type == 'priv':
+                    bot.notice(combinedline, target)
+                elif text_type == 'say':
+                    bot.say(combinedline)
+                else:
+                    bot.say(combinedline)
+                textpartsleft = textpartsleft - 1
 
 
 """

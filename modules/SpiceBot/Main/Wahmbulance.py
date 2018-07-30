@@ -19,10 +19,10 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     target = get_trigger_arg(bot, triggerargsarray, 1)
-    validtarget = targetcheck(bot, get_trigger_arg(bot, triggerargsarray, 1), trigger.nick)
-    if validtarget == 1:
+    isValid, test = targetcheck(bot, botcom, target, instigator)
+    if isValid == 1:
         osd(bot, trigger.sender, 'say', trigger.nick + " calls the waaaaaaaaaaahhhhhhmbulance for " + target)
-    elif validtarget == 2 or validtarget == 3:
+    elif isValid == 2 or isValid == 3:
         osd(bot, trigger.sender, 'action', "calls the waaaaaaaaaaahhhhhhmbulance for " + trigger.nick)
     else:
         osd(bot, trigger.sender, 'say', trigger.nick + " calls the waaaaaaaaaaahhhhhhmbulance.")

@@ -19,7 +19,7 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     target = get_trigger_arg(bot, triggerargsarray, 1)
-    validtarget = targetcheck(bot, target, trigger.nick)
+    validtarget, test = targetcheck(bot, botcom, target, instigator)
     if validtarget == '1':
         osd(bot, trigger.sender, 'say', 'I do not tell you how to do your job, ' + target + '!!')
     else:

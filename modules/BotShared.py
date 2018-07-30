@@ -103,7 +103,8 @@ def spicebot_prerun(bot, trigger, commandused):
 # Bot Nicks
 def bot_config_names(bot):
     config_listing = []
-    validconfigsdir = str("/home/spicebot/.sopel/" + bot.nick + "/System-Files/Configs/")
+    networkname = str(bot.config.core.user.split("/", 1)[1] + "/")
+    validconfigsdir = str("/home/spicebot/.sopel/" + bot.nick + "/System-Files/Configs/" + networkname)
     for filename in os.listdir(validconfigsdir):
         filenameminuscfg = str(filename).replace(".cfg", "")
         config_listing.append(filenameminuscfg)

@@ -745,8 +745,6 @@ def osd(bot, target_array, text_type_array, text_array):
             dont_say_it = 1
         else:
 
-            bot.say(str(target) + "  " + str(text_type))
-
             # Text array
             temptextarray = []
 

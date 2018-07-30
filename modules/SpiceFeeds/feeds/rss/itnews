@@ -1,0 +1,6 @@
+[configuration]
+type = rss
+displayname = iT News
+url = https://www.itnews.com.au/RSS/rss.ashx
+parentnumber = 1
+childnumber = 1

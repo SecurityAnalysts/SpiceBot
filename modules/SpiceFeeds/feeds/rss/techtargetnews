@@ -1,0 +1,6 @@
+[configuration]
+type = rss
+displayname = TechTarget News
+url = http://whatis.techtarget.com/rss/Enterprise-IT-news-roundup.xml
+parentnumber = 0
+childnumber = 1

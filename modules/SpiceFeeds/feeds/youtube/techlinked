@@ -1,0 +1,4 @@
+[configuration]
+type = rss
+displayname = TechLinked
+url = https://www.youtube.com/feeds/videos.xml?channel_id=UCeeFfhMcJa1kjtfZAGskOCA

@@ -21,4 +21,4 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     target = get_trigger_arg(bot, triggerargsarray, 0) or instigator.default
-    osd(bot, trigger.sender, 'action', "Tucks " + target + " into bed")
+    osd(bot, trigger.sender, 'action', "tucks " + target + " into bed")

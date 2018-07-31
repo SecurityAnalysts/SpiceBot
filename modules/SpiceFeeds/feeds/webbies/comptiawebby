@@ -1,0 +1,10 @@
+[configuration]
+type = webinar
+displayname = COMPTIA Webinar
+url = https://www.comptia.org/events/webinars
+time = //*[@id="LeftColumn_C002_pnlEventListing"]/div/ul/li[1]/h5/text()
+title = //*[@id="LeftColumn_C002_pnlEventListing"]/div/ul/li[1]/h4/text()
+link = //*[@id="LeftColumn_C002_pnlEventListing"]/div/ul/li[1]/div/div/div/a[1]/@href
+linkprecede = https://www.comptia.org
+bonus = nobonus
+timezone = US/Eastern

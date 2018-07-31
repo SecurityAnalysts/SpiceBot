@@ -21,7 +21,7 @@ USERNAME = config.get("github", "username")
 PASSWORD = config.get("github", "password")
 
 # Repo
-REPO_OWNER = 'deathbybandaid'
+REPO_OWNER = 'SpiceBot'
 REPO_NAME = 'SpiceBot'
 
 # Invalid Requests

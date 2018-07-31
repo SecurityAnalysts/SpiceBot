@@ -1,0 +1,8 @@
+[configuration]
+type = daily
+displayname = Packt
+title = //*[@id="deal-of-the-day"]/div/div/div[2]/div[2]/h2/text()
+url = https://www.packtpub.com/packt/offers/free-learning
+timezone = Europe/London
+hour = 0
+minute = 10

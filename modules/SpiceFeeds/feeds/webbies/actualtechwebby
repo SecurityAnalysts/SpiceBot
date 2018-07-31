@@ -1,0 +1,10 @@
+[configuration]
+type = webinar
+displayname = ActualTech Webinar
+url = https://events.actualtechmedia.com
+time = //*[@id="HeaderUpcoming"]/div/div[1]/cite/time/text()
+title = //*[@id="HeaderUpcoming"]/div/div[1]/h2/a/text()
+link = //*[@id="HeaderUpcoming"]/div/div[1]/a/@href
+linkprecede = noprecede
+bonus = //*[@id="HeaderUpcoming"]/div/div[2]/h3/a/strong/strong/text()
+timezone = US/Eastern

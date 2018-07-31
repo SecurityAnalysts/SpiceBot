@@ -1,4 +1,6 @@
 [configuration]
-type = rss
+type = youtube
 displayname = TechLinked
 url = https://www.youtube.com/feeds/videos.xml?channel_id=UCeeFfhMcJa1kjtfZAGskOCA
+parentnumber = 1
+childnumber = 2

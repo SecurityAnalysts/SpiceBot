@@ -1,0 +1,6 @@
+[configuration]
+type = rss
+displayname = The Onion
+url = https://www.theonion.com/rss
+parentnumber = 1
+childnumber = 1

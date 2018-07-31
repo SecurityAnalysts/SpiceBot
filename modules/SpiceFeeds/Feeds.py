@@ -271,14 +271,6 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
             timeminute = eval("feeds." + feed + ".minute")
             scrapetimezone = eval("feeds." + feed + ".timezone")
 
-            scrapetitle = eval("feeds." + feed + ".title")
-            title = str(tree.xpath(scrapetitle))
-            for r in (("\\t", ""), ("\\n", ""), ("['", ""), ("']", ""), ("]", "")):
-                title = title.replace(*r)
-            if title == "[]" or title == '':
-                title = "No Book Today"
-            dispmsg.append(title)
-
             dailytz = pytz.timezone(scrapetimezone)
             nowtime = datetime.datetime.now(dailytz)
             tomorrow = nowtime + datetime.timedelta(days=1)
@@ -287,6 +279,14 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
             timeuntil = (dailytime - nowtime).total_seconds()
 
             if displayifnotnew or int(timeuntil) < 60:
+
+                scrapetitle = eval("feeds." + feed + ".title")
+                title = str(tree.xpath(scrapetitle))
+                for r in (("\\t", ""), ("\\n", ""), ("['", ""), ("']", ""), ("]", "")):
+                    title = title.replace(*r)
+                if title == "[]" or title == '':
+                    title = "No Book Today"
+                dispmsg.append(title)
 
                 titleappend = 1
 

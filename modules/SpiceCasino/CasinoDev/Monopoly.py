@@ -11,7 +11,7 @@ sys.path.append(moduledir)
 shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
-from Bucks import *
+# from Bucks import *
 
 monopolyfee = 5
 

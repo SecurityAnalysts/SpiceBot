@@ -12,7 +12,7 @@ sys.path.append(shareddir)
 sys.path.append(moduledir)
 from BotShared import *
 from Bucks import *
-
+from Casino_Var import *
 
 now = time.time()
 
@@ -29,7 +29,7 @@ def execute_main(bot, trigger, arg, botcom, instigator):
     if mygame == 'docs' or mygame == 'help':
         osd(bot, trigger.sender, 'say', "For help with this module, see here: " + wikiurl)
     elif mygame == 'slots':
-        slots(bot, trigger, arg)
+        slots(bot, botcom, trigger, arg)
     elif mygame == 'blackjack':
         blackjack(bot, trigger, arg)
     elif (mygame == 'roulette' or mygame == 'spin'):
@@ -66,7 +66,7 @@ def freebie(bot, trigger):
         osd(bot, trigger.nick, 'priv', 'Looks like you dont need a handout because your bank balance is ' + str(bankbalance))
 
 
-def slots(bot, trigger, arg):
+def slots(bot, botcom, trigger, arg):
     # _____________Game 1 slots___________
     # slot machine that uses computer terms with a jackpot tied to how much money has been gambled
     player = trigger.nick
@@ -101,10 +101,6 @@ def slots(bot, trigger, arg):
                     set_database_value(bot, 'casino', 'slotimer', now)
                     # add bet to casino
                     mywinnings = 0
-
-                    wheel = slotwheel
-                    if slotwheel == []:
-                        slotwheel = ['BSOD', 'RAM', 'CPU', 'RAID', 'VLANS', 'WIFI', 'ClOUD']
                     wheel1 = get_trigger_arg(bot, slotwheel, 'random')
                     wheel2 = get_trigger_arg(bot, slotwheel, 'random')
                     wheel3 = get_trigger_arg(bot, slotwheel, 'random')

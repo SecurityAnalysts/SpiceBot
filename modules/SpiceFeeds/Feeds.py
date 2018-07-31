@@ -56,7 +56,7 @@ def autofeeds(bot):
                     osd(bot, user, 'priv', dispmsg)
 
 
-@sopel.module.commands('feeds', 'packt', 'spicewebby', 'atwebby', 'comptiawebby', 'spiceworkswebby', 'actualtechwebby')
+@sopel.module.commands('feeds', 'packt', 'spicewebby', 'atwebby', 'comptiawebby', 'spiceworkswebby', 'actualtechwebby', 'onion', 'theonion')
 def mainfunction(bot, trigger):
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'feeds')
     if not enablestatus:
@@ -71,6 +71,8 @@ def mainfunction(bot, trigger):
                 feed = 'spiceworkswebby'
             elif feed == 'atwebby':
                 feed = 'actualtechwebby'
+            elif feed == 'onion':
+                feed = 'theonion'
             dispmsg = feeds_display(bot, feed, feeds, 1) or []
             if dispmsg == []:
                 osd(bot, botcom.channel_current, 'say', feed_select + " appears to have had an unknown error.")

@@ -140,13 +140,13 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     if command == 'enable':
         for feed in current_feed_list:
             adjust_database_array(bot, channelselect, [feed], 'feeds_enabled', 'add')
-        osd(bot, botcom.channel_current, 'say', feed_select_text + " has been " + command + "d.")
+        osd(bot, botcom.channel_current, 'say', feed_select_text + " has been " + command + "d for " + str(channelselect) + ".")
         return
 
     if command == 'disable':
         for feed in current_feed_list:
             adjust_database_array(bot, channelselect, [feed], 'feeds_enabled', 'del')
-        osd(bot, botcom.channel_current, 'say', feed_select_text + " has been " + command + "d.")
+        osd(bot, botcom.channel_current, 'say', feed_select_text + " has been " + command + "d for " + str(channelselect) + ".")
         return
 
 

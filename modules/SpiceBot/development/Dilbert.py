@@ -8,6 +8,8 @@ shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
+# module deprecated after feeds.py
+
 
 @sopel.module.commands('dilbert')
 def mainfunction(bot, trigger):

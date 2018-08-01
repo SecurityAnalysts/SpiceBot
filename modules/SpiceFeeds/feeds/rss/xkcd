@@ -1,0 +1,6 @@
+[configuration]
+type = rss
+displayname = xkcd
+url = https://xkcd.com/rss.xml
+parentnumber = 1
+childnumber = 1

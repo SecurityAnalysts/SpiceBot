@@ -75,7 +75,7 @@ def mainfunction(bot, trigger):
                 feed = 'theonion'
             dispmsg = feeds_display(bot, feed, feeds, 1) or []
             if dispmsg == []:
-                osd(bot, botcom.channel_current, 'say', feed_select + " appears to have had an unknown error.")
+                osd(bot, botcom.channel_current, 'say', feed + " appears to have had an unknown error.")
             else:
                 osd(bot, botcom.channel_current, 'say', dispmsg)
 
@@ -174,7 +174,8 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
             parentnumber = int(eval("feeds." + feed + ".parentnumber"))
             childnumber = int(eval("feeds." + feed + ".childnumber"))
 
-            lastbuildcurrent = get_database_value(bot, bot.nick, feed + '_lastbuildcurrent') or 0
+            lastbuildcurrent = get_database_value(bot, bot.nick, feed + '_lastbuildcurrent') or datetime.datetime(1999, 1, 1, 1, 1, 1, 1).replace(tzinfo=pytz.UTC)
+            lastbuildcurrent = parser.parse(str(lastbuildcurrent))
 
             xml = page.text
             xml = xml.encode('ascii', 'ignore').decode('ascii')
@@ -185,13 +186,9 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
             else:
                 lastBuildXML = xmldoc.getElementsByTagName('pubDate')
             lastBuildXML = lastBuildXML[0].childNodes[0].nodeValue
-            lastBuildXML = str(lastBuildXML)
+            lastBuildXML = parser.parse(str(lastBuildXML))
 
-            newcontent = True
-            if lastBuildXML.strip() == lastbuildcurrent:
-                newcontent = False
-
-            if displayifnotnew or newcontent:
+            if displayifnotnew or lastBuildXML > lastbuildcurrent:
 
                 titleappend = 1
 
@@ -206,8 +203,7 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
                     link = links[childnumber].childNodes[0].nodeValue.split("?")[0]
                 dispmsg.append(link)
 
-                lastbuildcurrent = lastBuildXML.strip()
-                set_database_value(bot, bot.nick, feed + '_lastbuildcurrent', lastbuildcurrent)
+                set_database_value(bot, bot.nick, feed + '_lastbuildcurrent', str(lastBuildXML))
 
         elif feed_type == 'webinar':
 

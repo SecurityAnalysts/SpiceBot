@@ -4,6 +4,7 @@ from __future__ import unicode_literals, absolute_import, print_function, divisi
 import sopel.module
 import sys
 import os
+import random
 moduledir = os.path.dirname(__file__)
 shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
@@ -33,7 +34,11 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         elif subdisclaimer == 'EULA':
             osd(bot, trigger.sender, 'say', "Spicebot may occasionally (read 'frequently') use colorful language to carry out its tasks. By remaining in this channel and continuing to use the bot you acknowledge that you are not, in fact, too weak to handle this.")
         elif subdisclaimer == 'IT':
-            osd(bot, trigger.sender, 'say', "While most members of this channel have some level of technical knowledge, your decision to trust the recommendations of %s are entirely your own risk." % person)
+            rand = random.randint(1, 5)
+            if rand == 1:
+                osd(bot, trigger.sender, 'say', "I'm not sure, but I stayed at a Holiday Inn last night.")
+            else:
+                osd(bot, trigger.sender, 'say', "While most members of this channel have some level of technical knowledge, your decision to trust the recommendations of %s are entirely your own risk." % person)
         elif subdisclaimer == 'legal' or subdisclaimer == 'law':
             osd(bot, trigger.sender, 'say', "Please note that %s is not a lawyer. Any and all advice given by %s is to be taken with a whole lot of salt. %s, Freenode, Spiceworks, Microsoft, Aperture Science, Black Mesa, and/or Vault-Tec™ cannot be held liable for any injuries resulting from taking aforementioned advice." % (person, person, person))
         elif subdisclaimer == 'parent':

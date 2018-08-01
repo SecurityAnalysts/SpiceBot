@@ -16,7 +16,7 @@ def mainfunction(bot, trigger):
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
-def execute_main(bot, trigger, triggerargsarray):
+def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     # No input
     target = get_trigger_arg(bot, triggerargsarray, 0)
     if not target:

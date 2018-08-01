@@ -57,7 +57,7 @@ def autofeeds(bot):
                     osd(bot, user, 'priv', dispmsg)
 
 
-@sopel.module.commands('feeds', 'packt', 'spicewebby', 'atwebby', 'comptiawebby', 'spiceworkswebby', 'actualtechwebby', 'onion', 'theonion')
+@sopel.module.commands('feeds', 'packt', 'spicewebby', 'atwebby', 'comptiawebby', 'spiceworkswebby', 'actualtechwebby', 'onion', 'theonion', 'dilbert')
 def mainfunction(bot, trigger):
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'feeds')
     if not enablestatus:

@@ -13,6 +13,7 @@ import arrow
 import pytz
 from dateutil import tz
 from xml.dom import minidom
+import json
 from fake_useragent import UserAgent
 import sys
 import os
@@ -203,7 +204,8 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
                     link = links[childnumber].childNodes[0].nodeValue.split("?")[0]
                 dispmsg.append(link)
 
-                set_database_value(bot, bot.nick, feed + '_lastbuildcurrent', str(lastBuildXML))
+                if not displayifnotnew:
+                    set_database_value(bot, bot.nick, feed + '_lastbuildcurrent', str(lastBuildXML))
 
         elif feed_type == 'webinar':
 
@@ -292,6 +294,77 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
                 dispmsg.append("{Next " + timecompare + "}")
 
                 dispmsg.append("URL: " + url)
+
+        elif feed_type == 'scrape':
+
+            scrapetime = eval("feeds." + feed + ".time")
+
+            scrapedtime = str(tree.xpath(scrapetime))
+            for r in (("['", ""), ("']", ""), ("\\n", ""), ("\\t", ""), ("@ ", "")):
+                scrapedtime = scrapedtime.replace(*r)
+            scrapedtime = parser.parse(str(scrapedtime)).replace(tzinfo=pytz.UTC)
+
+            lastbuildcurrent = get_database_value(bot, bot.nick, feed + '_lastbuildcurrent') or datetime.datetime(1999, 1, 1, 1, 1, 1, 1).replace(tzinfo=pytz.UTC)
+            lastbuildcurrent = parser.parse(str(lastbuildcurrent))
+
+            if displayifnotnew or scrapedtime > lastbuildcurrent:
+
+                titleappend = 1
+
+                scrapetitle = eval("feeds." + feed + ".title")
+                scrapedtitle = str(tree.xpath(scrapetitle))
+                for r in (("u'", ""), ("['", ""), ("[", ""), ("']", ""), ("\\n", ""), ("\\t", "")):
+                    scrapedtitle = scrapedtitle.replace(*r)
+                scrapedtitle = unicode_string_cleanup(scrapedtitle)
+                dispmsg.append(scrapedtitle)
+
+                scrapelink = eval("feeds." + feed + ".link")
+                scrapedlink = str(tree.xpath(scrapelink))
+                for r in (("['", ""), ("']", "")):
+                    scrapedlink = scrapedlink.replace(*r)
+                scrapedlinkprecede = eval("feeds." + feed + ".linkprecede")
+                if scrapedlinkprecede != 'noprecede':
+                    scrapedlink = str(scrapedlinkprecede + scrapedlink)
+                dispmsg.append(scrapedlink)
+
+            if not displayifnotnew:
+                set_database_value(bot, bot.nick, feed + '_lastbuildcurrent', str(scrapedtime))
+
+        elif feed_type == 'json':
+
+            prefix = eval("feeds." + feed + ".prefix")
+            searchterm = eval("feeds." + feed + ".searchterm")
+            suffix = eval("feeds." + feed + ".suffix")
+
+            if str(searchterm).startswith("http"):
+                searchtermpage = requests.get(searchterm, headers={'Accept': 'text/plain'})
+                searchterm = searchtermpage.content
+
+            combinedjson = str(url + prefix + searchterm + suffix)
+            # bot.say(str(combinedjson))
+
+            verify_ssl = bot.config.core.verify_ssl
+            data = requests.get(combinedjson, verify=verify_ssl).json()
+            # bot.say(str(data))
+
+            title = data.get('title')
+            # bot.say(str(title))
+
+            titleappend = 1
+
+            # contentpage = requests.get(combinedjson)
+            # result = contentpage.content
+            # jsonload = json.loads(result)
+            # jsonpart = jsonload['joke']
+
+            # contentpage = requests.get(combinedjson, headers={'Accept': 'text/plain'})
+            # content = contentpage.content
+            # bot.say(str(jsonload))
+
+            # lastbuildcurrent = get_database_value(bot, bot.nick, feed + '_lastbuildcurrent') or
+
+            # if not displayifnotnew:
+            #    set_database_value(bot, bot.nick, feed + '_lastbuildcurrent', str(lastBuildXML))
 
         if titleappend:
             dispmsg.insert(0, "[" + displayname + "]")

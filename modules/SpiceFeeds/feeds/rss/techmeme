@@ -1,0 +1,6 @@
+[configuration]
+type = rss
+displayname = Techmeme
+url = https://www.techmeme.com/feed.xml
+parentnumber = 1
+childnumber = 1

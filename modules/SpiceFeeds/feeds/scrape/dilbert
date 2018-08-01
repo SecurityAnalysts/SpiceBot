@@ -1,0 +1,8 @@
+[configuration]
+type = scrape
+displayname =	Dilbert
+url = http://dilbert.com/
+time = //*[@id="js_comics"]/div[1]/div[1]/div/section/h1/a/span[1]/date/span[1]/text()
+title = //*[@id="js_comics"]/div[1]/div[1]/div/section/h1/a/span[2]/text()
+link = //*[@id="js_comics"]/div[1]/div[1]/div/section/h1/a/@href
+linkprecede = noprecede

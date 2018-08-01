@@ -1,0 +1,7 @@
+[configuration]
+type = json
+displayname =	Hacker News
+url = https://hacker-news.firebaseio.com
+prefix = /v0/item/
+searchterm = https://hacker-news.firebaseio.com/v0/maxitem.json
+suffix = .json

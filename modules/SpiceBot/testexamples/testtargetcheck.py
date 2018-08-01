@@ -24,7 +24,4 @@ def mainfunction(bot, trigger):
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     target = get_trigger_arg(bot, triggerargsarray, '1+')
     isvalid, validmsg = targetcheck(bot, botcom, target, instigator)
-    if isvalid == 1:
-        osd(bot, trigger.sender, 'say', "Target is good")
-    else:
-        osd(bot, trigger.sender, 'say', validmsg)
+    osd(bot, trigger.sender, 'say', validmsg)

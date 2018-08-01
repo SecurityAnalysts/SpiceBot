@@ -280,7 +280,7 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
             dailytime = dailytz.localize(dailytime)
             timeuntil = (dailytime - nowtime).total_seconds()
 
-            if displayifnotnew or int(timeuntil) < 60:
+            if displayifnotnew or (nowtime.hour == int(timehour) and nowtime.minute == int(timeminute)):
 
                 scrapetitle = eval("feeds." + feed + ".title")
                 title = str(tree.xpath(scrapetitle))

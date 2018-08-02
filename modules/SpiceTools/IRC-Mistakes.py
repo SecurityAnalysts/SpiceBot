@@ -7,7 +7,7 @@ import os
 import random
 from sopel.module import OP
 moduledir = os.path.dirname(__file__)
-shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+shareddir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(shareddir)
 from BotShared import *
 

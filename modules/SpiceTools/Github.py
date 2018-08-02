@@ -8,7 +8,7 @@ import json
 import requests
 import ConfigParser
 moduledir = os.path.dirname(__file__)
-shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+shareddir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(shareddir)
 from BotShared import *
 from sopel.module import ADMIN

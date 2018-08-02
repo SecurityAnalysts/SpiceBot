@@ -49,7 +49,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         if not target == 'notarget':
             if target == 'casino':
                 success = 1
-            elif targetcheck(bot, botcom, target) == 0:
+            elif targetcheck(bot, botcom, target, instigator) == 0:
                 osd(bot, trigger.sender, 'say', "I'm sorry, I do not know who " + target + " is.")
                 success = 0
             else:
@@ -138,11 +138,11 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         if target == 'notarget':
             target = trigger.nick
         validtarget = buckscheck(bot, botcom, target)
-        if not validtarget == 0:
+        if validtarget == 0:
+            osd(bot, trigger.sender, 'say', "I'm sorry, I do not know who " + target + " is.")
+        else:
             reset(bot, target)
             osd(bot, trigger.sender, 'say', 'Payday reset for ' + target)
-        else:
-            osd(bot, trigger.sender, 'say', "I'm sorry, I do not know who " + target + " is.")
 
 
 # admin command reset user values

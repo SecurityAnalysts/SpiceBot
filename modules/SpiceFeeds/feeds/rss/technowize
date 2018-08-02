@@ -1,7 +1,7 @@
 [configuration]
 type = rss
-displayname = xkcd
-url = https://xkcd.com/rss.xml
+displayname = Technowize
+url = https://www.technowize.com/feed/
 parentnumber = 1
 childnumber = 1
 lastbuildtype = pubDate

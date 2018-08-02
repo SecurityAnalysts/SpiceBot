@@ -105,9 +105,6 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         for word in triggerargsarray:
             if word in feeds.list:
                 current_feed_list.append(word)
-    feed_select_text = get_trigger_arg(bot, current_feed_list, 'list')
-
-    channelselect = get_trigger_arg(bot, [x for x in triggerargsarray if x in botcom.channel_list], 1) or botcom.channel_current
 
     if command == 'run':
         for feed in current_feed_list:
@@ -115,19 +112,36 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
             if dispmsg == []:
                 osd(bot, botcom.channel_current, 'say', feed_select + " appears to have had an unknown error.")
             else:
-                osd(bot, botcom.channel_current, 'say', dispmsg)
+                if feed_select == 'all':
+                    osd(bot, botcom.instigator, 'priv', dispmsg)
+                else:
+                    osd(bot, botcom.channel_current, 'say', dispmsg)
         return
 
     if command == 'subscribe':
+        instigatormodulesarray = get_database_value(bot, botcom.instigator, 'feeds_enabled') or []
+        newlist = []
         for feed in current_feed_list:
-            adjust_database_array(bot, botcom.instigator, [feed], 'feeds_enabled', 'add')
-        osd(bot, botcom.channel_current, 'say', "You are now " + command + "d to " + feed_select_text)
+            if feed not in instigatormodulesarray:
+                newlist.append(feed)
+        if newlist != []:
+            adjust_database_array(bot, botcom.instigator, newlist, 'feeds_enabled', 'add')
+            osd(bot, botcom.channel_current, 'say', "You are now " + command + "d to " + get_trigger_arg(bot, newlist, 'list'))
+        else:
+            osd(bot, botcom.channel_current, 'say', "No selected feeds to " + command + ".")
         return
 
     if command == 'unsubscribe':
+        instigatormodulesarray = get_database_value(bot, botcom.instigator, 'feeds_enabled') or []
+        newlist = []
         for feed in current_feed_list:
-            adjust_database_array(bot, botcom.instigator, [feed], 'feeds_enabled', 'del')
-        osd(bot, botcom.channel_current, 'say', "You are now " + command + "d from " + feed_select_text)
+            if feed in instigatormodulesarray:
+                newlist.append(feed)
+        if newlist != []:
+            adjust_database_array(bot, botcom.instigator, newlist, 'feeds_enabled', 'del')
+            osd(bot, botcom.channel_current, 'say', "You are now " + command + "d from " + get_trigger_arg(bot, newlist, 'list'))
+        else:
+            osd(bot, botcom.channel_current, 'say', "No selected feeds to " + command + ".")
         return
 
     if instigator.default not in botcom.opadmin:
@@ -135,21 +149,45 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         return
 
     if command == 'reset':
+        newlist = []
         for feed in current_feed_list:
-            reset_database_value(bot, bot.nick, feed + '_lastbuildcurrent')
-        osd(bot, botcom.channel_current, 'say', feed_select_text + " has been " + command + ".")
+            feed_type = eval("feeds." + feed + ".type")
+            if feed_type in ['rss', 'youtube', 'scrape', 'json']:
+                newlist.append(feed)
+        if newlist != []:
+            for feed in newlist:
+                reset_database_value(bot, bot.nick, feed + '_lastbuildcurrent')
+            osd(bot, botcom.channel_current, 'say', get_trigger_arg(bot, newlist, 'list') + " " + hashave(newlist) + " been " + command + ".")
+        else:
+            osd(bot, botcom.channel_current, 'say', "No selected feeds to " + command + ".")
         return
 
+    channelselect = get_trigger_arg(bot, [x for x in triggerargsarray if x in botcom.channel_list], 1) or botcom.channel_current
+
     if command == 'enable':
+        channelmodulesarray = get_database_value(bot, channelselect, 'feeds_enabled') or []
+        newlist = []
         for feed in current_feed_list:
-            adjust_database_array(bot, channelselect, [feed], 'feeds_enabled', 'add')
-        osd(bot, botcom.channel_current, 'say', feed_select_text + " has been " + command + "d for " + str(channelselect) + ".")
+            if feed not in channelmodulesarray:
+                newlist.append(feed)
+        if newlist != []:
+            adjust_database_array(bot, channelselect, newlist, 'feeds_enabled', 'add')
+            osd(bot, botcom.channel_current, 'say', get_trigger_arg(bot, newlist, 'list') + " " + hashave(newlist) + " been " + command + "d for " + str(channelselect) + ".")
+        else:
+            osd(bot, botcom.channel_current, 'say', "No selected feeds to " + command + ".")
         return
 
     if command == 'disable':
+        channelmodulesarray = get_database_value(bot, channelselect, 'feeds_enabled') or []
+        newlist = []
         for feed in current_feed_list:
-            adjust_database_array(bot, channelselect, [feed], 'feeds_enabled', 'del')
-        osd(bot, botcom.channel_current, 'say', feed_select_text + " has been " + command + "d for " + str(channelselect) + ".")
+            if feed in channelmodulesarray:
+                newlist.append(feed)
+        if newlist != []:
+            adjust_database_array(bot, channelselect, newlist, 'feeds_enabled', 'del')
+            osd(bot, botcom.channel_current, 'say', get_trigger_arg(bot, newlist, 'list') + " " + hashave(newlist) + " been " + command + "d for " + str(channelselect) + ".")
+        else:
+            osd(bot, botcom.channel_current, 'say', "No selected feeds to " + command + ".")
         return
 
 
@@ -159,8 +197,12 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
     titleappend = 0
 
     url = eval("feeds." + feed + ".url")
+    if feed == 'spicebot':
+        if bot.nick.endswith('dev'):
+            url = url.replace("master", "dev")
     page = requests.get(url, headers=header)
     tree = html.fromstring(page.content)
+
     if page.status_code == 200:
 
         now = datetime.datetime.utcnow()
@@ -170,10 +212,11 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
 
         feed_type = eval("feeds." + feed + ".type")
 
-        if feed_type == 'rss' or feed_type == 'youtube':
+        if feed_type in ['rss', 'youtube', 'github']:
 
             parentnumber = int(eval("feeds." + feed + ".parentnumber"))
             childnumber = int(eval("feeds." + feed + ".childnumber"))
+            lastbuildtype = eval("feeds." + feed + ".lastbuildtype")
 
             lastbuildcurrent = get_database_value(bot, bot.nick, feed + '_lastbuildcurrent') or datetime.datetime(1999, 1, 1, 1, 1, 1, 1).replace(tzinfo=pytz.UTC)
             lastbuildcurrent = parser.parse(str(lastbuildcurrent))
@@ -182,10 +225,7 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
             xml = xml.encode('ascii', 'ignore').decode('ascii')
             xmldoc = minidom.parseString(xml)
 
-            if feed_type == 'youtube':
-                lastBuildXML = xmldoc.getElementsByTagName('published')
-            else:
-                lastBuildXML = xmldoc.getElementsByTagName('pubDate')
+            lastBuildXML = xmldoc.getElementsByTagName(lastbuildtype)
             lastBuildXML = lastBuildXML[0].childNodes[0].nodeValue
             lastBuildXML = parser.parse(str(lastBuildXML))
 
@@ -195,10 +235,15 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
 
                 titles = xmldoc.getElementsByTagName('title')
                 title = titles[parentnumber].childNodes[0].nodeValue
+                if feed_type == 'github':
+                    authors = xmldoc.getElementsByTagName('name')
+                    author = authors[0].childNodes[0].nodeValue
+                    dispmsg.append(author + " committed")
+                title = unicode_string_cleanup(title)
                 dispmsg.append(title)
 
                 links = xmldoc.getElementsByTagName('link')
-                if feed_type == 'youtube':
+                if feed_type in ['youtube', 'github']:
                     link = links[childnumber].getAttribute('href')
                 else:
                     link = links[childnumber].childNodes[0].nodeValue.split("?")[0]
@@ -286,6 +331,7 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
                     title = title.replace(*r)
                 if title == "[]" or title == '':
                     title = "No Book Today"
+                title = unicode_string_cleanup(title)
                 dispmsg.append(title)
 
                 titleappend = 1
@@ -336,21 +382,21 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
             searchterm = eval("feeds." + feed + ".searchterm")
             suffix = eval("feeds." + feed + ".suffix")
 
-            if str(searchterm).startswith("http"):
-                searchtermpage = requests.get(searchterm, headers={'Accept': 'text/plain'})
-                searchterm = searchtermpage.content
+            # if str(searchterm).startswith("http"):
+            #    searchtermpage = requests.get(searchterm, headers={'Accept': 'text/plain'})
+            #    searchterm = searchtermpage.content
 
-            combinedjson = str(url + prefix + searchterm + suffix)
+            # combinedjson = str(url + prefix + searchterm + suffix)
             # bot.say(str(combinedjson))
 
-            verify_ssl = bot.config.core.verify_ssl
-            data = requests.get(combinedjson, verify=verify_ssl).json()
+            # verify_ssl = bot.config.core.verify_ssl
+            # data = requests.get(combinedjson, verify=verify_ssl).json()
             # bot.say(str(data))
 
-            title = data.get('title')
+            # title = data.get('title')
             # bot.say(str(title))
 
-            titleappend = 1
+            # titleappend = 1
 
             # contentpage = requests.get(combinedjson)
             # result = contentpage.content
@@ -401,3 +447,11 @@ def feeds_configs(bot, feeds):
                     exec("feeds." + feed + "." + each_key + " = each_val")
 
     return feeds
+
+
+def hashave(mylist):
+    if len(mylist) > 1:
+        hashave = 'have'
+    else:
+        hashave = 'has'
+    return hashave

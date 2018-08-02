@@ -14,7 +14,7 @@ from BotShared import *
 from Bucks import *
 
 
-@sopel.module.commands('banker', 'payday', 'tax', 'taxes', 'funds', 'rob', 'bankreset', 'checkbank','transfer')
+@sopel.module.commands('banker', 'payday', 'tax', 'taxes', 'funds', 'rob', 'bankreset', 'checkbank', 'transfer')
 def mainfunction(bot, trigger):
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'banker')
     if not enablestatus:
@@ -49,7 +49,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         if not target == 'notarget':
             if target == 'casino':
                 success = 1
-            elif buckscheck(bot, botcom, target) == 0:
+            elif targetcheck(bot, botcom, target) == 0:
                 osd(bot, trigger.sender, 'say', "I'm sorry, I do not know who " + target + " is.")
                 success = 0
             else:
@@ -135,7 +135,6 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         osd(bot, trigger.sender, 'say', target + " has " + str(balance) + " spicy chips.")
 
     elif commandused == 'bankreset' and trigger.admin:  # admin only command
-        target = get_trigger_arg(bot, triggerargsarray, 2) or 'notarget'
         if target == 'notarget':
             target = trigger.nick
         validtarget = buckscheck(bot, botcom, target)

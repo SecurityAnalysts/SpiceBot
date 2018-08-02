@@ -8,3 +8,4 @@ slottimeout = 5
 colors = ['red', 'black']
 roulettetimeout = 25
 maxwheel = 29
+keyword = 'BSOD'

@@ -402,7 +402,7 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
             # title = data.get('title')
             # bot.say(str(title))
 
-            titleappend = 1
+            # titleappend = 1
 
             # contentpage = requests.get(combinedjson)
             # result = contentpage.content

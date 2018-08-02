@@ -2,6 +2,12 @@
 type = youtube
 displayname = Techquickie
 url = https://www.youtube.com/feeds/videos.xml?channel_id=UC0vBXGSyV14uvJ4hECDOl0Q
-parentnumber = 1
-childnumber = 2
 lastbuildtype = published
+lastbuildparent = 0
+lastbuildchild = 0
+titletype = title
+titleparent = 1
+titlechild = 0
+linktype = link
+linkparent = 2
+linkchild = href

@@ -2,6 +2,12 @@
 type = rss
 displayname = Technowize
 url = https://www.technowize.com/feed/
-parentnumber = 1
-childnumber = 1
 lastbuildtype = pubDate
+lastbuildparent = 0
+lastbuildchild = 0
+titletype = title
+titleparent = 1
+titlechild = 0
+linktype = link
+linkparent = 1
+linkchild = 0

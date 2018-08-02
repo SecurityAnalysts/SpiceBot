@@ -2,6 +2,12 @@
 type = rss
 displayname = Spiceworks Contests
 url = https://community.spiceworks.com/feed/forum/1550.rss
-parentnumber = 2
-childnumber = 2
 lastbuildtype = pubDate
+lastbuildparent = 0
+lastbuildchild = 0
+titletype = title
+titleparent = 2
+titlechild = 0
+linktype = link
+linkparent = 2
+linkchild = 0

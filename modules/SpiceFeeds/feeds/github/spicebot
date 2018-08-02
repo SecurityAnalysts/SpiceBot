@@ -2,6 +2,12 @@
 type = github
 displayname = SpiceBot Github
 url = https://github.com/SpiceBot/SpiceBot/commits/master.atom
-parentnumber = 1
-childnumber = 2
 lastbuildtype = updated
+lastbuildparent = 1
+lastbuildchild = 0
+titletype = title
+titleparent = 1
+titlechild = 0
+linktype = link
+linkparent = 2
+linkchild = href

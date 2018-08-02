@@ -14,7 +14,7 @@ from BotShared import *
 from Bucks import *
 
 
-@sopel.module.commands('banker', 'payday', 'tax', 'taxes', 'funds', 'rob', 'bankreset', 'checkbank', 'transfer')
+@sopel.module.commands('banker', 'bank', 'payday', 'tax', 'taxes', 'funds', 'rob', 'bankreset', 'checkbank', 'transfer')
 def mainfunction(bot, trigger):
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'banker')
     if not enablestatus:
@@ -55,12 +55,12 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
             else:
                 success = 1
         if success == 1:
-
-            if not amount == 'noamount':
-                if amount.isdigit():
-                    amount = int(amount)
-                    if amount >= 0 and amount < 10000001:
-                        set_database_value(bot, target, 'spicychips_bank', amount)
+            amountfund = (get_trigger_arg(bot, triggerargsarray, 3)).lower() or 'noamount'
+            if not amountfund == 'noamount':
+                if amountfund.isdigit():
+                    amountfund = int(amountfund)
+                    if amountfund >= 0 and amountfund < 10000001:
+                        set_database_value(bot, target, 'spicychips_bank', amountfund)
                         targetbalance = bank(bot, botcom, target)
                         osd(bot, trigger.sender, 'say', target + ' now has ' + str(targetbalance) + ' in the bank')
                     else:
@@ -80,9 +80,9 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         else:
             randomaudit = random.randint(1, usedamount)
             if not target == 'notarget':
-                if buckscheck(bot, botcom, target) == 0:
+                if targetcheck(bot, botcom, target, instigator) == 0:
                     osd(bot, trigger.sender, 'say', "I'm sorry, I do not know who " + target + " is.")
-                elif buckscheck(bot, botcom, target) == 3:
+                elif targetcheck(bot, botcom, target) == 3:
                     message = audit(bot, botcom, player)
                     osd(bot, trigger.sender, 'action', message)
                 else:
@@ -128,7 +128,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
                     else:
                         osd(bot, trigger.sender, 'say', target + "'s pockets are empty")
         # Bank
-    elif commandused == 'banker' or commandused == 'banking':
+    elif commandused == 'banker' or commandused == 'bank':
         if target == 'notarget':
             target = player
         balance = bank(bot, botcom, target)
@@ -137,7 +137,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     elif commandused == 'bankreset' and trigger.admin:  # admin only command
         if target == 'notarget':
             target = trigger.nick
-        validtarget = buckscheck(bot, botcom, target)
+        validtarget = targetcheck(bot, botcom, target, instigator)
         if validtarget == 0:
             osd(bot, trigger.sender, 'say', "I'm sorry, I do not know who " + target + " is.")
         else:

@@ -33,7 +33,7 @@ def execute_main(bot, trigger, arg, botcom, instigator):
     elif mygame == 'blackjack':
         blackjack(bot, trigger, arg)
     elif (mygame == 'roulette' or mygame == 'spin'):
-        roulette(bot, trigger, arg)
+        roulette(bot, botcom, trigger, arg)
     elif mygame == 'lottery':
         lottery(bot, trigger, arg)
     elif mygame == 'freebie':
@@ -75,6 +75,8 @@ def slots(bot, botcom, trigger, arg):
     bet = get_trigger_arg(bot, arg, '2') or 'nocommand'
     if not bet.isdigit():
         bet = 1
+    else:
+        bet = int(bet)
     # __payouts___
     match3 = 25*bet
     match2 = 5*bet
@@ -104,40 +106,41 @@ def slots(bot, botcom, trigger, arg):
                     wheel3 = get_trigger_arg(bot, slotwheel, 'random')
                     reel = [wheel1, wheel2, wheel3]
                     if bet < 2:
-                        chipcount = "spicychip"
+                        chipcount = " spicychip"
+                        # bot.say(chipcount)
                     else:
-                        chipcount = "spicychips"
-                        osd(bot, trigger.sender, 'say', trigger.nick + " insert " + str(bet) + chipcount + " and the slot machine displays | " + wheel1 + " | " + wheel2 + " | " + wheel3 + " | ")
-                        for i in reel:
-                            if i == keyword:
-                                mywinnings = mywinnings + 1
-                        if mywinnings >= 1:
-                            osd(bot, player, 'priv', 'You got a bonus word, ' + keyword + ', worth 1 spicychip')
+                        chipcount = " spicychips"
+                    osd(bot, trigger.sender, 'say', trigger.nick + " insert " + str(bet) + chipcount + " and the slot machine displays | " + wheel1 + " | " + wheel2 + " | " + wheel3 + " | ")
+                    for i in reel:
+                        if i == keyword:
+                            mywinnings = mywinnings + 1
+                    if mywinnings >= 1:
+                        osd(bot, player, 'priv', 'You got a bonus word, ' + keyword + ', worth 1 spicychip')
 
-                        if(wheel1 == wheel2 and wheel2 == wheel3):
-                            if wheel1 == keyword:
-                                osd(bot, trigger.sender, 'say', trigger.nick + ' hit the Jackpot of ' + str(bankbalance))
-                                mywinnings = bankbalance
-                            elif wheel1 == 'Patches':
-                                mywinnings = mywinnings + match3
-                            else:
-                                mywinnings = mywinnings + match3
-                        elif(wheel1 == wheel2 or wheel2 == wheel3 or wheel3 == wheel1):
-                            mywinnings = mywinnings + match2
-                            # osd(bot, trigger.sender, 'say', trigger.nick + ' a match')
-
-                        if mywinnings <= 0:
-                            osd(bot, trigger.sender, 'say', trigger.nick + ' gets nothing')
+                    if(wheel1 == wheel2 and wheel2 == wheel3):
+                        if wheel1 == keyword:
+                            osd(bot, trigger.sender, 'say', trigger.nick + ' hit the Jackpot of ' + str(bankbalance))
+                            mywinnings = bankbalance
+                        elif wheel1 == 'Patches':
+                            mywinnings = mywinnings + match3
                         else:
-                            bankbalance = bank(bot, 'casino')
-                            if mywinnings > bankbalance:
-                                spicychips(bot, trigger.nick, 'plus', mywinnings)
-                                osd(bot, trigger.sender, 'say', trigger.nick + ' wins ' + str(mywinnings))
+                            mywinnings = mywinnings + match3
+                    elif(wheel1 == wheel2 or wheel2 == wheel3 or wheel3 == wheel1):
+                        mywinnings = mywinnings + match2
+                        # osd(bot, trigger.sender, 'say', trigger.nick + ' a match')
+
+                    if mywinnings <= 0:
+                        osd(bot, trigger.sender, 'say', trigger.nick + ' gets nothing')
+                    else:
+                        bankbalance = bank(bot, botcom, 'casino')
+                        if mywinnings > bankbalance:
+                            spicychips(bot, trigger.nick, 'plus', mywinnings)
+                            osd(bot, trigger.sender, 'say', trigger.nick + ' wins ' + str(mywinnings))
+                        else:
+                            if transfer(bot, botcom, 'casino', trigger.nick, mywinnings):
+                                osd(bot, trigger.sender, 'say', trigger.nick + ' wins ' + str(mywinnings) + " spicychips")
                             else:
-                                if transfer(bot, 'casino', trigger.nick, mywinnings) == 1:
-                                    osd(bot, trigger.sender, 'say', trigger.nick + ' wins ' + str(mywinnings) + " spicychips")
-                                else:
-                                    osd(bot, trigger.sender, 'say', "Error in banking system")
+                                osd(bot, trigger.sender, 'say', "Error in banking system")
                 else:
                     osd(bot, player, 'priv', "You don't have enough spicychips")
             else:
@@ -146,14 +149,13 @@ def slots(bot, botcom, trigger, arg):
 
 # ------Start Roulette
 # ----------------Roulette-------
-def roulette(bot, trigger, arg):
+def roulette(bot, botcom, trigger, arg):
     now = time.time()
     channel = trigger.sender
     maxwheel = int(get_database_value(bot, 'casino', 'maxwheel')) or 24
 
-    minbet = 15  # requires at least one payday to play
+    minbet = 5  # requires at least one payday to play
     wheel = range(maxwheel + 1)
-    colors = ['red', 'black']
     inputcheck = 0
     maxplayers = 3
     callcheck = False
@@ -250,7 +252,7 @@ def roulette(bot, trigger, arg):
                     osd(bot, player, 'priv', "You already placed a bet")
                     inputcheck = 0
             if inputcheck == 1:
-                if transfer(bot, trigger.nick, 'casino', mybet) == 1:
+                if transfer(bot, botcom, trigger.nick, 'casino', mybet):
                     roulettearray = []
                     spicychips(bot, 'casino', 'plus', mybet)
                     osd(bot, trigger.sender, 'say', trigger.nick + " puts " + str(mybet) + " on " + str(mynumber) + " " + str(mycolor))

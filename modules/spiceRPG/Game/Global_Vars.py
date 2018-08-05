@@ -53,6 +53,21 @@ rpg_commands_valid_basic = ['author','intent','about','version','docs','usage']
 
 
 """
+Commands that must be run in channel
+"""
+
+
+rpg_commands_valid_inchannel = []
+
+
+"""
+Commands that can be run with /me
+"""
+
+
+rpg_commands_valid_action = ['combat']
+
+"""
 Alternative Commands
 """
 
@@ -68,6 +83,53 @@ rpg_commands_valid_alt_hotkey = ['hotlink']
 
 # Author
 rpg_commands_valid_alt_author = ['credit','credits']
+
+
+"""
+Command Tiers
+"""
+
+
+rpg_commands_tier_unlocks = [
+                            [],  # 1
+                            [],  # 2
+                            [],  # 3
+                            [],  # 4
+                            [],  # 5
+                            [],  # 6
+                            [],  # 7
+                            [],  # 8
+                            [],  # 9
+                            [],  # 10
+                            [],  # 11
+                            [],  # 12
+                            [],  # 13
+                            [],  # 14
+                            [],  # 15
+                            ]
+
+rpg_commands_tier_unlocks_self = [
+                                [],  # 1
+                                [],  # 2
+                                [],  # 3
+                                [],  # 4
+                                [],  # 5
+                                [],  # 6
+                                [],  # 7
+                                [],  # 8
+                                [],  # 9
+                                [],  # 10
+                                [],  # 11
+                                [],  # 12
+                                [],  # 13
+                                [],  # 14
+                                [],  # 15
+                                ]
+
+
+rpg_commands_tier_ratio =    [  1   ,    1.1   ,  1.2   ,   1.3   ,   1.4   ,   1.5    ,   1.6   ,   1.7    ,   1.8   ,   1.9   ,     2       , 2.1   ,   2.2    ,    2.3      , 2.4     ,     2.5        ]  # Tier Ratios
+rpg_commands_pepper_levels = ['n00b','pimiento','sonora','anaheim','poblano','jalapeno','serrano','chipotle','tabasco','cayenne','thai pepper','datil','habanero','ghost chili','mace'   ,'pure capsaicin']  # Pepper Levels
+
 
 """
 Subcommands
@@ -106,7 +168,14 @@ rpg_error_commands = [
                     "The following command(s) do not appear to be valid: $list. Valid commands include: $valid_coms.",  # 6
                     "The following command(s) is/are for admin use only: $list. If you are an admin, you need to run with the -a admin switch.",  # 7
                     "You don't have a command hotlinked to $list",  # 8
-                    "It appears that your use of an alternate command failed. $list command(s) were at fault."  # 9
+                    "It appears that your use of an alternate command failed. $list command(s) were at fault.",  # 9
+                    "The Following Command(s) must be used in channel, and do not work via private message: $list",  # 10
+                    "$list would kick your butt in a competition.",  # 11
+                    "I refuse to fight a biological entity! If I did, you'd be sure to lose!",  # 12
+                    "If you are feeling self-destructive, there are places you can call. Alternatively, you can run the harakiri command.",  # 13
+                    "Action rpg should not be able to run commands; Targets Only: $list",  # 14
+                    "RPG $list will be unlocked at tier(s) $tiers_nums_peppers.",  # 15
+                    "RPG $list is for self-use only until tier(s) $tiers_nums_peppers."  # 16
 ]
 
 # Configuration

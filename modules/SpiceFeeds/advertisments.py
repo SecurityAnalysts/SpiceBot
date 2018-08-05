@@ -34,7 +34,7 @@ testarray = ["DoubleD recommends these new drapes https://goo.gl/BMTMde",
              "I feel neglected. Use me more. Duel assualt in me!"]
 
 
-hardcoded_not_in_this_chan = ["#spiceworks", "##spicebottest"]
+hardcoded_not_in_this_chan = ["#spiceworks", "##spicebottest", "#spicebottest"]
 
 
 @sopel.module.commands('ads', 'advertisements', 'ad', 'advertisement')

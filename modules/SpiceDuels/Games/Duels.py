@@ -163,46 +163,6 @@ monster mutates,,, enraged itsy bitsy
 """
 
 
-def execute_start(bot, trigger, triggerargsarray, command_type):
-
-    # duels dynamic Class
-    duels = class_create('main')
-
-    # Type of command
-    duels.command_type = command_type
-
-    # Time when Module use started
-    duels.start = time.time()
-
-    # instigator
-    instigator = class_create('instigator')
-    instigator.default = trigger.nick
-    duels.instigator = trigger.nick
-
-    # Channel Listing
-    duels = duels_command_channels(bot, duels, trigger)
-
-    # Bacic User List
-    duels = duels_command_users(bot, duels)
-
-    # Commands list
-    duels = duels_valid_commands_all(bot, duels)
-
-    # Alternative Commands
-    duels = duels_commands_valid_alts(bot, duels)
-
-    # TODO valid stats
-
-    # Error Display System Create
-    duels_errors_start(bot, duels)
-
-    # Run the Process
-    execute_main(bot, duels, instigator, trigger, triggerargsarray)
-
-    # Error Display System Display
-    duels_errors_end(bot, duels)
-
-
 # Check the Instigator, Build basic variables, and divide Multi-commands, Chance of deathblow at end
 def execute_main(bot, trigger, triggerargsarray, command_type):
 

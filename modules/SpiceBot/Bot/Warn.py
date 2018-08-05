@@ -15,5 +15,4 @@ def mainfunction(bot, trigger):
     inchannel = trigger.sender
     triggerargsarray = get_trigger_arg(bot, trigger.group(2), 'create')
     target = get_trigger_arg(bot, triggerargsarray, 2) or ''
-    osd(bot, inchannel, 'action', target + "This is just a warning. Overuse of the bot, can get you kicked or banned by an operator. If you want to purely play with the bot, go to #Spicebot, #Spicebottest, ##SpiceBot or ##SpiceBotTest, or send Spicebot a PrivateMessage.")
-    # eventually I want to break this out to only show the #spicebot in certain channels
+    osd(bot, inchannel, 'action', target + "This is just a warning. Overuse of the bot, can get you kicked or banned by an operator. If you want to purely play with the bot, go to #Spicebot or #Spicebottest, or send Spicebot a PrivateMessage.")

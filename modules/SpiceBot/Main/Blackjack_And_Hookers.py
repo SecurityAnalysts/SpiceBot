@@ -22,4 +22,4 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     message = "Fine! I'll start my own my casino with blackjack and hookers!"
     if myown and bot.nick not in myown:
         message = "Fine! I'll start my own " + myown + ", with blackjack and hookers!"
-    osd(bot, trigger.sender, 'action', message)
+    osd(bot, trigger.sender, 'say', message)

@@ -31,9 +31,9 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         message = "Welcome to the Casino.  Your options are payday, tax, , and bank."
         osd(bot, trigger.sender, 'say', message)
     elif commandused == 'checkbank':
-        bot.say("Target: " + target + " Player:" + player)
+        # bot.say("Target: " + target + " Player:" + player)
         validbank = buckscheck(bot, botcom, target)
-        bot.say(str(validbank))
+        # bot.say(str(validbank))
     elif commandused == 'payday':
         paydayamount = 0
         paydayamount, msg = checkpayday(bot, botcom, player)
@@ -55,7 +55,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
             else:
                 success = 1
         if success == 1:
-            bot.say("Amount " + str(amount))
+            # bot.say("Amount " + str(amount))
             if not amount == 'noamount':
                 if amount.isdigit():
                     amount = int(amount)

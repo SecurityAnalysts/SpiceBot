@@ -30,6 +30,8 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         partb = " with a stick."
     if not target:
         osd(bot, trigger.sender, 'say', trigger.nick + " points awkwardly at nothing.")
+    elif target.startswith("bear"):
+        osd(bot, trigger.sender, 'say', "Don't poke the bear.")
     elif target.lower() not in bot.privileges[channel.lower()]:
         osd(bot, trigger.sender, 'say', "I'm not sure who that is.")
     elif target == bot.nick:

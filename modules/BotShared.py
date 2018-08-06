@@ -272,6 +272,42 @@ def targetcheck(bot, botcom, target, instigator):
         return validtarget, validtargetmsg
 
 
+####################
+# EASY targetcheck #
+####################
+
+
+def easytargetcheck(bot, botcom, target, instigator):
+    # Guilty until proven Innocent
+    validtarget = 'false'  # 0 = invalid, 1 = valid 2 = instigator, 3 = bot, 4 =offline
+    target = target.lower()
+
+    # Target is instigator
+    if target == instigator.default:
+        validtarget = 'instigator'
+        return validtarget
+
+    if target == bot.nick:
+        validtarget = 'bot'
+        return validtarget
+
+    # Null Target
+    if not target:
+        validtarget = 'false'
+        return validtarget
+    if target not in [x.lower() for x in botcom.users_current] and target in [x.lower() for x in botcom.users_all]:
+        validtarget = 'offline'
+        realnick = nick_actual(bot, target)
+        return validtarget
+    if target in [x.lower() for x in botcom.users_current]:
+        validtarget = 'online'
+        realnick = nick_actual(bot, target)
+        return validtarget
+    else:
+        validtarget = true
+        return validtarget
+
+
 """
 ##############
 # Fix unicode in strings #

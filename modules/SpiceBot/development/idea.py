@@ -4,6 +4,7 @@ from __future__ import unicode_literals, absolute_import, print_function, divisi
 import sopel.module
 import sys
 import os
+import random
 moduledir = os.path.dirname(__file__)
 shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
@@ -26,18 +27,42 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     command = get_trigger_arg(bot, triggerargsarray, 1)
     inputstring = get_trigger_arg(bot, triggerargsarray, '2+')
 
-    if command == 'good':
-        if not inputstring:
+    if not command:
+        rand = random.randint(1, 2)
+        if rand == 1:
             getIdea(bot, trigger, 'good')
+        elif rand == 2:
+            getIdea(bot, trigger, 'bad')
+
+    elif command == 'good':
+        databasekey = 'ideagood'
+        if not inputstring:
+            getIdea(bot, trigger, databasekey)
         else:
-            existingarray = get_database_value(bot, bot.nick, 'ideagood') or []
+            existingarray = get_database_value(bot, bot.nick, databasekey) or []
             if inputstring not in existingarray:
-                adjust_database_array(bot, bot.nick, inputstring, 'ideagood', 'add')
+                adjust_database_array(bot, bot.nick, inputstring, databasekey, 'add')
                 message = "I think this is a good idea. Let me remember it."
                 osd(bot, trigger.sender, 'say', message)
             else:
                 message = "I already thought this was a good idea. Don't make me regret it"
                 osd(bot, trigger.sender, 'say', message)
+    elif command == 'bad':
+        databasekey = 'ideabad'
+        if not inputstring:
+            getIdea(bot, trigger, databasekey)
+        else:
+            existingarray = get_database_value(bot, bot.nick, databasekey) or []
+            if inputstring not in existingarray:
+                adjust_database_array(bot, bot.nick, inputstring, databasekey, 'add')
+                message = "I think this is a bad idea. Let me remember it."
+                osd(bot, trigger.sender, 'say', message)
+            else:
+                message = "I already know that this is a bad idea."
+                osd(bot, trigger.sender, 'say', message)
+    else:
+        message = "Is this a good or a bad idea?"
+        osd(bot, trigger.sender, 'say', message)
 
 
 def getIdea(bot, trigger, type):
@@ -49,4 +74,8 @@ def getIdea(bot, trigger, type):
         elif ideaType == "bad":
             existingarray = "killing your friends"
     idea = get_trigger_arg(bot, existingarray, "random") or ''
-    osd(bot, trigger.sender, 'say', idea)
+    if ideaType == "good":
+        message = idea " is a good idea... (prolly)"
+    elif ideaType == "bad":
+        message = "I'm telling you, " + idea + " is a bad idea"
+    osd(bot, trigger.sender, 'say', message)

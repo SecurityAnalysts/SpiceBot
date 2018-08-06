@@ -35,7 +35,7 @@ def execute_main(bot, trigger, arg, botcom, instigator):
     elif (mygame == 'roulette' or mygame == 'spin'):
         roulette(bot, botcom, trigger, arg)
     elif mygame == 'lottery':
-        lottery(bot, trigger, arg)
+        lottery(bot, botcom, trigger, arg)
     elif mygame == 'freebie':
         freebie(bot, trigger)
     elif mygame == 'bank':
@@ -221,7 +221,7 @@ def roulette(bot, botcom, trigger, arg):
                 mycolor = ''
                 if myitem.isdigit():
                     mynumber = int(myitem)
-                    if(mynumber < 1 or mynumber > maxwheel):
+                    if(mynumber < 0 or mynumber > maxwheel):
                         osd(bot, player, 'priv', 'Please pick a number between 1 and ' + str(maxwheel))
                         inputcheck = 0
                         # check to see if a color was selected
@@ -321,11 +321,10 @@ def runroulette(bot, botcom):
                     if mywinnings >= 1:
                         osd(bot, player, 'priv', "Roulette has ended and you have won " + str(mywinnings))
                         if casinobalance < mywinnings:
-                            spicychips(bot, player, 'plus', mywinnings)
-                        else:
-                            transfer(bot, 'casino', player, mywinnings)
-                            winners.append(player)
-                            totalwon = totalwon + mywinnings
+                            addbucks(bot, botcom, 'casino', mywinnings)
+                        transfer(bot, botcom, player, 'casino', mywinnings)
+                        winners.append(player)
+                        totalwon = totalwon + mywinnings
                         reset_database_value(bot, player, 'roulettearray')
 
         reset_database_value(bot, 'casino', 'rouletteplayers')
@@ -341,11 +340,12 @@ def runroulette(bot, botcom):
 
 
 # ______Game 3 Lottery________
-def lottery(bot, trigger, arg):
+def lottery(bot, botcom, trigger, arg):
     lotterymax = int(get_database_value(bot, 'casino', 'lotterymax')) or 25
     lotterytimeout = get_database_value(bot, 'casino', 'lotterytimeout')  # time between lottery drawings
     channel = trigger.sender
     player = trigger.nick
+    success = 0
     bankbalance = bank(bot, 'casino')
     if bankbalance <= 500:
         bankbalance = 500
@@ -357,52 +357,51 @@ def lottery(bot, trigger, arg):
     else:
         if commandused == 'payout':
             osd(bot, trigger.sender, 'say', "Current lottery jackpot is " + str(bankbalance) + ". Getting 4 number correct pays " + str(int(match4payout*bankbalance)) + " and getting 3 correct = " + str(int(bankbalance*match3payout)))
-            success = 0
+        elif commandused == 'random':
+            picks = random.sample(range(1, lotterymax), 5)
+            success = 1
         else:
             picks = []
-            success = 0
-
             picklen = len(arg) + 1
             for i in range(0, picklen):
                 picker = get_trigger_arg(bot, arg, i)
                 if picker.isdigit():
                     picks.append(int(picker))
-
             if len(picks) != 5:
                 osd(bot, player, 'priv', 'You must enter 5 lottery numbers from 1 to ' + str(lotterymax) + ' to play.')
                 success = 0
             else:
                 success = 1
+        if success == 1:
+            pickstemp = picks
+            picks = []
+            for pick in pickstemp:
+                if pick not in picks:
+                    picks.append(pick)
+            if len(picks) < 5:
+                osd(bot, player, 'priv', 'You must choose 5 different numbers.')
+                success = 0
             if success == 1:
-                pickstemp = picks
-                picks = []
-                for pick in pickstemp:
-                    if pick not in picks:
-                        picks.append(pick)
-                if len(picks) < 5:
-                    osd(bot, player, 'priv', 'You must choose 5 different numbers.')
-                    success = 0
-                if success == 1:
-                    valid = 1
-                    for pick in picks:
-                        if(pick > lotterymax or pick < 1):
-                            valid = 0
-                    if valid == 0:
-                        osd(bot, player, 'priv', 'One of the numbers you entered is not within the valid range of 1 to ' + str(lotterymax))
+                valid = 1
+                for pick in picks:
+                    if(pick > lotterymax or pick < 1):
+                        valid = 0
+                if valid == 0:
+                    osd(bot, player, 'priv', 'One of the numbers you entered is not within the valid range of 1 to ' + str(lotterymax))
+                else:
+                    lottoplayers = get_database_value(bot, 'casino', 'lottoplayers') or []
+                    if player in lottoplayers:
+                        osd(bot, player, 'priv', "You are already in this drawing")
                     else:
-                        lottoplayers = get_database_value(bot, 'casino', 'lottoplayers') or []
-                        if player in lottoplayers:
-                            osd(bot, player, 'priv', "You are already in this drawing")
+                        if transfer(bot, botcom, 'casino', player, 1):
+                            osd(bot, trigger.sender, 'say', player + " bets on the numbers " + str(picks))
+                            set_database_value(bot, player, 'picks', picks)
+                            adjust_database_array(bot, 'casino', player, 'lottoplayers', 'add')
+                            set_database_value(bot, 'casino', 'lotterychanel', trigger.sender)
+                            nextlottery = get_timesince(bot, 'casino', 'lastlottery')
+                            osd(bot, player, 'priv', "Next lottery drawing in " + str(hours_minutes_seconds((lotterytimeout-nextlottery))))
                         else:
-                            if transfer(bot, player, 'casino', 1) == 1:
-                                osd(bot, trigger.sender, 'say', player + " bets on the numbers " + str(picks))
-                                set_database_value(bot, player, 'picks', picks)
-                                adjust_database_array(bot, 'casino', player, 'lottoplayers', 'add')
-                                set_database_value(bot, 'casino', 'lotterychanel', trigger.sender)
-                                nextlottery = get_timesince(bot, 'casino', 'lastlottery')
-                                osd(bot, player, 'priv', "Next lottery drawing in " + str(hours_minutes_seconds((lotterytimeout-nextlottery))))
-                            else:
-                                osd(bot, player, 'priv', 'You dont have enough spicychips')
+                            osd(bot, player, 'priv', 'You dont have enough spicychips')
 
 
 # _______Lottery drawing

@@ -96,7 +96,7 @@ def slots(bot, botcom, trigger, arg):
 
             if nextslot >= slottimeout:
                 successes = transfer(bot, botcom, 'casino', trigger.nick, bet)
-                bot.say(str(successes))
+                # bot.say(str(successes))
                 if successes:
                     set_database_value(bot, 'casino', 'slotimer', now)
                     # add bet to casino

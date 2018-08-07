@@ -71,14 +71,14 @@ def execute_start(bot, trigger, triggerargsarray, command_type):
     # Channel Listing
     rpg = rpg_command_channels(bot, rpg, trigger)
 
-    # Bacic User List
-    rpg = rpg_command_users(bot, rpg)
-
     # Commands list
     rpg = rpg_valid_commands_all(bot, rpg)
 
     # Alternative Commands
     rpg = rpg_commands_valid_alts(bot, rpg)
+
+    # Bacic User List
+    rpg = rpg_command_users(bot, rpg)
 
     # TODO valid stats
 
@@ -109,7 +109,7 @@ def execute_main(bot, rpg, instigator, trigger, triggerargsarray):
     if triggerargsarray == []:
         user_capable_coms = []
         for vcom in rpg.valid_commands_all:
-            if vcom in rpg_commands_valid_admin:
+            if vcom in rpg_commands_valid_administrator:
                 if rpg.instigator in rpg.botadmins:
                     user_capable_coms.append(vcom)
             else:
@@ -176,37 +176,25 @@ def command_process(bot, trigger, rpg, instigator):
             rpg.command_full = get_trigger_arg(bot, rpg.triggerargsarray, 0)
             rpg.command_main = get_trigger_arg(bot, rpg.triggerargsarray, 1)
 
-    # Target Checking
+    # Spell Check
     if rpg.command_main not in rpg.valid_commands_all and rpg.command_main not in rpg.valid_commands_alts and rpg.command_main.lower() not in [x.lower() for x in rpg.users_all]:
         startcom = rpg.command_main
-        if rpg.command_main == startcom:
-            for user in rpg.users_all:
-                if rpg.command_main == startcom:
-                    similarlevel = similar(rpg.command_main.lower(), user.lower())
-                    if similarlevel >= .75:
-                        rpg.command_main = user
-        if rpg.command_main != startcom:
-            rpg.triggerargsarray.remove(startcom)
-            rpg.triggerargsarray.insert(0, rpg.command_main)
-            rpg.command_full = get_trigger_arg(bot, rpg.triggerargsarray, 0)
-
-    # Verify Command spelling if not a real command
-    if rpg.command_main not in rpg.valid_commands_all and rpg.command_main not in rpg.valid_commands_alts and rpg.command_main.lower() not in [x.lower() for x in rpg.users_all]:
-        startcom = rpg.command_main
-        command_type_list = ['all', 'alts']
+        sim_com, sim_num = [], []
+        command_type_list = ['valid_commands_all', 'valid_commands_alts', 'users_all']
         for comtype in command_type_list:
-            if rpg.command_main == startcom:
-                comtype_eval = eval('rpg.valid_commands_' + comtype)
-                for com in comtype_eval:
-                    if rpg.command_main == startcom:
-                        similarlevel = similar(rpg.command_main.lower(), com)
-                        if similarlevel >= .75:
-                            rpg.command_main = com
+            comtype_eval = eval('rpg.' + comtype)
+            for com in comtype_eval:
+                similarlevel = similar(rpg.command_main.lower(), com.lower())
+                if similarlevel >= .75:
+                    sim_com.append(com)
+                    sim_num.append(similarlevel)
+        if sim_com != [] and sim_num != []:
+            sim_num, sim_com = array_arrangesort(bot, sim_num, sim_com)
+            rpg.command_main = get_trigger_arg(bot, sim_com, 'last')
         if rpg.command_main != startcom:
             rpg.triggerargsarray.remove(startcom)
             rpg.triggerargsarray.insert(0, rpg.command_main)
             rpg.command_full = get_trigger_arg(bot, rpg.triggerargsarray, 0)
-            bot.say(str(rpg.triggerargsarray))
 
     # Instigator versus Instigator
     if rpg.command_main.lower() == rpg.instigator.lower() and not rpg.admin:
@@ -253,7 +241,7 @@ def command_process(bot, trigger, rpg, instigator):
         return rpg
 
     # Admin Block
-    if rpg.command_main in rpg_commands_valid_admin and not rpg.admin:
+    if rpg.command_main in rpg_commands_valid_administrator and not rpg.admin:
         errors(bot, rpg, 'commands', 7, rpg.command_main)
         return rpg
 
@@ -267,7 +255,7 @@ def command_process(bot, trigger, rpg, instigator):
         return rpg
 
     # Tier Check
-    command_tier_required = int(eval("rpg." + rpg.command_main.lower() + ".tier_number"))
+    command_tier_required = int(eval("rpg." + rpg.command_main.lower() + ".tier_number")) or 0
     if command_tier_required > int(rpg.tier_current):
         errors(bot, rpg, 'commands', 15, rpg.command_main)
         return rpg
@@ -299,6 +287,14 @@ def command_run(bot, rpg, instigator):
     # if rpg.staminarequired:
     #    adjust_database_value(bot, instigator.default, 'stamina', -abs(rpg.staminarequired))
 
+    # usage counter - instigator
+    adjust_database_value(bot, rpg.instigator, 'usage_total', 1)
+    adjust_database_value(bot, rpg.instigator, 'usage_' + rpg.command_main, 1)
+
+    # usage counter - Total
+    adjust_database_value(bot, 'rpg_game_records', 'usage_total', 1)
+    adjust_database_value(bot, 'rpg_game_records', 'usage_' + rpg.command_main, 1)
+
 
 """
 Combat
@@ -314,7 +310,7 @@ Configuration Commands
 """
 
 
-def rpg_command_main_admin(bot, rpg, instigator):
+def rpg_command_main_administrator(bot, rpg, instigator):
 
     # Subcommand
     subcommand_valid = eval('subcommands_valid_' + rpg.command_main)
@@ -327,9 +323,9 @@ def rpg_command_main_admin(bot, rpg, instigator):
     if subcommand == 'channel':
 
         # Toggle Type
-        activation_type = get_trigger_arg(bot, [x for x in rpg.triggerargsarray if x in subcommands_valid_admin_channel], 1)
+        activation_type = get_trigger_arg(bot, [x for x in rpg.triggerargsarray if x in subcommands_valid_administrator_channel], 1)
         if not activation_type:
-            errors(bot, rpg, 'admin', 2, 1)
+            errors(bot, rpg, 'administrator', 2, 1)
             return
 
         activation_type_db = str(activation_type + "_enabled")
@@ -340,7 +336,7 @@ def rpg_command_main_admin(bot, rpg, instigator):
             if rpg.channel_current.startswith('#'):
                 channeltarget = rpg.channel_current
             else:
-                errors(bot, rpg, 'admin', 3, 1)
+                errors(bot, rpg, 'administrator', 3, 1)
                 return
 
         # on/off
@@ -504,7 +500,31 @@ def rpg_command_main_docs(bot, rpg, instigator):  # TODO
 
 
 def rpg_command_main_usage(bot, rpg, instigator):  # TODO
-    bot.say("wip")
+
+    # Get The Command Used
+    subcommand = get_trigger_arg(bot, [x for x in rpg.triggerargsarray if x in rpg.valid_commands_all], 1) or 'total'
+
+    # Who is the target
+    target = get_trigger_arg(bot, [x for x in rpg.triggerargsarray if x in rpg.users_all or x == 'channel'], 1) or rpg.instigator
+    targetname = target
+    if target == 'channel':
+        target = 'rpg_game_records'
+        targetname = "The channel"
+
+    # Usage Counter
+    totaluses = get_database_value(bot, target, 'usage_' + subcommand) or 0
+    if not totaluses:
+        if subcommand == 'total':
+            subcommand = ''
+        osd(bot, rpg.channel_current, 'say', targetname + " has no record of using rpg " + subcommand + ". ")
+        return
+
+    # Display
+    if subcommand == 'total':
+        subcommand = 'a total of'
+    else:
+        subcommand = str(subcommand + ' a total of')
+    osd(bot, rpg.channel_current, 'say', targetname + " has used rpg " + subcommand + " " + str(totaluses) + " times.")
 
 
 """
@@ -662,7 +682,7 @@ def rpg_errors_end(bot, rpg):
                     subcommand_valid = get_trigger_arg(bot, subcommand_valid, 'list')
                     errormessage = str(errormessage.replace("$valid_subcoms", subcommand_valid))
                 if "$valid_game_change" in errormessage:
-                    subcommand_arg_valid = get_trigger_arg(bot, subcommands_valid_admin_channel, 'list')
+                    subcommand_arg_valid = get_trigger_arg(bot, subcommands_valid_administrator_channel, 'list')
                     errormessage = str(errormessage.replace("$valid_game_change", subcommand_arg_valid))
                 if "$dev_chans" in errormessage:
                     devchans = get_trigger_arg(bot, rpg.channels_devmode_enabled, 'list')
@@ -688,39 +708,34 @@ Commands
 
 # All valid commands
 def rpg_valid_commands_all(bot, rpg):
+
+    # make list of all valid commands
     rpg.valid_commands_all = []
     for command_type in rpg_valid_command_types:
         typeeval = eval("rpg_commands_valid_"+command_type)
         for vcom in typeeval:
+            if vcom not in rpg.valid_commands_all:
+                rpg.valid_commands_all.append(vcom)
 
-            # create class
-            currentcommandclass = class_create(vcom)
-            exec("rpg." + str(vcom) + " = currentcommandclass")
+    # data regarding each command
+    for vcom in rpg.valid_commands_all:
 
-            # Tier number
-            currenttiernumber = 0
-            for i in range(0, len(rpg_commands_tier_unlocks)):
-                current_tier_eval_number = i + 1
-                currenttiereval = get_trigger_arg(bot, rpg_commands_tier_unlocks, current_tier_eval_number) or []
-                if vcom in currenttiereval:
-                    currenttiernumber = current_tier_eval_number
-                    continue
-            exec("rpg." + str(vcom) + ".tier_number = currenttiernumber")
+        # create class
+        currentcommandclass = class_create(vcom)
+        exec("rpg." + str(vcom) + " = currentcommandclass")
 
-            # self use command
-            currenttiernumber_self = 0
-            for i in range(0, len(rpg_commands_tier_unlocks_self)):
-                current_tier_eval_number = i + 1
-                currenttiereval = get_trigger_arg(bot, rpg_commands_tier_unlocks_self, current_tier_eval_number) or []
-                if vcom in currenttiereval:
-                    currenttiernumber_self = current_tier_eval_number
-                    continue
-            exec("rpg." + str(vcom) + ".tier_number_self = currenttiernumber_self")
+        # Tier number
+        currenttiernumber = 0
+        for i in range(0, len(rpg_commands_tier_unlocks)):
+            current_tier_eval_number = i + 1
+            currenttiereval = get_trigger_arg(bot, rpg_commands_tier_unlocks, current_tier_eval_number) or []
+            if vcom in currenttiereval:
+                currenttiernumber = current_tier_eval_number
+        exec("rpg." + str(vcom) + ".tier_number = currenttiernumber")
 
-            # Tier Pepper
-            currentpepper = get_trigger_arg(bot, rpg_commands_pepper_levels, currenttiernumber) or 'Spicy'
-            exec("rpg." + str(vcom) + ".tier_pepper = currentpepper")
-            rpg.valid_commands_all.append(vcom)
+        # Tier Pepper
+        currentpepper = get_trigger_arg(bot, rpg_commands_pepper_levels, currenttiernumber) or 'Spicy'
+        exec("rpg." + str(vcom) + ".tier_pepper = currentpepper")
 
     return rpg
 
@@ -786,8 +801,6 @@ Users
 
 def rpg_command_users(bot, rpg):
     rpg.opadmin, rpg.owner, rpg.chanops, rpg.chanvoice, rpg.botadmins, rpg.users_current = [], [], [], [], [], []
-
-    rpg = rpg_valid_commands_all(bot, rpg)
 
     for user in bot.users:
         if user not in rpg.valid_commands_all:

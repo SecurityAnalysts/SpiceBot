@@ -40,10 +40,10 @@ Commands
 
 
 # Valid Command Types
-rpg_valid_command_types = ['admin','settings','basic']
+rpg_valid_command_types = ['administrator','settings','basic']
 
-# Admin Commands
-rpg_commands_valid_admin = ['admin']
+# Administrator Commands
+rpg_commands_valid_administrator = ['administrator']
 
 # User Settings
 rpg_commands_valid_settings = ['settings']
@@ -73,7 +73,10 @@ Alternative Commands
 
 
 # Valid Alternative Commands listing
-rpg_commands_valid_alt_types = ['docs','hotkey','author']
+rpg_commands_valid_alt_types = ['administrator','docs','hotkey','author']
+
+# Hotkey
+rpg_commands_valid_alt_administrator = ['admin']
 
 # Docs
 rpg_commands_valid_alt_docs = ['help','man']
@@ -135,10 +138,10 @@ rpg_commands_pepper_levels = ['n00b','pimiento','sonora','anaheim','poblano','ja
 Subcommands
 """
 
-# Admin
-subcommands_valid_admin = ['channel']
-subcommands_default_admin = 0
-subcommands_valid_admin_channel = ['game','devmode']
+# Sdministrator
+subcommands_valid_administrator = ['channel']
+subcommands_default_administrator = 0
+subcommands_valid_administrator_channel = ['game','devmode']
 
 # settings
 subcommands_valid_settings = ['hotkey']
@@ -191,7 +194,7 @@ rpg_error_settings = [
                     "$list does not appear to be a valid command to hotkey."  # 8
 ]
 
-rpg_error_admin = [
+rpg_error_administrator = [
                     "Subcommand missing. Valid subcommands include: $valid_subcoms.",  # 1
                     "You must Specify a valid game facet to activate. Valid options include: $valid_game_change",  # 2
                     "You must specify a valid channel. Valid channels include $valid_channels.",  # 3

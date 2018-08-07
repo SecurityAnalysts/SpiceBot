@@ -1,0 +1,13 @@
+[configuration]
+type = rss
+displayname = Pi-hole
+url = https://pi-hole.net/feed/
+lastbuildtype = lastBuildDate
+lastbuildparent = 0
+lastbuildchild = 0
+titletype = title
+titleparent = 2
+titlechild = 0
+linktype = link
+linkparent = 2
+linkchild = 0

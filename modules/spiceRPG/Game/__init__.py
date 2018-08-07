@@ -148,12 +148,12 @@ def execute_main(bot, rpg, instigator, trigger, triggerargsarray):
 
         # Split commands to pass
         rpg.command_full = get_trigger_arg(bot, rpg.triggerargsarray, 0)
-        rpg.command_main = get_trigger_arg(bot, rpg.triggerargsarray, 1).lower()
+        rpg.command_main = get_trigger_arg(bot, rpg.triggerargsarray, 1)
         # Check Command can run
         rpg = command_process(bot, trigger, rpg, instigator)
         if rpg.command_run:
             command_run(bot, rpg, instigator)
-        rpg.commands_ran.append(rpg.command_main)
+        rpg.commands_ran.append(rpg.command_main.lower())
 
 
 def command_process(bot, trigger, rpg, instigator):
@@ -168,8 +168,8 @@ def command_process(bot, trigger, rpg, instigator):
             return rpg
         else:
             number_command_list = get_database_value(bot, rpg.instigator, 'hotkey_complete') or []
-            if rpg.command_main not in number_command_list:
-                adjust_database_array(bot, rpg.instigator, [rpg.command_main], 'hotkey_complete', 'add')
+            if rpg.command_main.lower() not in number_command_list:
+                adjust_database_array(bot, rpg.instigator, [rpg.command_main.lower()], 'hotkey_complete', 'add')
             commandremaining = get_trigger_arg(bot, rpg.triggerargsarray, '2+') or ''
             number_command = str(number_command + " " + commandremaining)
             rpg.triggerargsarray = get_trigger_arg(bot, number_command, 'create')
@@ -177,7 +177,7 @@ def command_process(bot, trigger, rpg, instigator):
             rpg.command_main = get_trigger_arg(bot, rpg.triggerargsarray, 1)
 
     # Spell Check
-    if rpg.command_main not in rpg.valid_commands_all and rpg.command_main not in rpg.valid_commands_alts and rpg.command_main.lower() not in [x.lower() for x in rpg.users_all]:
+    if rpg.command_main.lower() not in rpg.valid_commands_all and rpg.command_main.lower() not in rpg.valid_commands_alts and rpg.command_main.lower() not in [x.lower() for x in rpg.users_all]:
         startcom = rpg.command_main
         sim_com, sim_num = [], []
         command_type_list = ['valid_commands_all', 'valid_commands_alts', 'users_all']
@@ -191,7 +191,7 @@ def command_process(bot, trigger, rpg, instigator):
         if sim_com != [] and sim_num != []:
             sim_num, sim_com = array_arrangesort(bot, sim_num, sim_com)
             rpg.command_main = get_trigger_arg(bot, sim_com, 'last')
-        if rpg.command_main != startcom:
+        if rpg.command_main.lower() != startcom.lower():
             rpg.triggerargsarray.remove(startcom)
             rpg.triggerargsarray.insert(0, rpg.command_main)
             rpg.command_full = get_trigger_arg(bot, rpg.triggerargsarray, 0)
@@ -202,7 +202,7 @@ def command_process(bot, trigger, rpg, instigator):
         return rpg
 
     # Instigator versus Bot
-    if rpg.command_main == bot.nick and not rpg.admin:
+    if rpg.command_main.lower() == bot.nick.lower() and not rpg.admin:
         errors(bot, rpg, 'commands', 12, 1)
         return rpg
 
@@ -212,7 +212,7 @@ def command_process(bot, trigger, rpg, instigator):
         return rpg
 
     # Targets
-    if rpg.command_main.lower() in [x.lower() for x in rpg.users_all] and rpg.command_main not in rpg.valid_commands_all:
+    if rpg.command_main.lower() in [x.lower() for x in rpg.users_all] and rpg.command_main.lower() not in rpg.valid_commands_all:
         rpg.command_main = 'combat'
         rpg.triggerargsarray.insert(0, rpg.command_main)
         rpg.command_full = get_trigger_arg(bot, rpg.triggerargsarray, 0)
@@ -222,35 +222,36 @@ def command_process(bot, trigger, rpg, instigator):
         startcom = rpg.command_main
         rpg.triggerargsarray.remove(rpg.command_main)
         rpg.command_main = rpg_valid_commands_alternative_find_match(bot, rpg.command_main)
-        if rpg.command_main == 'invalidcommand':
+        if rpg.command_main.lower() == 'invalidcommand':
             errors(bot, rpg, 'commands', 9, startcom)
             return rpg
         rpg.triggerargsarray.insert(0, rpg.command_main)
         rpg.command_full = get_trigger_arg(bot, rpg.triggerargsarray, 0)
 
     # multicom multiple of the same
-    if rpg.command_main in rpg.commands_ran and not rpg.admin:
+    if rpg.command_main.lower() in rpg.commands_ran and not rpg.admin:
         errors(bot, rpg, 'commands', 5, 1)
         return rpg
 
     # konami
 
     # Verify Command is valid
-    if rpg.command_main not in rpg.valid_commands_all:
+    if rpg.command_main.lower() not in rpg.valid_commands_all:
         errors(bot, rpg, 'commands', 6, rpg.command_main)
         return rpg
 
     # Admin Block
-    if rpg.command_main in rpg_commands_valid_administrator and not rpg.admin:
+    if rpg.command_main.lower() in rpg_commands_valid_administrator and not rpg.admin:
         errors(bot, rpg, 'commands', 7, rpg.command_main)
         return rpg
 
     # Commands that Must be run in a channel
-    if rpg.command_main in rpg_commands_valid_inchannel and not rpg.admin:
+    if rpg.command_main.lower() in rpg_commands_valid_inchannel and not rpg.admin:
         errors(bot, rpg, 'commands', 10, rpg.command_main)
         return rpg
 
-    if rpg.command_type == 'action' and rpg.command_main not in rpg_commands_valid_action:
+    # action commands
+    if rpg.command_type == 'action' and rpg.command_main.lower() not in rpg_commands_valid_action:
         errors(bot, rpg, 'commands', 14, rpg.command_main)
         return rpg
 
@@ -277,7 +278,7 @@ def command_run(bot, rpg, instigator):
     """ TODO track rpg.staminarequired  adding/subtracting in comparison to completion of any action, and error if not enough"""
 
     # Run the command's function
-    command_function_run = str('rpg_command_main_' + rpg.command_main + '(bot, rpg, instigator)')
+    command_function_run = str('rpg_command_main_' + rpg.command_main.lower() + '(bot, rpg, instigator)')
     eval(command_function_run)
 
     if rpg.staminacharge:
@@ -289,11 +290,11 @@ def command_run(bot, rpg, instigator):
 
     # usage counter - instigator
     adjust_database_value(bot, rpg.instigator, 'usage_total', 1)
-    adjust_database_value(bot, rpg.instigator, 'usage_' + rpg.command_main, 1)
+    adjust_database_value(bot, rpg.instigator, 'usage_' + rpg.command_main.lower(), 1)
 
     # usage counter - Total
     adjust_database_value(bot, 'rpg_game_records', 'usage_total', 1)
-    adjust_database_value(bot, 'rpg_game_records', 'usage_' + rpg.command_main, 1)
+    adjust_database_value(bot, 'rpg_game_records', 'usage_' + rpg.command_main.lower(), 1)
 
 
 """
@@ -313,8 +314,8 @@ Configuration Commands
 def rpg_command_main_administrator(bot, rpg, instigator):
 
     # Subcommand
-    subcommand_valid = eval('subcommands_valid_' + rpg.command_main)
-    subcommand_default = eval('subcommands_default_' + rpg.command_main)
+    subcommand_valid = eval('subcommands_valid_' + rpg.command_main.lower())
+    subcommand_default = eval('subcommands_default_' + rpg.command_main.lower())
     subcommand = get_trigger_arg(bot, [x for x in rpg.triggerargsarray if x in subcommand_valid], 1) or subcommand_default
     if not subcommand:
         errors(bot, rpg, rpg.command_main, 1, 1)
@@ -381,8 +382,8 @@ def rpg_command_main_administrator(bot, rpg, instigator):
 def rpg_command_main_settings(bot, rpg, instigator):
 
     # Subcommand
-    subcommand_valid = eval('subcommands_valid_' + rpg.command_main)
-    subcommand_default = eval('subcommands_default_' + rpg.command_main)
+    subcommand_valid = eval('subcommands_valid_' + rpg.command_main.lower())
+    subcommand_default = eval('subcommands_default_' + rpg.command_main.lower())
     subcommand = get_trigger_arg(bot, [x for x in rpg.triggerargsarray if x in subcommand_valid], 1) or subcommand_default
     if not subcommand:
         errors(bot, rpg, rpg.command_main, 1, 1)
@@ -641,10 +642,10 @@ def rpg_errors_end(bot, rpg):
     for error_type in rpg_error_list:
         errorscanlist.append(error_type)
     for error_type in errorscanlist:
-        current_error_type = eval("rpg_error_" + error_type)
+        current_error_type = eval("rpg_error_" + error_type.lower())
         for i in range(0, len(current_error_type)):
             current_error_number = i + 1
-            currenterrorvalue = eval("rpg.errors." + error_type + str(current_error_number))
+            currenterrorvalue = eval("rpg.errors." + error_type.lower() + str(current_error_number)) or []
             if currenterrorvalue != []:
                 errormessage = get_trigger_arg(bot, current_error_type, current_error_number)
                 if error_type in rpg.valid_commands_all:
@@ -657,9 +658,9 @@ def rpg_errors_end(bot, rpg):
                 if "$tiers_nums_peppers" in errormessage:
                     numberarray, pepperarray, combinedarray = [], [], []
                     for command in currenterrorvalue:
-                        peppereval = eval("rpg." + command + ".tier_pepper")
+                        peppereval = eval("rpg." + command.lower() + ".tier_pepper")
                         pepperarray.append(peppereval)
-                        numbereval = int(eval("rpg." + command + ".tier_number"))
+                        numbereval = int(eval("rpg." + command.lower() + ".tier_number"))
                         numberarray.append(numbereval)
                     for num, pepp in zip(numberarray, pepperarray):
                         combinedarray.append(str(num) + " " + pepp)
@@ -678,7 +679,7 @@ def rpg_errors_end(bot, rpg):
                     validtogglelist = get_trigger_arg(bot, onoff_list, 'list')
                     errormessage = str(errormessage.replace("$valid_onoff", validtogglelist))
                 if "$valid_subcoms" in errormessage:
-                    subcommand_valid = eval('subcommands_valid_' + error_type)
+                    subcommand_valid = eval('subcommands_valid_' + error_type.lower())
                     subcommand_valid = get_trigger_arg(bot, subcommand_valid, 'list')
                     errormessage = str(errormessage.replace("$valid_subcoms", subcommand_valid))
                 if "$valid_game_change" in errormessage:

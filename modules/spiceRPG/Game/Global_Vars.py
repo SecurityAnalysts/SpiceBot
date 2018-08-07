@@ -71,10 +71,6 @@ rpg_commands_valid_action = ['combat']
 Alternative Commands
 """
 
-
-# Valid Alternative Commands listing
-rpg_commands_valid_alt_types = ['administrator','docs','hotkey','author']
-
 # Hotkey
 rpg_commands_valid_alt_administrator = ['admin']
 
@@ -86,6 +82,21 @@ rpg_commands_valid_alt_hotkey = ['hotlink']
 
 # Author
 rpg_commands_valid_alt_author = ['credit','credits']
+
+# settings
+rpg_commands_valid_alt_settings = []
+
+# intent
+rpg_commands_valid_alt_intent = []
+
+# about
+rpg_commands_valid_alt_about = []
+
+# version
+rpg_commands_valid_alt_version = []
+
+# usage
+rpg_commands_valid_alt_usage = []
 
 
 """
@@ -138,7 +149,7 @@ rpg_commands_pepper_levels = ['n00b','pimiento','sonora','anaheim','poblano','ja
 Subcommands
 """
 
-# Sdministrator
+# Administrator
 subcommands_valid_administrator = ['channel']
 subcommands_default_administrator = 0
 subcommands_valid_administrator_channel = ['game','devmode']

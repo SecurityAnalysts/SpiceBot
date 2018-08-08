@@ -87,7 +87,7 @@ def temp_condition(bot, degree, degreetype):
         comment = "Everyone in the channel gets heat cramps."
     elif int(kelvin) > 327 and int(kelvin) <= 373:
         comment = "Everyone in the channel gets heat stroke."
-    elif int(kelvin) > 373:
+    elif int(kelvin) > 373 and int(kelvin) < 5800:
         comment = "Everyone in the channel feels their blood start to boil"
     elif int(kelvin) >= 5800:
         comment = "You have reached the surface of the sun. There is no SPF that will protect you."

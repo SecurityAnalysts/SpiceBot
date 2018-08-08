@@ -283,7 +283,7 @@ def easytargetcheck(bot, botcom, target, instigator):
     target = target.lower()
 
     # Target is instigator
-    if target == instigator.default:
+    if target == instigator:
         validtarget = 'instigator'
         return validtarget
 
@@ -304,7 +304,7 @@ def easytargetcheck(bot, botcom, target, instigator):
         realnick = nick_actual(bot, target)
         return validtarget
     else:
-        validtarget = true
+        validtarget = 'true'
         return validtarget
 
 

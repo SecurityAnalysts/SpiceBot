@@ -52,6 +52,8 @@ Command Processing
 
 def execute_start(bot, trigger, triggerargsarray, command_type):
 
+    # bot.say(str(sys.getsizeof(get_trigger_arg(bot, triggerargsarray, 0))))
+
     # RPG dynamic Class
     rpg = class_create('main')
 
@@ -101,6 +103,11 @@ def execute_main(bot, rpg, instigator, trigger, triggerargsarray):
             errors(bot, rpg, 'commands', 2, 1)
             if rpg.instigator not in rpg.botadmins:
                 return
+
+    # block instigator if
+    if rpg.instigator.lower() in rpg.valid_commands_all and rpg.instigator.lower() in rpg.valid_commands_alts and rpg.instigator.lower() in [x.lower() for x in rpg.bots_list]:
+        errors(bot, rpg, 'commands', 17, 1)
+        return
 
     # No Empty Commands
     if triggerargsarray == []:
@@ -477,7 +484,7 @@ def rpg_command_main_intent(bot, rpg, instigator):
     # Who is the target
     target = get_trigger_arg(bot, [x for x in rpg.triggerargsarray if x in rpg.users_all], 1) or rpg.instigator
 
-    osd(bot, rpg.channel_current, 'say', "The intent is to provide "+target+" with a sense of pride and accomplishment...")
+    osd(bot, rpg.channel_current, 'say', "The intent is to provide " + target + " with a sense of pride and accomplishment...")
 
 
 def rpg_command_main_about(bot, rpg, instigator):
@@ -792,13 +799,20 @@ Users
 
 
 def rpg_command_users(bot, rpg):
-    rpg.opadmin, rpg.owner, rpg.chanops, rpg.chanvoice, rpg.botadmins, rpg.users_current = [], [], [], [], [], []
+    # rpg.opadmin, rpg.owner, rpg.chanops, rpg.chanvoice, rpg.botadmins, rpg.users_current = [], [], [], [], [], []
+    usertypes = ['users_all', 'opadmin', 'owner', 'chanops', 'chanvoice', 'botadmins', 'users_current', 'bots_list']
+    for x in usertypes:
+        currentvalue = str("rpg."+x+"=[]")
+        exec(currentvalue)
 
     for user in bot.users:
-        if user not in rpg.valid_commands_all:
+        if user not in rpg.valid_commands_all and user not in rpg.valid_commands_alts:
             rpg.users_current.append(str(user))
+    users_all = get_database_value(bot, 'channel', 'users_all') or []
+    for user in users_all:
+        if user in rpg.users_current:
+            rpg.users_current.remove(user)
     adjust_database_array(bot, 'channel', rpg.users_current, 'users_all', 'add')
-    rpg.users_all = get_database_value(bot, 'channel', 'users_all') or []
 
     rpg.bots_list = bot_config_names(bot)
 
@@ -951,7 +965,9 @@ def osd(bot, target_array, text_type_array, text_array):
             textparts = len(combinedtextarray)
             textpartsleft = textparts
             for combinedline in combinedtextarray:
-                if text_type == 'action' and textparts == textpartsleft:
+                if text_type == 'reply':
+                    bot.reply(combinedline)
+                elif text_type == 'action' and textparts == textpartsleft:
                     bot.action(combinedline, target)
                 elif str(target).startswith("#"):
                     bot.msg(target, combinedline)

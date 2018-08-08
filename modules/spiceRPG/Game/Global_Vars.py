@@ -189,7 +189,8 @@ rpg_error_commands = [
                     "If you are feeling self-destructive, there are places you can call. Alternatively, you can run the harakiri command.",  # 13
                     "Action rpg should not be able to run commands; Targets Only: $list",  # 14
                     "RPG $list will be unlocked at tier(s) $tiers_nums_peppers.",  # 15
-                    "RPG $list is for self-use only until tier(s) $tiers_nums_peppers."  # 16
+                    "RPG $list is for self-use only until tier(s) $tiers_nums_peppers.",  # 16
+                    "Your nick is not compatible with playing RPG."  # 17
 ]
 
 # Configuration

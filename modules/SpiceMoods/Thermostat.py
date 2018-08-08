@@ -25,7 +25,8 @@ def mainfunction(bot, trigger):
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
 
     tempcommand = get_trigger_arg(bot, triggerargsarray, 1) or 0
-    tempcommand = tempcommand.lower()
+    if tempcommand:
+        tempcommand = tempcommand.lower()
 
     currenttemp = get_database_value(bot, botcom.channel_current, 'temperature') or 32
     currentscale = get_database_value(bot, botcom.channel_current, 'temperature_scale') or 'fahrenheit'
@@ -63,7 +64,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     set_database_value(bot, botcom.channel_current, 'temperature', number)
     set_database_value(bot, botcom.channel_current, 'temperature_scale', tempscale)
 
-    osd(bot, botcom.channel_current, 'say', botcom.instigator + " has set the temperature in " + botcom.channel_current + " to " + str(number) + "° " + str(tempscale) + ".")
+    osd(bot, botcom.channel_current, 'say', botcom.instigator + " has set the temperature in " + botcom.channel_current + " to " + str(number) + "° " + str(tempscale.title()) + ".")
 
 
 def temperature(bot, degree, original, desired):

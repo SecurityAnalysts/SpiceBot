@@ -433,7 +433,7 @@ def lotterydrawing(bot, botcom):
                 payout = lotterypayout(bot, botcom, correct)
             if payout > 0:
                 osd(bot, player, 'priv', "You won " + str(payout) + " in the lottery drawing")
-                transfer(bot, player, 'casino', payout)
+                transfer(bot, botcom, player, 'casino', payout)
                 lotterywinners.append(player)
                 totalwon = totalwon + payout
                 if payout > bigwinpayout:

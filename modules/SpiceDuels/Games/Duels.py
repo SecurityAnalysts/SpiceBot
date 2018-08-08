@@ -7819,6 +7819,15 @@ def get_trigger_arg(bot, inputs, outputtask):
     # Create
     if outputtask == 'create':
         return create_array(bot, inputs)
+    # lower
+    if outputtask == 'lower':
+        return lower_array(bot, inputs)
+    # UPPER
+    if outputtask == 'upper':
+        return upper_array(bot, inputs)
+    # Title
+    if outputtask == 'title':
+        return title_array(bot, inputs)
     # reverse
     if outputtask == 'reverse':
         return reverse_array(bot, inputs)
@@ -7860,6 +7869,57 @@ def get_trigger_arg(bot, inputs, outputtask):
         return rangebetween_array(bot, inputs, outputtask)
     string = ''
     return string
+
+
+# Convert String to lower
+def lower_array(bot, inputs):
+    if isinstance(inputs, list):
+        string = ''
+        for x in inputs:
+            if string != '':
+                string = str(string + " " + str(x.lower()))
+            else:
+                string = str(x.lower())
+        inputs = string
+    outputs = []
+    if inputs:
+        for word in inputs.split():
+            outputs.append(word.encode('ascii', 'ignore').decode('ascii'))
+    return outputs
+
+
+# Convert String to UPPER
+def upper_array(bot, inputs):
+    if isinstance(inputs, list):
+        string = ''
+        for x in inputs:
+            if string != '':
+                string = str(string + " " + str(x.upper()))
+            else:
+                string = str(x.upper())
+        inputs = string
+    outputs = []
+    if inputs:
+        for word in inputs.split():
+            outputs.append(word.encode('ascii', 'ignore').decode('ascii'))
+    return outputs
+
+
+# Convert String to title
+def title_array(bot, inputs):
+    if isinstance(inputs, list):
+        string = ''
+        for x in inputs:
+            if string != '':
+                string = str(string + " " + str(x.title()))
+            else:
+                string = str(x.title())
+        inputs = string
+    outputs = []
+    if inputs:
+        for word in inputs.split():
+            outputs.append(word.encode('ascii', 'ignore').decode('ascii'))
+    return outputs
 
 
 # Convert String to array

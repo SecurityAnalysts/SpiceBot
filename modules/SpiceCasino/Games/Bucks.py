@@ -26,32 +26,30 @@ def deal(bot, cardcount):
     return hand
 
 
-def lotterypayout(bot, level):
-    balance = casino(bot)
+def lotterypayout(bot, botcom, level):
+    balance = bank(bot, botcom, 'casino')
+    if balance < 500:
+        addbucks(bot, botcom, 'casino', 500)
+        balance = bank(bot, botcom, 'casino')
     payout = 0
     if level == 1:
-        payout = int(0.04 * balance)
+        payout = int(0.04 * balance)  # min 20
         if payout < 20:
             payout = 20
     elif level == 2:
-        payout = int(0.08 * balance)
+        payout = int(0.08 * balance)  # min 40
         if payout < 20:
             payout = 8
     elif level == 3:
-        balance = casino(bot)
-        payout = int(0.1 * balance)
+        payout = int(0.1 * balance)  # min 50
         if payout < 50:
             payout = 8
     elif level == 4:
-        balance = casino(bot)
-        payout = int(0.5 * balance)
+        payout = int(0.5 * balance)  # min 250
         if payout < 250:
             payout = 8
     elif level == 5:
-        balance = casino(bot)
         payout = int(balance)
-        if payout < 500:
-            payout = 500
     return payout
 
 

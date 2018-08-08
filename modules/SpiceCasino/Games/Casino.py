@@ -37,16 +37,16 @@ def execute_main(bot, trigger, arg, botcom, instigator):
     elif mygame == 'lottery':
         lottery(bot, botcom, trigger, arg)
     elif mygame == 'freebie':
-        freebie(bot, trigger)
+        freebie(bot, botcom, trigger)
     elif mygame == 'bank':
-        bankbalance = bank(bot, trigger.nick)
+        bankbalance = bank(bot, botcom, trigger.nick)
         osd(bot, trigger.nick, 'priv', trigger.nick + ' has ' + str(bankbalance) + ' spicychips in the bank.')
     elif mygame == 'jackpot':
-        bankbalance = bank(bot, 'casino')
+        bankbalance = bank(bot, botcom, 'casino')
         osd(bot, trigger.sender, 'say', 'The current jackpot is: ' + str(bankbalance))
     elif mygame == 'admin':
         if trigger.admin or trigger.nick == 'under_score':
-            admincommands(bot, trigger, arg)
+            admincommands(bot, botcom, trigger, arg)
         else:
             osd(bot, trigger.nick, 'priv', 'You must be an admin to use this command')
     else:
@@ -346,7 +346,7 @@ def lottery(bot, botcom, trigger, arg):
     channel = trigger.sender
     player = trigger.nick
     success = 0
-    bankbalance = bank(bot, 'casino')
+    bankbalance = bank(bot, botcom, 'casino')
     if bankbalance <= 500:
         bankbalance = 500
         spicychips(bot, 'casino', 'plus', bankbalance)
@@ -405,9 +405,8 @@ def lottery(bot, botcom, trigger, arg):
 
 
 # _______Lottery drawing
-def lotterydrawing(bot):
-    lotterymax = int(get_database_value(bot, 'casino', 'lotterymax')) or 25
-    bankbalance = bank(bot, 'casino')
+def lotterydrawing(bot, botcom):
+    bankbalance = bank(bot, botcom, 'casino')
     nextlottery = get_timesince(bot, 'casino', 'lastlottery')
     lotterytimeout = get_database_value(bot, 'casino', 'lotterytimeout')
 
@@ -418,17 +417,9 @@ def lotterydrawing(bot):
     bigwinner = ''
     bigwinpayout = 0
 
-    # if get_database_array_total(bot, 'casino','lottoplayers') <1:
-    #    msg= "No one entered this lottery. Next lottery drawing will be in " + str(hours_minutes_seconds(lotterytimeout-nextlottery))
-    #    osd(bot, channel, 'say', msg)
-    # else:
     if get_database_array_total(bot, 'casino', 'lottoplayers') > 0:
-        if bankbalance <= 500:
-            bankbalance = 500
-            set_database_value(bot, 'casino', 'spicychips_bank', bankbalance)
 
         winningnumbers = random.sample(range(1, lotterymax), 5)
-
         msg = 'The winning numbers are ' + str(winningnumbers)
         osd(bot, channel, 'say', msg)
         for player in lotteryplayers:
@@ -438,28 +429,16 @@ def lotterydrawing(bot):
                 if pick in winningnumbers:
                     correct = correct + 1
             payout = 0
-            if correct == 1:
-                payout = match1payout
-            elif correct == 2:
-                payout = match2payout
-            elif correct == 3:
-                payout = int(match3payout*bankbalance)
-            elif correct == 4:
-                payout = int(match4payout*bankbalance)
-            elif correct == 5:
-                payout = bankbalance
-
-            if payout > bankbalance:
-                spicychips(bot, 'casino', 'plus', payout)
+            if correct >= 1:
+                payout = lotterypayout(bot, botcom, correct)
             if payout > 0:
                 osd(bot, player, 'priv', "You won " + str(payout) + " in the lottery drawing")
-                transfer(bot, 'casino', player, payout)
+                transfer(bot, player, 'casino', payout)
                 lotterywinners.append(player)
                 totalwon = totalwon + payout
                 if payout > bigwinpayout:
                     bigwinpayout = payout
                     bigwinner = player
-                bankbalance = bank(bot, 'casino')
             else:
                 osd(bot, player, 'priv', 'You are not a lottery winner')
 
@@ -723,7 +702,7 @@ def countdown(bot, botcom):
         lotterydrawing(bot)
 
 
-def admincommands(bot, trigger, arg):
+def admincommands(bot, botcom, trigger, arg):
     player = trigger.nick
     subcommand = get_trigger_arg(bot, arg, 2) or 'nocommand'
     commandvalue = get_trigger_arg(bot, arg, 3) or 'nocommand'
@@ -779,7 +758,7 @@ def admincommands(bot, trigger, arg):
         else:
             osd(bot, player, 'priv', "Please enter a valid number")
     elif subcommand == 'lotteryend':
-        lotterydrawing(bot)
+        lotterydrawing(bot, botcom)
     elif subcommand == 'lotterytime':
         if commandvalue.isdigit():
             lotterytime = int(commandvalue)

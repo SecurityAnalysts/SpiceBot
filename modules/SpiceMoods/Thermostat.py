@@ -12,7 +12,7 @@ from BotShared import *
 # author deathbybandaid
 
 temp_scales = ['kelvin', 'celsius', 'fahrenheit', 'rankine', 'romer', 'newton', 'delisle', 'reaumur']
-temp_scales_short = ['K', 'C', 'F', 'Ra', 'Ro', 'N', 'D', 'Re']
+temp_scales_short = ['k', 'c', 'f', 'ra', 'ro', 'n', 'd', 're']
 
 
 @sopel.module.commands('thermostat')

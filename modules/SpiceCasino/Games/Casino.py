@@ -349,14 +349,15 @@ def lottery(bot, botcom, trigger, arg):
     bankbalance = bank(bot, botcom, 'casino')
     if bankbalance <= 500:
         bankbalance = 500
-        spicychips(bot, 'casino', 'plus', bankbalance)
+        addbucks(bot, botcom, 'casino', 500)
+        bankbalance = bank(bot, botcom, 'casino')
 
     commandused = get_trigger_arg(bot, arg, 2) or 'nocommand'
     if not channel.startswith("#"):
         osd(bot, trigger.nick, 'notice', "lottery can only be used in a channel.")
     else:
         if commandused == 'payout':
-            osd(bot, trigger.sender, 'say', "Current lottery jackpot is " + str(bankbalance) + ". Getting 4 number correct pays " + str(int(match4payout*bankbalance)) + " and getting 3 correct = " + str(int(bankbalance*match3payout)))
+            osd(bot, trigger.sender, 'say', "Current lottery jackpot is " + str(bankbalance) + ". Getting 4 number correct pays " + str(lotterypayout(bot, botcom, 4)) + " and getting 3 correct pays " + str(lotterypayout(bot, botcom, 3)))
         elif commandused == 'random':
             picks = random.sample(range(1, lotterymax), 5)
             success = 1

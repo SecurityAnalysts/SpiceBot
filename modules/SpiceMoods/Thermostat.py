@@ -15,9 +15,9 @@ temp_scales = ['kelvin', 'celsius', 'fahrenheit', 'rankine', 'romer', 'newton', 
 temp_scales_short = ['k', 'c', 'f', 'ra', 'ro', 'n', 'd', 're']
 
 
-@sopel.module.commands('thermostat')
+@sopel.module.commands('thermostat', 'temp')
 def mainfunction(bot, trigger):
-    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, trigger.group(1))
+    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'thermostat')
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
@@ -40,7 +40,8 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
             tempconvert = get_trigger_arg(bot, temp_scales, 'random')
         if tempconvert != currentscale:
             currenttemp = temperature(bot, currenttemp, currentscale, tempconvert)
-        osd(bot, botcom.channel_current, 'say', "The current temperature in " + botcom.channel_current + " is " + str(currenttemp) + "° " + str(tempconvert.title()) + ".")
+        tempcond = temp_condition(bot, currenttemp, tempconvert)
+        osd(bot, botcom.channel_current, 'say', "The current temperature in " + botcom.channel_current + " is " + str(currenttemp) + "° " + str(tempconvert.title()) + ". " + tempcond)
         return
 
     missingarray = []
@@ -64,7 +65,31 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     set_database_value(bot, botcom.channel_current, 'temperature', number)
     set_database_value(bot, botcom.channel_current, 'temperature_scale', tempscale)
 
-    osd(bot, botcom.channel_current, 'say', botcom.instigator + " has set the temperature in " + botcom.channel_current + " to " + str(number) + "° " + str(tempscale.title()) + ".")
+    tempcond = temp_condition(bot, number, tempscale)
+
+    osd(bot, botcom.channel_current, 'say', botcom.instigator + " has set the temperature in " + botcom.channel_current + " to " + str(number) + "° " + str(tempscale.title()) + ". " + tempcond)
+
+
+def temp_condition(bot, degree, degreetype):
+
+    if degreetype != 'kelvin':
+        degree = eval(str(degreetype.lower() + "_to_kelvin(bot, degree)"))
+    comment = ''
+
+    if int(degree) <= 273:
+        comment = "Everyone in the channel grabs a jacket, as they watch their beverages turn to ice."
+    elif int(degree) > 299 and int(degree) <= 305:
+        comment = "Everyone in the channel feels sleepy."
+    elif int(degree) > 305 and int(degree) <= 313:
+        comment = "Everyone in the channel feels exhausted."
+    elif int(degree) > 313 and int(degree) <= 327:
+        comment = "Everyone in the channel gets heat cramps."
+    elif int(degree) > 327 and int(degree) <= 373:
+        comment = "Everyone in the channel gets heat stroke."
+    elif int(degree) > 373:
+        comment = "Everyone in the channel feels their blood start to boil"
+
+    return comment
 
 
 def temperature(bot, degree, original, desired):

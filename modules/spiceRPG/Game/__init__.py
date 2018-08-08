@@ -52,12 +52,6 @@ Command Processing
 
 def execute_start(bot, trigger, triggerargsarray, command_type):
 
-    fullcom = str(get_trigger_arg(bot, triggerargsarray, 0))
-    # fullcom = str(sys.getsizeof(fullcom))
-    fullcom = bytes(fullcom)
-
-    bot.say(fullcom)
-
     # RPG dynamic Class
     rpg = class_create('main')
 

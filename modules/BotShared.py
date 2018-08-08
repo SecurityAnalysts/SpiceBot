@@ -84,6 +84,7 @@ def spicebot_prerun(bot, trigger, commandused):
     increment_counter(bot, trigger, commandused)
 
     # Send Status Forward
+
     return enablestatus, triggerargsarray, botcom, instigator
 
 

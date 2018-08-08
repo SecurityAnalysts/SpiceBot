@@ -6,12 +6,12 @@ import sys
 import os
 from random import random
 from random import randint
-moduledir = os.path.dirname(__file__)
+moduledir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(moduledir)
 shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
-# from Bucks import *
+from Bucks import *
 
 monopolyfee = 5
 
@@ -32,10 +32,10 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
     deckchoice = randint(1, 3)
     payment = random.uniform(0.1, 0.3)
-    balance = bank(bot, instigator)
+    balance = bank(bot, botcom, instigator)
     payout = int(payment*balance)
 
-    if Spicebucks.transfer(bot, trigger.nick, 'SpiceBank', monopolyfee) == 1:
+    if transfer(bot, botcom, instigator, 'casino', monopolyfee) == 1:
         if deckchoice == 1:
             chancecard = get_trigger_arg(bot, gooddeck, 'random')
             msg = chancecard + " and wins " + str(payout) + " Spicebucks"
@@ -46,7 +46,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         elif deckchoice == 3:
             msg = get_trigger_arg(bot, neutraldeck, 'random')
             payout = 0
-        osd(bot, trigger.sender, 'say', instigator + " risks " + str(monopolyfee) + " Spicebucks to draw a card from the chance deck! " + instigator + " gets " + msg + ".")
+        osd(bot, channel, 'say', instigator + " risks " + str(monopolyfee) + " Spicebucks to draw a card from the chance deck! " + instigator + " gets " + msg + ".")
         if (balance + payout) < 0:
             payout = balance
         addbucks(bot, instigator, payout)

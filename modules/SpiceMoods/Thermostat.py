@@ -76,31 +76,31 @@ def temp_condition(bot, degree, degreetype):
 
     kelvin = eval(str(degreetype.lower() + "_to_kelvin(bot, degree)"))
 
-    if int(kelvin) == 0:
+    if float(kelvin) == 0:
         comment = "Absolute zero has been reached, a spaceheater won't even help."
-    elif int(kelvin) == 1.618:
+    elif float(kelvin) == 1.618:
         comment = "Euclid would be proud."
-    elif int(kelvin) == 3.14:
+    elif float(kelvin) == 3.14:
         comment = "Mmmmmm, pi..."
-    elif int(kelvin) == 6.283:
+    elif float(kelvin) == 6.283:
         comment = "Good to see you tau day"
-    elif int(kelvin) == 42:
+    elif float(kelvin) == 42:
         comment = "Do you really think that is the answer?"
-    elif int(kelvin) == 69:
+    elif float(kelvin) == 69:
         comment = "Grab your partner, flip 'em 'round."
-    elif int(kelvin) <= 273:
+    elif float(kelvin) <= 273:
         comment = "Everyone in the channel grabs a jacket, as they watch their beverages turn to ice."
-    elif int(kelvin) > 299 and int(kelvin) <= 305:
+    elif float(kelvin) > 299 and float(kelvin) <= 305:
         comment = "Everyone in the channel feels sleepy."
-    elif int(kelvin) > 305 and int(kelvin) <= 313:
+    elif float(kelvin) > 305 and float(kelvin) <= 313:
         comment = "Everyone in the channel feels exhausted."
-    elif int(kelvin) > 313 and int(kelvin) <= 327:
+    elif float(kelvin) > 313 and float(kelvin) <= 327:
         comment = "Everyone in the channel gets heat cramps."
-    elif int(kelvin) > 327 and int(kelvin) <= 373:
+    elif float(kelvin) > 327 and float(kelvin) <= 373:
         comment = "Everyone in the channel gets heat stroke."
-    elif int(kelvin) > 373 and int(kelvin) < 5800:
+    elif float(kelvin) > 373 and float(kelvin) < 5800:
         comment = "Everyone in the channel feels their blood start to boil"
-    elif int(kelvin) >= 5800:
+    elif float(kelvin) >= 5800:
         comment = "You have reached the surface of the sun. There is no SPF that will protect you."
 
     return comment

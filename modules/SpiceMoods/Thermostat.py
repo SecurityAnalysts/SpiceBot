@@ -99,7 +99,7 @@ def temperature(bot, degree, original, desired):
     temperature = 0
 
     kelvin = eval(str(original.lower() + "_to_kelvin(bot, degree)"))
-    temperature = eval("kelvin_to_" + str(desired.lower() + "(bot, degree)"))
+    temperature = eval("kelvin_to_" + str(desired.lower() + "(bot, kelvin)"))
 
     return temperature
 

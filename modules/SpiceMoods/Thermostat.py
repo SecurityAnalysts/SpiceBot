@@ -2,6 +2,7 @@
 # coding=utf-8
 from __future__ import unicode_literals, absolute_import, print_function, division
 import sopel.module
+from collections import OrderedDict
 import sys
 import os
 moduledir = os.path.dirname(__file__)
@@ -61,12 +62,12 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     if tempscale in temp_scales_short:
         tempscale = array_compare(bot, tempscale, temp_scales_short, temp_scales)
 
-    set_database_value(bot, botcom.channel_current, 'temperature', number)
-    set_database_value(bot, botcom.channel_current, 'temperature_scale', tempscale)
-
     tempcond = temp_condition(bot, number, tempscale)
 
     osd(bot, botcom.channel_current, 'say', botcom.instigator + " has set the temperature in " + botcom.channel_current + " to " + str(number) + "° " + str(tempscale.title()) + ". " + tempcond)
+
+    set_database_value(bot, botcom.channel_current, 'temperature', number)
+    set_database_value(bot, botcom.channel_current, 'temperature_scale', tempscale)
 
 
 def temp_condition(bot, degree, degreetype):
@@ -96,12 +97,14 @@ def temp_condition(bot, degree, degreetype):
 
 
 def temperature(bot, degree, original, desired):
-    temperature = 0
 
-    kelvin = eval(str(original.lower() + "_to_kelvin(bot, degree)"))
-    temperature = eval("kelvin_to_" + str(desired.lower() + "(bot, kelvin)"))
+    # convert to kelvin
+    degree = eval(str(original.lower() + "_to_kelvin(bot, degree)"))
 
-    return temperature
+    # convert from kelvin
+    degree = eval("kelvin_to_" + desired.lower() + "(bot, degree)")
+
+    return degree
 
 
 """
@@ -138,13 +141,13 @@ Fahrenheit
 
 def fahrenheit_to_kelvin(bot, fahrenheit):
     fahrenheit = float(fahrenheit)
-    kelvin = ((fahrenheit + 459.67) / 1.8)
+    kelvin = ((fahrenheit + 459.67) * 5/9)
     return kelvin
 
 
 def kelvin_to_fahrenheit(bot, kelvin):
     kelvin = float(kelvin)
-    fahrenheit = (1.8 * kelvin + 459.67)
+    fahrenheit = (kelvin * 9/5 - 459.67)
     return fahrenheit
 
 
@@ -155,13 +158,13 @@ Rankine
 
 def rankine_to_kelvin(bot, rankine):
     rankine = float(rankine)
-    kelvin = (rankine / 1.8)
+    kelvin = (rankine * 5/9)
     return kelvin
 
 
 def kelvin_to_rankine(bot, kelvin):
     kelvin = float(kelvin)
-    rankine = (1.8 * kelvin)
+    rankine = (1.8 * 9/5)
     return rankine
 
 
@@ -172,13 +175,13 @@ Delisle
 
 def delisle_to_kelvin(bot, delisle):
     delisle = float(delisle)
-    kelvin = (373.15 - (2/3) * delisle)
+    kelvin = (373.15 - delisle * 2/3)
     return kelvin
 
 
 def kelvin_to_delisle(bot, kelvin):
     kelvin = float(kelvin)
-    delisle = (1.5 * (373.15 - kelvin))
+    delisle = ((373.15 - kelvin) * 3/2)
     return delisle
 
 
@@ -189,13 +192,13 @@ Newton
 
 def newton_to_kelvin(bot, newton):
     newton = float(newton)
-    kelvin = ((100 / 33) * newton + 273.15)
+    kelvin = (newton * 100/33 + 273.15)
     return kelvin
 
 
 def kelvin_to_newton(bot, kelvin):
     kelvin = float(kelvin)
-    newton = (0.33 * (kelvin - 273.15))
+    newton = ((kelvin - 273.15) * 33/100)
     return newton
 
 
@@ -206,13 +209,13 @@ Reaumur
 
 def reaumur_to_kelvin(bot, reaumur):
     reaumur = float(reaumur)
-    kelvin = (1.25 * reaumur + 273.15)
+    kelvin = (reaumur * 5/4 + 273.15)
     return kelvin
 
 
 def kelvin_to_reaumur(bot, kelvin):
     kelvin = float(kelvin)
-    reaumur = (0.8 * (kelvin - 273.15))
+    reaumur = ((kelvin - 273.15) * 4/5)
     return reaumur
 
 
@@ -223,11 +226,11 @@ Romer
 
 def romer_to_kelvin(bot, romer):
     romer = float(romer)
-    kelvin = ((40 / 21) * (romer - 7.5) + 273.15)
+    kelvin = ((romer - 7.5) * 40/21 + 273.15)
     return kelvin
 
 
 def kelvin_to_romer(bot, kelvin):
     kelvin = float(kelvin)
-    romer = ((21 / 40) * (kelvin - 273.15) + 7.5)
+    romer = ((kelvin - 273.15) * 21/40 + 7.5)
     return romer

@@ -39,6 +39,6 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
             osd(bot, trigger.sender, 'say', "What mood is " + botcom.channel_current + " in?")
             return
         moodset = moodset.lower()
-        osd(bot, trigger.sender, 'say', botcom.channel_current + " has changed from " + currentmood + " to " + moodset + ".")
+        osd(bot, trigger.sender, 'say', botcom.channel_current + "'s mood has changed from " + currentmood + " to " + moodset + ".")
         set_database_value(bot, botcom.channel_current, 'mood', moodset)
         return

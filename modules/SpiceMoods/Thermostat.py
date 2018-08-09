@@ -78,6 +78,16 @@ def temp_condition(bot, degree, degreetype):
 
     if int(kelvin) == 0:
         comment = "Absolute zero has been reached, a spaceheater won't even help."
+    elif int(kelvin) == 1.618:
+        comment = "Euclid would be proud."
+    elif int(kelvin) == 3.14:
+        comment = "Mmmmmm, pi..."
+    elif int(kelvin) == 6.283:
+        comment = "Good to see you tau day"
+    elif int(kelvin) == 42:
+        comment = "Do you really think that is the answer?"
+    elif int(kelvin) == 69:
+        comment = "Grab your partner, flip 'em 'round."
     elif int(kelvin) <= 273:
         comment = "Everyone in the channel grabs a jacket, as they watch their beverages turn to ice."
     elif int(kelvin) > 299 and int(kelvin) <= 305:

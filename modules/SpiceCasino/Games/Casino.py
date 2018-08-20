@@ -85,20 +85,20 @@ def slots(bot, botcom, trigger, arg):
         bankbalance = 500
         set_database_value(bot, 'casino', 'spicychips_bank',  bankbalance)
     if bet == 'payout':
-            osd(bot, trigger.sender, 'say', "Today's jackpot word is " + keyword + " getting it three times will get you " + str(bankbalance) + ". Match 3 and get " + str(match3))
+            osd(bot, channel, 'say', "Today's jackpot word is " + keyword + " getting it three times will get you " + str(bankbalance) + ". Match 3 and get " + str(match3))
     else:
         # start slots
         if not channel.startswith("#"):
             osd(bot, player, 'notice', "slots can only be used in a channel.")
         else:
-            lastslot = get_database_value(bot, 'casino', 'slotimer')
-            nextslot = get_timesince(bot, 'casino', 'slotimer')
+            lastslot = get_database_value(bot, player, 'gambletimer')
+            nextslot = get_timesince(bot, player, 'gambletimer')
 
-            if nextslot >= slottimeout:
-                successes = transfer(bot, botcom, 'casino', trigger.nick, bet)
+            if nextslot >= gambletimeout:
+                successes = transfer(bot, botcom, 'casino', player, bet)
                 # bot.say(str(successes))
                 if successes:
-                    set_database_value(bot, 'casino', 'slotimer', now)
+                    set_database_value(bot, player, 'gambletimer', now)
                     # add bet to casino
                     mywinnings = 0
                     wheel1 = get_trigger_arg(bot, slotwheel, 'random')
@@ -110,7 +110,7 @@ def slots(bot, botcom, trigger, arg):
                         # bot.say(chipcount)
                     else:
                         chipcount = " spicychips"
-                    osd(bot, trigger.sender, 'say', trigger.nick + " insert " + str(bet) + chipcount + " and the slot machine displays | " + wheel1 + " | " + wheel2 + " | " + wheel3 + " | ")
+                    osd(bot, channel, 'say', player + " insert " + str(bet) + chipcount + " and the slot machine displays | " + wheel1 + " | " + wheel2 + " | " + wheel3 + " | ")
                     for i in reel:
                         if i == keyword:
                             mywinnings = mywinnings + 1
@@ -119,7 +119,7 @@ def slots(bot, botcom, trigger, arg):
 
                     if(wheel1 == wheel2 and wheel2 == wheel3):
                         if wheel1 == keyword:
-                            osd(bot, trigger.sender, 'say', trigger.nick + ' hit the Jackpot of ' + str(bankbalance))
+                            osd(bot, channel, 'say', player + ' hit the Jackpot of ' + str(bankbalance))
                             mywinnings = bankbalance
                         elif wheel1 == 'Patches':
                             mywinnings = mywinnings + match3
@@ -130,17 +130,17 @@ def slots(bot, botcom, trigger, arg):
                         # osd(bot, trigger.sender, 'say', trigger.nick + ' a match')
 
                     if mywinnings <= 0:
-                        osd(bot, trigger.sender, 'say', trigger.nick + ' gets nothing')
+                        osd(bot, channel, 'say', player + ' gets nothing')
                     else:
                         bankbalance = bank(bot, botcom, 'casino')
                         if mywinnings > bankbalance:
-                            spicychips(bot, trigger.nick, 'plus', mywinnings)
-                            osd(bot, trigger.sender, 'say', trigger.nick + ' wins ' + str(mywinnings))
+                            addbucks(bot, botcom, player, mywinnings)
+                            osd(bot, channel, 'say', player + ' wins ' + str(mywinnings))
                         else:
-                            if transfer(bot, botcom, 'casino', trigger.nick, mywinnings):
-                                osd(bot, trigger.sender, 'say', trigger.nick + ' wins ' + str(mywinnings) + " spicychips")
+                            if transfer(bot, botcom, player, 'casino', mywinnings):
+                                osd(bot, channel, 'say', player + ' wins ' + str(mywinnings) + " spicychips")
                             else:
-                                osd(bot, trigger.sender, 'say', "Error in banking system")
+                                osd(bot, channel, 'say', "Funds not found")
                 else:
                     osd(bot, player, 'priv', "You don't have enough spicychips")
             else:
@@ -275,7 +275,7 @@ def roulette(bot, botcom, trigger, arg):
 
 
 # -----Run roulette game
-def runroulette(bot, botcom):
+def runroulette(bot):
     maxwheel = int(get_database_value(bot, 'casino', 'maxwheel')) or 24
     wheel = range(maxwheel + 1)
     colors = ['red', 'black']
@@ -289,7 +289,7 @@ def runroulette(bot, botcom):
         if winningnumber == 0:
             winningnumber == 1
         color = spin(colors)
-        casinobalance = bank(bot, botcom, 'casino') or 0
+        casinobalance = bankdev(bot, 'casino') or 0
         mywinnings = 0
         winners = []
         totalwon = 0
@@ -321,8 +321,8 @@ def runroulette(bot, botcom):
                     if mywinnings >= 1:
                         osd(bot, player, 'priv', "Roulette has ended and you have won " + str(mywinnings))
                         if casinobalance < mywinnings:
-                            addbucks(bot, botcom, 'casino', mywinnings)
-                        transfer(bot, botcom, player, 'casino', mywinnings)
+                            addbucksdev(bot, 'casino', mywinnings)
+                        transferdev(bot, player, 'casino', mywinnings)
                         winners.append(player)
                         totalwon = totalwon + mywinnings
                         reset_database_value(bot, player, 'roulettearray')
@@ -406,8 +406,8 @@ def lottery(bot, botcom, trigger, arg):
 
 
 # _______Lottery drawing
-def lotterydrawing(bot, botcom):
-    bankbalance = bank(bot, botcom, 'casino')
+def lotterydrawing(bot):
+    bankbalance = bankdev(bot, 'casino')
     nextlottery = get_timesince(bot, 'casino', 'lastlottery')
     lotterytimeout = get_database_value(bot, 'casino', 'lotterytimeout')
 
@@ -431,10 +431,10 @@ def lotterydrawing(bot, botcom):
                     correct = correct + 1
             payout = 0
             if correct >= 1:
-                payout = lotterypayout(bot, botcom, correct)
+                payout = lotterypayout(bot, correct)
             if payout > 0:
                 osd(bot, player, 'priv', "You won " + str(payout) + " in the lottery drawing")
-                transfer(bot, botcom, player, 'casino', payout)
+                transferdev(bot, player, 'casino', payout)
                 lotterywinners.append(player)
                 totalwon = totalwon + payout
                 if payout > bigwinpayout:
@@ -689,15 +689,15 @@ def blackjackreset(bot, player):
 
 
 @sopel.module.interval(10)
-def countdown(bot, botcom):
+def countdown(bot):
     now = time.time()
     currentsetting = get_database_value(bot, 'casino', 'counter')
     roulettetimediff = get_timesince(bot, 'casino', 'countertimer')
     lotterytimediff = get_timesince(bot, 'casino', 'lastlottery')
     lotterytimeout = get_database_value(bot, 'casino', 'lotterytimeout')
-    # if currentsetting == 'roulette':
-    # if roulettetimediff >= roulettetimeout:
-    # runroulette(bot)
+    if currentsetting == 'roulette':
+        if roulettetimediff >= roulettetimeout:
+            runroulette(bot)
     if lotterytimediff >= lotterytimeout and lotterytimeout >= 10:
         set_database_value(bot, 'casino', 'lastlottery', now)
         lotterydrawing(bot)
@@ -759,7 +759,7 @@ def admincommands(bot, botcom, trigger, arg):
         else:
             osd(bot, player, 'priv', "Please enter a valid number")
     elif subcommand == 'lotteryend':
-        lotterydrawing(bot, botcom)
+        lotterydrawing(bot)
     elif subcommand == 'lotterytime':
         if commandvalue.isdigit():
             lotterytime = int(commandvalue)

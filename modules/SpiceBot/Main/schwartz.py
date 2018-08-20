@@ -11,18 +11,18 @@ from BotShared import *
 
 # author jimender2
 
+replies = [" May the Schwartz be with you",
+           "I see my Schwartz is bigger than yours",
+           "etc."]
 
-@sopel.module.commands('ww')
+
+@sopel.module.commands('schwartz')
 def mainfunction(bot, trigger):
-    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, trigger.group(1))
+    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'schwartz')
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    what = get_trigger_arg(bot, triggerargsarray, 0)
-    if not what:
-        what = "wait what command"
-    if what.endswith("?"):
-        what = what[:-1]
-    osd(bot, trigger.sender, 'say', "Wait...What? there\'s a " + what + " now?")
+    answer = get_trigger_arg(bot, replies, 'random')
+    osd(bot, trigger.sender, 'say', answer)

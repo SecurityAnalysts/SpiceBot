@@ -29,6 +29,9 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         message = instigator + " is really glad to see " + target + " again."
     else:
         target = get_trigger_arg(bot, triggerargsarray, 1)
+        if not target:
+            allUsers = [u.lower() for u in bot.users]
+            target = get_trigger_arg(bot, allUsers, "random")
         message = instigator + " is glad to see " + target + " again."
 
     osd(bot, trigger.sender, 'say', message)

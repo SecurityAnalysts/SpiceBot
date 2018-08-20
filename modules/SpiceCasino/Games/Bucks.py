@@ -26,10 +26,10 @@ def deal(bot, cardcount):
     return hand
 
 
-def lotterypayout(bot, botcom, level):
-    balance = bank(bot, botcom, 'casino')
+def lotterypayout(bot, level):
+    balance = bankdev(bot, 'casino')
     if balance < 500:
-        addbucks(bot, botcom, 'casino', 500)
+        addbucksdev(bot, 'casino', 500)
         balance = bank(bot, botcom, 'casino')
     payout = 0
     if level == 1:
@@ -80,6 +80,12 @@ def bank(bot, botcom, nick):
     return balance
 
 
+def bankdev(bot,  nick):
+    balance = 0
+    balance = get_database_value(bot, nick, 'spicychips_bank') or 0
+    return balance
+
+
 def transfer(bot, botcom, target, instigator, amount):
     success = False
     if not (target == 'casino' or instigator == 'casino'):
@@ -101,12 +107,35 @@ def transfer(bot, botcom, target, instigator, amount):
         return success
 
 
+def transferdev(bot,  target, instigator, amount):
+    success = False
+    if amount >= 0:
+        # bot.say(str(amount))
+        instigator_balance = bankdev(bot, instigator)
+        # bot.say(str(instigator_balance))
+        if amount <= instigator_balance:
+            testamount = instigator_balance - amount
+            # bot.say(str(testamount))
+            adjust_database_value(bot, target, 'spicychips_bank', amount)
+            adjust_database_value(bot, instigator, 'spicychips_bank', -(amount))
+            success = True
+        return success
+
+
 def addbucks(bot, botcom, target, amount):
     success = False
     if not (target == 'casino'):
         isvalid = buckscheck(bot, botcom, target)
         if not (isvalid == 1):
             return success
+    if amount > 0:
+        adjust_database_value(bot, target, 'spicychips_bank', amount)
+        success = True
+    return success
+
+
+def addbucksdev(bot, target, amount):
+    success = False
     if amount > 0:
         adjust_database_value(bot, target, 'spicychips_bank', amount)
         success = True

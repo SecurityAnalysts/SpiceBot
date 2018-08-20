@@ -55,7 +55,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         elif targetcheck == "offline":
             osd(bot, trigger.sender, 'say', "You cannot race someone that is offline")
         elif targetcheck == "online":
-            test
+            race(bot, botcom, target, instigator, trigger)
         else:
             osd(bot, trigger.sender, 'say', "You cannot race someone that I have never seen!")
 

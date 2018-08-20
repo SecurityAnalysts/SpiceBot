@@ -9,24 +9,18 @@ shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
-# author jimender2
+# author yournamehere
 
 
-@sopel.module.commands('tagall')
+@sopel.module.commands('boot', 'kick', 'kicks')
 def mainfunction(bot, trigger):
-    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'tagall')
+    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'boot')
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
-    allUsers = [u.lower() for u in bot.users]
-    users = get_trigger_arg(bot, allUsers, 0) or 'spicebot'
-    reason = get_trigger_arg(bot, triggerargsarray, '1+')
-    if not reason:
-        message = instigator + " is tagging everyone. " + users
-    else:
-        message = instigator + " is tagging everyone because " + reason + ". " + users
-
+    target = get_trigger_arg(bot, triggerargsarray, 1)
+    message = instigator + " kicks " + target + " with a big old boot!"
     osd(bot, trigger.sender, 'say', message)

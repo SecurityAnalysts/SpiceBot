@@ -50,6 +50,4 @@ def execute_main(bot, trigger, triggerargsarray):
 @sopel.module.thread(True)
 def mainfunctionnobeguine(bot, trigger):
     triggerargsarray = get_trigger_arg(bot, trigger.group(0), 'create')
-    triggerargsarray = get_trigger_arg(bot, triggerargsarray, 0).replace(" ", "")
-    triggerargsarray = get_trigger_arg(bot, triggerargsarray, 'create')
     execute_main(bot, trigger, triggerargsarray)

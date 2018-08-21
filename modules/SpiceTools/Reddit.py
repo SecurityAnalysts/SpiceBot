@@ -139,13 +139,14 @@ def reddit_r(bot, triggerargsarray, rclass):
         return
     if subcommand == 'random':
         stoppingpoint = randint(0, 499)
-        countings = 0
-        for submission in submissions:
-            if countings == stoppingpoint:
-                continue
-            countings += 1
     else:
-        submission = submissions[0]
+        stoppingpoint = 0
+
+    countings = 0
+    for submission in submissions:
+        if countings == stoppingpoint:
+            continue
+        countings += 1
 
     dispmsg = []
     dispmsg.append("[Reddit " + rclass.urltype + "/" + rclass.urlsearch + " " + subcommand + "]")

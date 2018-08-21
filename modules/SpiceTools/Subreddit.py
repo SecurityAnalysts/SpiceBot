@@ -27,6 +27,11 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray):
+
+    if url.startswith("u"):
+        urltype = 'user'
+    else:
+        urltype = 'subreddit'
     url = str("https://www.reddit.com/")
     url = str(url + get_trigger_arg(bot, triggerargsarray, 0))
 
@@ -34,9 +39,9 @@ def execute_main(bot, trigger, triggerargsarray):
     tree = html.fromstring(page.content)
 
     if page.status_code == 200:
-        osd(bot, trigger.sender, 'say', url + " is valid!")
+        osd(bot, trigger.sender, 'say', url + " is a valid" + urltype + "!")
     else:
-        osd(bot, trigger.sender, 'say', url + " is not valid.")
+        osd(bot, trigger.sender, 'say', url + " is not a valid" + urltype + ".")
 
 
 @rule(r"""(?:)r/

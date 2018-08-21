@@ -107,7 +107,7 @@ def reddit_u(bot, triggerargsarray, rclass):
 
 def reddit_r(bot, triggerargsarray, rclass):
 
-    subcommand_valid = ['check', 'hot', 'new', 'top', 'random']
+    subcommand_valid = ['check', 'hot', 'new', 'top', 'random', 'controversial', 'gilded', 'rising']
     subcommand = get_trigger_arg(bot, [x for x in triggerargsarray if x in subcommand_valid], 1) or 'check'
 
     subreal = sub_exists(rclass.urlsearch)
@@ -138,6 +138,12 @@ def reddit_r(bot, triggerargsarray, rclass):
         submissions = subreddit.top(limit=targnum)
     elif subcommand == 'hot':
         submissions = subreddit.hot(limit=targnum)
+    elif subcommand == 'controversial':
+        submissions = subreddit.controversial(limit=targnum)
+    elif subcommand == 'gilded':
+        submissions = subreddit.gilded(limit=targnum)
+    elif subcommand == 'rising':
+        submissions = subreddit.rising(limit=targnum)
     elif subcommand == 'random':
         submissions = subreddit.hot(limit=targnum)
     else:

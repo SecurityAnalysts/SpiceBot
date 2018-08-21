@@ -28,7 +28,7 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray):
 
-    if url.startswith("u"):
+    if str(get_trigger_arg(bot, triggerargsarray, 0)).startswith("u"):
         urltype = 'user'
     else:
         urltype = 'subreddit'

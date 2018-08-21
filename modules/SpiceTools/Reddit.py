@@ -107,7 +107,7 @@ def reddit_u(bot, triggerargsarray, rclass):
 
 def reddit_r(bot, triggerargsarray, rclass):
 
-    subcommand_valid = ['check']
+    subcommand_valid = ['check', 'hot', 'new', 'top']
     subcommand = get_trigger_arg(bot, [x for x in triggerargsarray if x in subcommand_valid], 1) or 'check'
 
     subreal = sub_exists(rclass.urlsearch)
@@ -119,7 +119,33 @@ def reddit_r(bot, triggerargsarray, rclass):
         osd(bot, rclass.channel_current, 'say', [rclass.urlsearch + " appears to be a valid " + rclass.urltypetxt + "!", fullrurul])
         return
 
-    # subreddit = reddit.subreddit(rclass.urlsearch)
+    subreddit = reddit.subreddit(rclass.urlsearch)
+
+    if subcommand == 'new':
+        submissions = subreddit.new(limit=1)
+    elif subcommand == 'top':
+        submissions = subreddit.top(limit=1)
+    elif subcommand == 'hot':
+        submissions = subreddit.hot(limit=1)
+    else:
+        osd(bot, rclass.channel_current, 'say', "An error has occured.")
+        return
+    for submission in submissions:
+        dispmsg = []
+        dispmsg.append("[Reddit " + rclass.urltype + "/" + rclass.urlsearch + " " + subcommand + "]")
+        dispmsg.append("{" + str(submission.score) + "}")
+        dispmsg.append(submission.title)
+        dispmsg.append(submission.url)
+        osd(bot, rclass.channel_current, 'say', dispmsg)
+
+
+"""
+    dispmsg = []
+    dispmsg.append("[" + rclass.urltype + "/" + rclass.urlsearch + " " + subcommand + "]")
+    # dispmsg.append(submission.score)
+    # dispmsg.append(submission.title)
+    # dispmsg.append(submission.url)
+"""
 
 
 def sub_exists(sub):

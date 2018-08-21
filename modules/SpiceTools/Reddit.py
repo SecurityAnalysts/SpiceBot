@@ -132,10 +132,10 @@ def reddit_r(bot, triggerargsarray, rclass):
         return
     for submission in submissions:
         dispmsg = []
-        dispmsg.append(str("[Reddit " + rclass.urltype + "/" + rclass.urlsearch + " " + subcommand + "]"))
-        dispmsg.append(str("{" + str(submission.score) + "}"))
-        dispmsg.append(str(submission.title))
-        dispmsg.append(str(submission.url))
+        dispmsg.append("[Reddit " + rclass.urltype + "/" + rclass.urlsearch + " " + subcommand + "]")
+        dispmsg.append("{" + str(submission.score) + "}")
+        dispmsg.append(submission.title)
+        dispmsg.append(submission.url)
         osd(bot, rclass.channel_current, 'say', dispmsg)
 
 

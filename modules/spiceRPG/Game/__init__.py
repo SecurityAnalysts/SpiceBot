@@ -858,12 +858,18 @@ On Screen Text
 def osd(bot, target_array, text_type_array, text_array):
 
     # if text_array is a string, make it an array
-    textarraycomplete = []
+    textarraycompletestart = []
     if not isinstance(text_array, list):
-        textarraycomplete.append(text_array)
+        textarraycompletestart.append(text_array)
     else:
         for x in text_array:
-            textarraycomplete.append(str(x))
+            textarraycompletestart.append(x)
+
+    # unicode patch
+    textarraycomplete = []
+    for string in textarraycompletestart:
+        string = unicode(string).encode('utf8')
+        textarraycomplete.append(string)
 
     # if target_array is a string, make it an array
     texttargetarray = []
@@ -963,9 +969,7 @@ def osd(bot, target_array, text_type_array, text_array):
             textparts = len(combinedtextarray)
             textpartsleft = textparts
             for combinedline in combinedtextarray:
-                if text_type == 'reply':
-                    bot.reply(combinedline)
-                elif text_type == 'action' and textparts == textpartsleft:
+                if text_type == 'action' and textparts == textpartsleft:
                     bot.action(combinedline, target)
                 elif str(target).startswith("#"):
                     bot.msg(target, combinedline)

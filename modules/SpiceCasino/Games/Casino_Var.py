@@ -9,3 +9,4 @@ colors = ['red', 'black']
 roulettetimeout = 25
 maxwheel = 29
 keyword = 'BSOD'
+gambletimeout = 30

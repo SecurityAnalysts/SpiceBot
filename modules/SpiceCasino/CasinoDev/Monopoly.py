@@ -7,6 +7,8 @@ import os
 from random import random
 from random import randint
 moduledir = os.path.dirname(os.path.dirname(__file__))
+gamesdir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Games")
+sys.path.append(gamesdir)
 sys.path.append(moduledir)
 shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)

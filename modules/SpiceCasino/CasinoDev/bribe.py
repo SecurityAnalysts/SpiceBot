@@ -6,6 +6,8 @@ import sys
 import os
 import random
 moduledir = os.path.dirname(__file__)
+gamesdir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Games")
+sys.path.append(gamesdir)
 shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *

@@ -144,7 +144,7 @@ def slots(bot, botcom, trigger, arg):
                 else:
                     osd(bot, player, 'priv', "You don't have enough spicychips")
             else:
-                osd(bot, player, 'priv', "You can not use the slot machine for " + str(hours_minutes_seconds((slottimeout-nextslot))))
+                osd(bot, player, 'priv', "You can not use the slot machine for " + str(hours_minutes_seconds((gambletimeout-nextslot))))
 
 
 # ------Start Roulette

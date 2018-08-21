@@ -126,14 +126,20 @@ def reddit_r(bot, triggerargsarray, rclass):
         osd(bot, rclass.channel_current, 'say', dispmsg)
         return
 
+    if subcommand == 'random':
+        targnum = get_trigger_arg(bot, [x for x in triggerargsarray if str(x).isdigit()], 1) or 500
+    else:
+        targnum = get_trigger_arg(bot, [x for x in triggerargsarray if str(x).isdigit()], 1) or 1
+    targnum = int(targnum)
+
     if subcommand == 'new':
-        submissions = subreddit.new(limit=1)
+        submissions = subreddit.new(limit=targnum)
     elif subcommand == 'top':
-        submissions = subreddit.top(limit=1)
+        submissions = subreddit.top(limit=targnum)
     elif subcommand == 'hot':
-        submissions = subreddit.hot(limit=1)
+        submissions = subreddit.hot(limit=targnum)
     elif subcommand == 'random':
-        submissions = subreddit.hot(limit=100)
+        submissions = subreddit.hot(limit=targnum)
     else:
         osd(bot, rclass.channel_current, 'say', "An error has occured.")
         return
@@ -143,9 +149,9 @@ def reddit_r(bot, triggerargsarray, rclass):
         listarray.append(submission)
 
     if subcommand == 'random':
-        submission = listarray[randint(0, len(list(listarray)))]
+        submission = listarray[randint(0, len(listarray) - 1)]
     else:
-        submission = listarray[0]
+        submission = listarray[targnum - 1]
 
     dispmsg = []
     dispmsg.append("[Reddit " + rclass.urltype + "/" + rclass.urlsearch + " " + subcommand + "]")

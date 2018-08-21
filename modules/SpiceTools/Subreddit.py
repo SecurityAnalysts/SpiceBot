@@ -19,13 +19,6 @@ header = {'User-Agent': str(ua.chrome)}
 # author deathbybandaid
 
 
-@sopel.module.commands('reddit')
-def mainfunction(bot, trigger):
-    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, trigger.group(1))
-    if not enablestatus:
-        execute_main(bot, trigger, triggerargsarray)
-
-
 def execute_main(bot, trigger, triggerargsarray):
 
     if str(get_trigger_arg(bot, triggerargsarray, 0)).startswith("u"):
@@ -39,9 +32,9 @@ def execute_main(bot, trigger, triggerargsarray):
     tree = html.fromstring(page.content)
 
     if page.status_code == 200:
-        osd(bot, trigger.sender, 'say', url + " is a valid" + urltype + "!")
+        osd(bot, trigger.sender, 'say', url + " is a valid " + urltype + "!")
     else:
-        osd(bot, trigger.sender, 'say', url + " is not a valid" + urltype + ".")
+        osd(bot, trigger.sender, 'say', url + " is not a valid " + urltype + ".")
 
 
 @rule(r"""(?:)r/

@@ -18,6 +18,9 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
+    target = get_trigger_arg(bot, [x for x in triggerargsarray if x in botcom.users_all], 1) or 0
+    if target:
+        triggerargsarray.remove(target)
     doctorlines = [
                     "I'm a doctor, Jim, I'm busy!",
                     "I don't need a doctor, damn it, I am a doctor!"]
@@ -30,4 +33,6 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
             message = "Dammit Jim, I'm a doctor, not a " + str(string) + "!!!"
     else:
         message = "He's dead, Jim."
+    if target:
+        message = message.replace("Jim", target)
     osd(bot, trigger.sender, 'say', message)

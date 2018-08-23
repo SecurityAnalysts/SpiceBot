@@ -9,18 +9,15 @@ shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
-# author yournamehere
+# author deathbybandaid
 
 
-@sopel.module.commands('boot')
+@sopel.module.commands('MH370')
 def mainfunction(bot, trigger):
-    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'boot')
+    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, trigger.group(1))
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    instigator = trigger.nick
-    target = get_trigger_arg(bot, triggerargsarray, 1)
-    message = instigator + " kicks " + target + " with a big old boot!"
-    osd(bot, trigger.sender, 'say', message)
+    osd(bot, trigger.sender, 'say', "Danger SOS. It is dire for you to evacuate. They are not human. 042933964230. SOS Danger SOS")

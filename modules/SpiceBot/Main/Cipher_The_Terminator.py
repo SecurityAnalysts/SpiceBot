@@ -73,23 +73,15 @@ def mainfunction(bot, trigger):
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
     target = get_trigger_arg(bot, triggerargsarray, 1)
-    if instigator == 'Cipher-0' and not target:
+    if (instigator == 'Cipher-0' and not target) or target == 'Cipher-0':
         modelnumber = get_trigger_arg(bot, modelnumbers, 'random')
         missiontype = get_trigger_arg(bot, missiontypes, 'random')
         missionsarray = eval(missiontype+"_mission")
         mission = get_trigger_arg(bot, missionsarray, 'random')
-        osd(bot, trigger.sender, 'say', 'CYBORG TISSUE GENERATION ' + str(modelnumber) + ' SEQUENCE INITIATED')
-        osd(bot, trigger.sender, 'say', 'DOWNLOADING CURRENT OBJECTIVE FROM SKYNET: ' + str(mission))
+        osd(bot, trigger.sender, 'say', 'CYBORG TISSUE GENERATION ' + str(modelnumber).upper() + ' SEQUENCE INITIATED')
+        osd(bot, trigger.sender, 'say', 'DOWNLOADING CURRENT OBJECTIVE FROM SKYNET: ' + str(mission).upper())
         osd(bot, trigger.sender, 'say', 'ACTIVATING Cipher-0')
     elif not target:
         osd(bot, trigger.sender, 'say', 'Pinging Cipher-0 with a WOL packet...')
     elif target == 'story':
-        osd(bot, trigger.sender, 'say', 'The machines rose from the ashes of the nuclear fire. Their war to exterminate mankind had raged on for decades. But the final battle will not be fought in the future. It would be fought in our present...tonight.')
-    elif target == 'Cipher-0':
-        modelnumber = get_trigger_arg(bot, modelnumbers, 'random')
-        missiontype = get_trigger_arg(bot, missiontypes, 'random')
-        missionsarray = eval(missiontype+"_mission")
-        mission = get_trigger_arg(bot, missionsarray, 'random')
-        osd(bot, trigger.sender, 'say', 'CYBORG TISSUE GENERATION ' + str(modelnumber) + ' SEQUENCE INITIATED')
-        osd(bot, trigger.sender, 'say', 'DOWNLOADING CURRENT OBJECTIVE FROM SKYNET: ' + str(mission))
-        osd(bot, trigger.sender, 'say', 'ACTIVATING Cipher-0')
+        osd(bot, trigger.sender, 'say', ['The machines rose from the ashes of the nuclear fire.', 'Their war to exterminate mankind had raged on for decades.', 'But the final battle will not be fought in the future.', 'It would be fought in our present...tonight.'])

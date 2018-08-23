@@ -10,7 +10,7 @@ shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
-specifics = ['brightlights', 'doctor', 'EULA', 'IT', 'legal', 'law', 'Cipher-0', 'Cipher', 'IT_Sean', 'parent', 'pornhub', 'porn','penis','penispump']
+specifics = ['brightlights', 'doctor', 'EULA', 'IT', 'legal', 'law', 'Cipher-0', 'Cipher', 'IT_Sean', 'parent', 'pornhub', 'porn', 'penis', 'penispump']
 
 
 @sopel.module.commands('disclaimer')
@@ -22,8 +22,11 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
+    person = get_trigger_arg(bot, [x for x in triggerargsarray if x in botcom.users_all], 1) or instigator
+    if person in triggerargsarray:
+        triggerargsarray.remove(person)
     subdisclaimer = get_trigger_arg(bot, triggerargsarray, 1)
-    person = get_trigger_arg(bot, triggerargsarray, 2) or instigator
+    # person = get_trigger_arg(bot, triggerargsarray, 2) or instigator
     if subdisclaimer == 'options':
         osd(bot, trigger.sender, 'say', "Current options for this module are: %s" % get_trigger_arg(bot, specifics, 'list'))
     elif subdisclaimer in specifics:

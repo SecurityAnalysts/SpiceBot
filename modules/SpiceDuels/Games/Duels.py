@@ -6571,7 +6571,7 @@ def duels_criteria(bot, player_two, duels, verbose):
     if deathblow:
         deathblowtargettime = duels_time_since(bot, targetbio.actual, 'deathblowtargettime') or 0
         if deathblowtargettime <= 120:
-            deathblowkiller = get_database_value(bot, nick, 'deathblowkiller') or 'unknown'
+            deathblowkiller = get_database_value(bot, targetbio.actual, 'deathblowkiller') or 'unknown'
             validtargetmsg.append(targetbio.nametext + " can't run duels for " + str(duels_hours_minutes_seconds((120 - deathblowtargettime))) + " due to a potential deathblow from " + deathblowkiller + ".")
             validtarget = 0
 

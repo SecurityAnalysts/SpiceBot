@@ -10,7 +10,7 @@ shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
-specifics = ['brightlights', 'doctor', 'EULA', 'IT', 'legal', 'law', 'Cipher-0', 'Cipher', 'IT_Sean', 'parent', 'pornhub', 'porn']
+specifics = ['brightlights', 'doctor', 'EULA', 'IT', 'legal', 'law', 'Cipher-0', 'Cipher', 'IT_Sean', 'parent', 'pornhub', 'porn','penis','penispump']
 
 
 @sopel.module.commands('disclaimer')
@@ -49,5 +49,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
             osd(bot, trigger.sender, 'say', "Frivolously pestering Cipher comes with a high risk of termination, %s" % person)
         elif subdisclaimer == 'IT_Sean':
             osd(bot, trigger.sender, 'say', "Should you ever encounter gases released by Sean, please be sure to inform your nearest biosafety agency of the incident.")
+        elif subdisclaimer == 'penis' or subdisclaimer == 'penispump':
+            osd(bot, trigger.sender, 'say', "Please note that %s is not a penis enlarger manufacturer. %s is, however, not only their best tester but also their largest purchaser. Any views on penis enlargers given by %s should be taken as if it is a Michelin Star review, as they are seen as the utmost living expert on the subject of phallic enlargement devices." % (person, person, person))
     else:
         osd(bot, trigger.sender, 'say', "%s is not your doctor. The views/opinions/information expressed by %s is not intended or implied to be a substitute for professional medical advice, diagnosis or treatment." % (person, person))

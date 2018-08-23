@@ -5049,29 +5049,6 @@ def duels_user_lists(bot, duels):
                 if user not in duels.users_current_allchan_opted:
                     duels.users_current_allchan_opted.append(user)
 
-        # Players in locations
-        locationunknown = []
-        for user in users_opted_current_channel:
-            locationunknown.append(user)
-        for location in duels_commands_locations:
-            currentlocationusers = get_database_value(bot, 'duelrecorduser', location+"_users") or []
-            current_location_list = eval("duels.users_current_allchan_" + location)
-            for user in currentlocationusers:
-                if user in locationunknown:
-                    locationunknown.remove(user)
-                if user not in current_location_list:
-                    current_location_list.append(user)
-        if locationunknown != []:
-            for user in locationunknown:
-                duels.users_current_allchan_town.append(user)
-            adjust_database_array(bot, 'duelrecorduser', locationunknown, "town_users", 'add')
-
-        for location in duels_commands_locations:
-            current_location_list = eval("duels.users_current_allchan_" + location)
-            for user in current_location_list:
-                if user not in duels.users_current_allchan:
-                    current_location_list.remove(user)
-
         # Some commands are valid targets for target check
         othervalidtargets = ['monster', 'random']
         for validtarget in othervalidtargets:
@@ -5096,6 +5073,29 @@ def duels_user_lists(bot, duels):
         for user in users_canduel_current_channel:
             if user not in duels.users_canduel_allchan:
                 duels.users_canduel_allchan.append(user)
+
+        # Players in locations
+        locationunknown = []
+        for user in users_opted_current_channel:
+            locationunknown.append(user)
+        for location in duels_commands_locations:
+            currentlocationusers = get_database_value(bot, 'duelrecorduser', location+"_users") or []
+            current_location_list = eval("duels.users_current_allchan_" + location)
+            for user in currentlocationusers:
+                if user in locationunknown:
+                    locationunknown.remove(user)
+                if user not in current_location_list:
+                    current_location_list.append(user)
+        if locationunknown != []:
+            for user in locationunknown:
+                duels.users_current_allchan_town.append(user)
+            adjust_database_array(bot, 'duelrecorduser', locationunknown, "town_users", 'add')
+
+        for location in duels_commands_locations:
+            current_location_list = eval("duels.users_current_allchan_" + location)
+            for user in current_location_list:
+                if user not in duels.users_canduel_allchan:
+                    current_location_list.remove(user)
 
         # Bot owner
         for user in users_current_channel:
@@ -6081,7 +6081,7 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
                 if effectamount <= endurancemath:
                     effectamount = 0
                 else:
-                    endurancemath = randint(endurancemath, effectamount)
+                    endurancemath = randint(int(endurancemath), int(effectamount))
                     damagenew = effectamount - endurancemath
                     if damagenew <= 0:
                         effectamount == 0

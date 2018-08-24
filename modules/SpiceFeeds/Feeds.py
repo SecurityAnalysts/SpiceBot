@@ -447,27 +447,26 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
 
             currenttweetat = eval("feeds." + feed + ".tweetat")
 
-            currenttweats = twiterapi.GetSearch(currenttweetat)
+            # currenttweats = twiterapi.GetSearch(currenttweetat)
+            currenttweats = twiterapi.GetUserStream(screen_name=currenttweetat, count=1)
             listarray = []
             for tweet in currenttweats:
                 listarray.append(tweet)
             tweet = listarray[0]
 
-            bot.say(str(tweet))
+            scrapedtime = parser.parse(str(tweet.created_at)).replace(tzinfo=pytz.UTC)
 
-            # lastbuildcurrent = get_database_value(bot, bot.nick, feed + '_lastbuildcurrent')
-            # if displayifnotnew or (str(submission.permalink) == str(lastbuildcurrent)):
-            #    return
-            #if not displayifnotnew:
-            #    set_database_value(bot, bot.nick, feed + '_lastbuildcurrent', str(submission.permalink))
+            lastbuildcurrent = get_database_value(bot, bot.nick, feed + '_lastbuildcurrent') or datetime.datetime(1999, 1, 1, 1, 1, 1, 1).replace(tzinfo=pytz.UTC)
+            lastbuildcurrent = parser.parse(str(lastbuildcurrent))
 
-            return
+            if displayifnotnew or scrapedtime > lastbuildcurrent:
 
-            for tweet in tweets:
-                dispmsg.append(tweet[id])
-                dispmsg.append(tweet[text])
+                dispmsg.append(tweet.text)
 
-            titleappend = 1
+                titleappend = 1
+
+            if not displayifnotnew:
+                set_database_value(bot, bot.nick, feed + '_lastbuildcurrent', str(scrapedtime))
 
         elif feed_type == 'subreddit':
 

@@ -1,5 +1,5 @@
 [configuration]
 type = twitter
-displayname =	RikerTips
+displayname =	Twitter RikerTips
 url = https://twitter.com
 tweetat = RikerTips

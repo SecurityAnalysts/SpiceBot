@@ -26,8 +26,6 @@ redditurl = "https://www.reddit.com/"
 # Creds
 config = ConfigParser.ConfigParser()
 config.read("/home/spicebot/spicebot.conf")
-USERNAME = config.get("reddit", "username")
-PASSWORD = config.get("reddit", "password")
 CLIENTID = config.get("reddit", "clientid")
 SECRET = config.get("reddit", "secret")
 

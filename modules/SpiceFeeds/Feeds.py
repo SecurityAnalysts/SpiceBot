@@ -15,12 +15,37 @@ from dateutil import tz
 from xml.dom import minidom
 import json
 from fake_useragent import UserAgent
+import praw
+from prawcore import NotFound
+import twitter
 import sys
 import os
 moduledir = os.path.dirname(__file__)
 shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
+
+
+# creds
+config = ConfigParser.ConfigParser()
+config.read("/home/spicebot/spicebot.conf")
+
+# Reddit Creds
+RCLIENTID = config.get("reddit", "clientid")
+RSECRET = config.get("reddit", "secret")
+reddit = praw.Reddit(client_id=RCLIENTID,
+                     client_secret=RSECRET,
+                     user_agent='spicebot:net.example.myredditapp:v1.2.3 (by /u/SpiceBot-dbb)')
+
+# Twitter Creds
+TKEY = config.get("twitter", "token")
+TSECRET = config.get("twitter", "tokensecret")
+TTOKEN = config.get("twitter", "accesstoken")
+TTOKENSECRET = config.get("twitter", "tokenaccesssecret")
+twiterapi = twitter.Api(consumer_key=TKEY,
+                        consumer_secret=TSECRET,
+                        access_token_key=TTOKEN,
+                        access_token_secret=TTOKENSECRET)
 
 
 # user agent and header
@@ -418,13 +443,74 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
             # if not displayifnotnew:
             #    set_database_value(bot, bot.nick, feed + '_lastbuildcurrent', str(lastBuildXML))
 
+        elif feed_type == 'twitter':
+
+            currenttweetat = eval("feeds." + feed + ".tweetat")
+
+            currenttweats = twiterapi.GetSearch(currenttweetat)
+            listarray = []
+            for tweet in currenttweats:
+                listarray.append(tweet)
+            tweet = listarray[0]
+
+            bot.say(str(tweet))
+
+            # lastbuildcurrent = get_database_value(bot, bot.nick, feed + '_lastbuildcurrent')
+            # if displayifnotnew or (str(submission.permalink) == str(lastbuildcurrent)):
+            #    return
+            #if not displayifnotnew:
+            #    set_database_value(bot, bot.nick, feed + '_lastbuildcurrent', str(submission.permalink))
+
+            return
+
+            for tweet in tweets:
+                dispmsg.append(tweet[id])
+                dispmsg.append(tweet[text])
+
+            titleappend = 1
+
+        elif feed_type == 'subreddit':
+
+            currentsubreddit = eval("feeds." + feed + ".rslash")
+
+            subreal = sub_exists(bot, currentsubreddit)
+            if not subreal:
+                return
+
+            subpass = sub_banned_private(bot, currentsubreddit)
+            if not subpass:
+                return
+
+            subreddit = reddit.subreddit(currentsubreddit)
+
+            titleappend = 1
+
+            submissions = subreddit.new(limit=1)
+            listarray = []
+            for submission in submissions:
+                listarray.append(submission)
+            submission = listarray[0]
+
+            if subreddit.over18:
+                dispmsg.append("<NSFW>")
+
+            lastbuildcurrent = get_database_value(bot, bot.nick, feed + '_lastbuildcurrent')
+            if displayifnotnew or (str(submission.permalink) == str(lastbuildcurrent)):
+                return
+            if not displayifnotnew:
+                set_database_value(bot, bot.nick, feed + '_lastbuildcurrent', str(submission.permalink))
+
+            dispmsg.append("{" + str(submission.score) + "}")
+            dispmsg.append(submission.title)
+            dispmsg.append(url + submission.permalink)
+
         if titleappend:
             dispmsg.insert(0, "[" + displayname + "]")
 
     return dispmsg
 
 
-# rss feeds list
+# feed configs
 def feeds_configs(bot, feeds):
     feeds.list = []
     for feed_dir_type in os.listdir(feeds_file_path):
@@ -461,3 +547,21 @@ def hashave(mylist):
     else:
         hashave = 'has'
     return hashave
+
+
+def sub_exists(bot, sub):
+    exists = True
+    try:
+        reddit.subreddits.search_by_name(sub, exact=True)
+    except NotFound:
+        exists = False
+    return exists
+
+
+def sub_banned_private(bot, sub):
+    proceed = True
+    try:
+        subtype = reddit.subreddit(sub).subreddit_type
+    except Exception as e:
+        proceed = False
+    return proceed

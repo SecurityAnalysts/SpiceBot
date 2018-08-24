@@ -20,6 +20,9 @@ import fnmatch
 import random
 import urllib
 from os.path import exists
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 
 osd_limit = 420  # Ammount of text allowed to display per line
 
@@ -546,18 +549,12 @@ On Screen Text
 def osd(bot, target_array, text_type_array, text_array):
 
     # if text_array is a string, make it an array
-    textarraycompletestart = []
+    textarraycomplete = []
     if not isinstance(text_array, list):
-        textarraycompletestart.append(text_array)
+        textarraycomplete.append(text_array)
     else:
         for x in text_array:
-            textarraycompletestart.append(x)
-
-    # unicode patch
-    textarraycomplete = []
-    for string in textarraycompletestart:
-        string = unicode(string).encode('utf8')
-        textarraycomplete.append(string)
+            textarraycomplete.append(x)
 
     # if target_array is a string, make it an array
     texttargetarray = []
@@ -644,7 +641,7 @@ def osd(bot, target_array, text_type_array, text_array):
                         currentstring = ''
                     combinedtextarray.append(textstring)
                 else:
-                    tempstring = str(currentstring + "   " + textstring)
+                    tempstring = currentstring + "   " + textstring
                     if len(tempstring) <= osd_limit:
                         currentstring = tempstring
                     else:

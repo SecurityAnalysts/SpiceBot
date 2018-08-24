@@ -9,7 +9,7 @@ shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
-# author yournamehere
+# author jimender2
 
 
 @sopel.module.commands('boot')
@@ -22,5 +22,8 @@ def mainfunction(bot, trigger):
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
     target = get_trigger_arg(bot, triggerargsarray, 1)
+    if not target:
+        allUsers = [u.lower() for u in bot.users]
+        target = get_trigger_arg(bot, allUsers, "random") or 'spicebot'
     message = instigator + " kicks " + target + " with a big old boot!"
     osd(bot, trigger.sender, 'say', message)

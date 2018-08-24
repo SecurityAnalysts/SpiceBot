@@ -26,6 +26,8 @@ from fake_useragent import UserAgent
 from lxml import html
 from statistics import mean
 import itertools
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 
 # Global Vars
@@ -7691,18 +7693,12 @@ On Screen Text
 def osd(bot, target_array, text_type_array, text_array):
 
     # if text_array is a string, make it an array
-    textarraycompletestart = []
+    textarraycomplete = []
     if not isinstance(text_array, list):
-        textarraycompletestart.append(text_array)
+        textarraycomplete.append(text_array)
     else:
         for x in text_array:
-            textarraycompletestart.append(x)
-
-    # unicode patch
-    textarraycomplete = []
-    for string in textarraycompletestart:
-        string = unicode(string).encode('utf8')
-        textarraycomplete.append(string)
+            textarraycomplete.append(x)
 
     # if target_array is a string, make it an array
     texttargetarray = []
@@ -7789,7 +7785,7 @@ def osd(bot, target_array, text_type_array, text_array):
                         currentstring = ''
                     combinedtextarray.append(textstring)
                 else:
-                    tempstring = str(currentstring + "   " + textstring)
+                    tempstring = currentstring + "   " + textstring
                     if len(tempstring) <= osd_limit:
                         currentstring = tempstring
                     else:

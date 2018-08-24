@@ -383,6 +383,10 @@ def rpg_command_main_administrator(bot, rpg, instigator):
         return
 
 
+def rpg_command_main_travel(bot, rpg, instigator):
+    bot.say("wip")
+
+
 def rpg_command_main_settings(bot, rpg, instigator):
 
     # Subcommand

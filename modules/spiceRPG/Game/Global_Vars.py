@@ -40,7 +40,7 @@ Commands
 
 
 # Valid Command Types
-rpg_valid_command_types = ['administrator','settings','basic']
+rpg_valid_command_types = ['administrator','settings','basic','location']
 
 # Administrator Commands
 rpg_commands_valid_administrator = ['administrator']
@@ -50,6 +50,9 @@ rpg_commands_valid_settings = ['settings']
 
 # Basic Commands
 rpg_commands_valid_basic = ['author','intent','about','version','docs','usage']
+
+# Location
+rpg_commands_valid_location = ['travel']
 
 
 """
@@ -98,6 +101,8 @@ rpg_commands_valid_alt_version = []
 # usage
 rpg_commands_valid_alt_usage = []
 
+# travel
+rpg_commands_valid_alt_travel = []
 
 """
 Command Tiers
@@ -158,6 +163,10 @@ subcommands_valid_administrator_channel = ['game','devmode']
 subcommands_valid_settings = ['hotkey']
 subcommands_default_settings = 0
 subcommands_valid_settings_hotkey = ['view','update','reset','list']
+
+# Travel
+subcommands_valid_travel = ['north','south','east','west']
+subcommands_default_travel = 0
 
 
 """
@@ -240,5 +249,9 @@ rpg_error_docs = [
 ]
 
 rpg_error_usage = [
+                    ""
+]
+
+rpg_error_travel = [
                     ""
 ]

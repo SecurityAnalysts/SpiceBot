@@ -5021,7 +5021,7 @@ def duels_user_lists(bot, duels):
 
     for channel in bot.channels:
         current_channel = str(channel)
-        while current_channel.startswith("#"):
+        if current_channel.startswith("#"):
             current_channel = current_channel.replace("#", "")
         current_channel = current_channel.strip()
 

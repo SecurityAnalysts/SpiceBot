@@ -19,11 +19,19 @@ from sopel.logger import get_logger
 from sopel.module import commands, rule, example, priority
 
 
-#@sopel.module.commands('dbbtest')
-#def mainfunction(bot, trigger):
+# @sopel.module.commands('dbbtest')
+# def mainfunction(bot, trigger):
 #    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, trigger.group(1))
 #    execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 @sopel.module.commands('dbbtest')
 def execute_main(bot, trigger):
     osd(bot, trigger.sender, 'say', "This is deathbybandaid's test module")
+
+    thisdict = dict(apple="green", banana="yellow", cherry="red")
+
+    bot.say(str(thisdict["apple"]))
+
+    botdict = get_database_dict(bot, bot.nick, 'dicttest')
+
+    bot.say(str(botdict))

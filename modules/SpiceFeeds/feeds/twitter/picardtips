@@ -1,0 +1,5 @@
+[configuration]
+type = twitter
+displayname =	Twitter PicardTips
+url = https://twitter.com
+tweetat = PicardTips

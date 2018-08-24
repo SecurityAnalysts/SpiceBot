@@ -448,7 +448,7 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
             currenttweetat = eval("feeds." + feed + ".tweetat")
 
             # currenttweats = twiterapi.GetSearch(currenttweetat)
-            currenttweats = twiterapi.GetUserStream(screen_name=currenttweetat, count=1)
+            currenttweats = twiterapi.GetUserTimeline(screen_name=currenttweetat, count=1)
             listarray = []
             for tweet in currenttweats:
                 listarray.append(tweet)
@@ -482,26 +482,26 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
 
             subreddit = reddit.subreddit(currentsubreddit)
 
-            titleappend = 1
-
             submissions = subreddit.new(limit=1)
             listarray = []
             for submission in submissions:
                 listarray.append(submission)
             submission = listarray[0]
 
-            if subreddit.over18:
-                dispmsg.append("<NSFW>")
-
             lastbuildcurrent = get_database_value(bot, bot.nick, feed + '_lastbuildcurrent')
-            if displayifnotnew or (str(submission.permalink) == str(lastbuildcurrent)):
-                return
-            if not displayifnotnew:
-                set_database_value(bot, bot.nick, feed + '_lastbuildcurrent', str(submission.permalink))
+            if displayifnotnew or (str(submission.permalink) != str(lastbuildcurrent)):
 
-            dispmsg.append("{" + str(submission.score) + "}")
-            dispmsg.append(submission.title)
-            dispmsg.append(url + submission.permalink)
+                titleappend = 1
+
+                if subreddit.over18:
+                    dispmsg.append("<NSFW>")
+
+                if not displayifnotnew:
+                    set_database_value(bot, bot.nick, feed + '_lastbuildcurrent', str(submission.permalink))
+
+                dispmsg.append("{" + str(submission.score) + "}")
+                dispmsg.append(submission.title)
+                dispmsg.append(url + submission.permalink)
 
         if titleappend:
             dispmsg.insert(0, "[" + displayname + "]")

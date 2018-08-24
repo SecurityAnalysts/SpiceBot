@@ -23,7 +23,8 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     failureodds = 4
     if bot.nick.endswith('dev'):
         failureodds = 2
-    target = get_trigger_arg(bot, triggerargsarray, 1)
+    # target = get_trigger_arg(bot, triggerargsarray, 1)
+    target = get_trigger_arg(bot, [x for x in triggerargsarray if x in botcom.users_all], 1) or 0
     backfires = [" drops their pants and squats on " + target + "'s desk, but all they manage to do is fart.",
                  " overestimated their capabilities and poops themselves.",
                  " gets halfway through pooping before realising that this is their own desk, not " + target + "'s.",

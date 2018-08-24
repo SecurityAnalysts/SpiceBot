@@ -47,7 +47,6 @@ twiterapi = twitter.Api(consumer_key=TKEY,
                         access_token_key=TTOKEN,
                         access_token_secret=TTOKENSECRET)
 
-
 # user agent and header
 ua = UserAgent()
 header = {'User-Agent': str(ua.chrome)}

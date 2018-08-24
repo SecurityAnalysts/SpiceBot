@@ -22,8 +22,8 @@ def mainfunction(bot, trigger):
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     target = get_trigger_arg(bot, [x for x in triggerargsarray if x in botcom.users_all], 1) or botcom.instigator
     if not target.endswith("s"):
-        target = str(target + "s")
+        targetb = str(target + "s")
     else:
-        target = str(target + "'")
-    message = str("Space: the final frontier. These are the voyages of " + target + ". " + target + "s mission: to explore strange new worlds. To seek out new life and new civilizations. To boldly go where " + target + " hasn't gone before!")
+        targetb = str(target + "'")
+    message = str("Space: the final frontier. These are the voyages of " + target + ". " + targetb + " mission: to explore strange new worlds. To seek out new life and new civilizations. To boldly go where " + target + " hasn't gone before!")
     osd(bot, trigger.sender, 'say', message)

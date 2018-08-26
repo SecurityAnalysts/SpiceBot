@@ -55,7 +55,8 @@ Command Processing
 def execute_start(bot, trigger, triggerargsarray, command_type):
 
     # RPG dynamic Class
-    rpg = class_create('main')
+    rpg = class_create('rpg')
+    rpg.default = 'rpg'
 
     # Command type
     rpg.command_type = command_type
@@ -89,6 +90,9 @@ def execute_start(bot, trigger, triggerargsarray, command_type):
 
     # Error Display System Display
     rpg_errors_end(bot, rpg)
+
+    # Save any open user values
+    save_rpg_user_dicts(bot, rpg)
 
 
 def execute_main(bot, rpg, instigator, trigger, triggerargsarray):
@@ -845,6 +849,18 @@ def rpg_command_users(bot, rpg):
     return rpg
 
 
+# Database Users
+def get_rpg_user_dict(bot, rpg, nick, value):
+
+    # check if nick has been pulled from db already
+    if nick not in rpg.userdb:
+        rpg.userdb.append(nick)
+        nickdict = get_database_value(bot, nick, 'rpg') or dict()
+        bot.say(str(nickdict))
+    # else:
+        # nickdict = eval()
+
+
 # Bot Nicks
 def bot_config_names(bot):
     config_listing = []
@@ -1428,7 +1444,7 @@ def reset_database_value(bot, nick, databasekey):
 def adjust_database_value(bot, nick, databasekey, value):
     oldvalue = get_database_value(bot, nick, databasekey) or 0
     databasecolumn = str('rpg_' + databasekey)
-    bot.db.set_nick_value(nick, databasecolumn, int(oldvalue) + int(value))
+    bot.db.set_nick_value(nick, databasecolumn, float(oldvalue) + float(value))
 
 
 # array stored in database length
@@ -1463,6 +1479,102 @@ def adjust_database_array(bot, nick, entries, databasekey, adjustmentdirection):
         reset_database_value(bot, nick, databasekey)
     else:
         set_database_value(bot, nick, databasekey, adjustarray)
+
+
+# Database Users
+def get_user_dict(bot, dclass, nick, dictkey):
+
+    # check that db list is there
+    if not hasattr(dclass, 'userdb'):
+        dclass.userdb = class_create('userdblist')
+    if not hasattr(dclass.userdb, 'list'):
+        dclass.userdb.list = []
+
+    returnvalue = 0
+
+    # check if nick has been pulled from db already
+    if nick not in dclass.userdb.list:
+        dclass.userdb.list.append(nick)
+        nickdict = get_database_value(bot, nick, dclass.default) or dict()
+        createuserdict = str("dclass.userdb." + nick + " = nickdict")
+        exec(createuserdict)
+    else:
+        if not hasattr(dclass.userdb, nick):
+            nickdict = dict()
+        else:
+            nickdict = eval('dclass.userdb.' + nick)
+
+    if dictkey in nickdict.keys():
+        returnvalue = nickdict[dictkey]
+    else:
+        nickdict[dictkey] = 0
+        returnvalue = 0
+
+    return returnvalue
+
+
+# set a value
+def set_user_dict(bot, dclass, nick, dictkey, value):
+    currentvalue = get_rpg_user_dict(bot, dclass, nick, dictkey)
+    nickdict = eval('dclass.userdb.' + nick)
+    nickdict[dictkey] = value
+
+
+# reset a value
+def reset_user_dict(bot, dclass, nick, dictkey):
+    currentvalue = get_rpg_user_dict(bot, dclass, nick, dictkey)
+    nickdict = eval('dclass.userdb.' + nick)
+    if dictkey in nickdict:
+        del nickdict[dictkey]
+
+
+# add or subtract from current value
+def adjust_user_dict(bot, dclass, nick, dictkey, value):
+    oldvalue = get_rpg_user_dict(bot, dclass, nick, dictkey)
+    if not str(oldvalue).isdigit():
+        oldvalue = 0
+    nickdict = eval('dclass.userdb.' + nick)
+    nickdict[dictkey] = float(oldvalue) + float(value)
+
+
+# Save all database users in list
+def save_user_dicts(bot, dclass):
+
+    # check that db list is there
+    if not hasattr(dclass, 'userdb'):
+        dclass.userdb = class_create('userdblist')
+    if not hasattr(dclass.userdb, 'list'):
+        dclass.userdb.list = []
+
+    for nick in dclass.userdb.list:
+        if not hasattr(dclass.userdb, nick):
+            nickdict = dict()
+        else:
+            nickdict = eval('dclass.userdb.' + nick)
+        set_database_value(bot, nick, dclass.default, nickdict)
+
+
+"""
+array todo
+"""
+
+
+# add or subtract from current value
+def adjust_user_dict_array(bot, dclass, nick, dictkey, entries, adjustmentdirection):
+    if not isinstance(entries, list):
+        entries = [entries]
+    oldvalue = get_rpg_user_dict(bot, dclass, nick, dictkey)
+    nickdict = eval('dclass.userdb.' + nick)
+    if not isinstance(oldvalue, list):
+        oldvalue = []
+    for x in entries:
+        if adjustmentdirection == 'add':
+            if x not in oldvalue:
+                oldvalue.append(x)
+        elif adjustmentdirection == 'del':
+            if x in oldvalue:
+                oldvalue.remove(x)
+    nickdict[dictkey] = oldvalue
 
 
 """

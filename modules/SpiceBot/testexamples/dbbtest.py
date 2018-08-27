@@ -29,6 +29,10 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     osd(bot, trigger.sender, 'say', "This is deathbybandaid's test module")
 
     command = get_trigger_arg(bot, triggerargsarray, 1) or 'get'
+    if command in triggerargsarray:
+        triggerargsarray.remove(command)
+
+    whatisleft = get_trigger_arg(bot, triggerargsarray, 0)
 
     # RPG dynamic Class
     rpg = class_create('rpg')
@@ -45,12 +49,19 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         adjust_user_dict(bot, rpg, bot.nick, 'coin', 20)
     elif command == 'adjustdown':
         adjust_user_dict(bot, rpg, bot.nick, 'coin', -20)
+    elif command == 'viewarray':
+        weapons = get_user_dict(bot, rpg, bot.nick, 'weapons')
+        bot.say(str(weapons))
+    elif command == 'addarray':
+        adjust_user_dict_array(bot, rpg, bot.nick, 'weapons', [whatisleft], 'add')
+    elif command == 'delarray':
+        adjust_user_dict_array(bot, rpg, bot.nick, 'weapons', [whatisleft], 'del')
 
     """
     End of all of the rpg stuff after error handling
     """
 
-    save_rpg_user_dicts(bot, rpg)
+    save_user_dicts(bot, rpg)
     if command != 'get':
         bot.say("done")
 
@@ -89,14 +100,14 @@ def get_user_dict(bot, dclass, nick, dictkey):
 
 # set a value
 def set_user_dict(bot, dclass, nick, dictkey, value):
-    currentvalue = get_rpg_user_dict(bot, dclass, nick, dictkey)
+    currentvalue = get_user_dict(bot, dclass, nick, dictkey)
     nickdict = eval('dclass.userdb.' + nick)
     nickdict[dictkey] = value
 
 
 # reset a value
 def reset_user_dict(bot, dclass, nick, dictkey):
-    currentvalue = get_rpg_user_dict(bot, dclass, nick, dictkey)
+    currentvalue = get_user_dict(bot, dclass, nick, dictkey)
     nickdict = eval('dclass.userdb.' + nick)
     if dictkey in nickdict:
         del nickdict[dictkey]
@@ -104,7 +115,7 @@ def reset_user_dict(bot, dclass, nick, dictkey):
 
 # add or subtract from current value
 def adjust_user_dict(bot, dclass, nick, dictkey, value):
-    oldvalue = get_rpg_user_dict(bot, dclass, nick, dictkey)
+    oldvalue = get_user_dict(bot, dclass, nick, dictkey)
     if not str(oldvalue).isdigit():
         oldvalue = 0
     nickdict = eval('dclass.userdb.' + nick)
@@ -126,3 +137,20 @@ def save_user_dicts(bot, dclass):
         else:
             nickdict = eval('dclass.userdb.' + nick)
         set_database_value(bot, nick, dclass.default, nickdict)
+
+
+def adjust_user_dict_array(bot, dclass, nick, dictkey, entries, adjustmentdirection):
+    if not isinstance(entries, list):
+        entries = [entries]
+    oldvalue = get_user_dict(bot, dclass, nick, dictkey)
+    nickdict = eval('dclass.userdb.' + nick)
+    if not isinstance(oldvalue, list):
+        oldvalue = []
+    for x in entries:
+        if adjustmentdirection == 'add':
+            if x not in oldvalue:
+                oldvalue.append(x)
+        elif adjustmentdirection == 'del':
+            if x in oldvalue:
+                oldvalue.remove(x)
+    nickdict[dictkey] = oldvalue

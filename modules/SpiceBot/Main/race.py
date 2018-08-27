@@ -17,7 +17,7 @@ vehicleType = ["ford f150", "toyota corrola", "Kia Ultima", "shermin tank", "wal
 maximumHealth = ["100", "90", "50", "1000", "1"]
 
 
-@sopel.module.commands('race')
+@sopel.module.commands('racedev')
 def mainfunction(bot, trigger):
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'race')
     if not enablestatus:
@@ -32,13 +32,13 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     command = get_trigger_arg(bot, triggerargsarray, 1)
 
     if command == "help":
-        test
+        osd(bot, trigger.sender, 'say', "For right now do .race random or .race person to race")
     elif command == "track":
-        test
+        osd(bot, trigger.sender, 'say', "For right now this is not set up yet.")
     elif command == "location":
-        test
+        osd(bot, trigger.sender, 'say', "For right now this is not set up yet.")
     elif command == "practice":
-        test
+        osd(bot, trigger.sender, 'say', "For right now this is not set up yet.")
     elif command == "random":
         target = randomUser(bot, botcom, instigator)
         race(bot, botcom, target, instigator, trigger)

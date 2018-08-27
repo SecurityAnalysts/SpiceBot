@@ -54,6 +54,9 @@ Command Processing
 
 def execute_start(bot, trigger, triggerargsarray, command_type):
 
+    # make a value that contains an ordered list of nicks in a triggerarg TODO
+    # new user check for dictionary method
+
     # RPG dynamic Class
     rpg = class_create('rpg')
     rpg.default = 'rpg'
@@ -92,7 +95,7 @@ def execute_start(bot, trigger, triggerargsarray, command_type):
     rpg_errors_end(bot, rpg)
 
     # Save any open user values
-    save_rpg_user_dicts(bot, rpg)
+    save_user_dicts(bot, rpg)
 
 
 def execute_main(bot, rpg, instigator, trigger, triggerargsarray):
@@ -850,7 +853,7 @@ def rpg_command_users(bot, rpg):
 
 
 # Database Users
-def get_rpg_user_dict(bot, rpg, nick, value):
+def get_user_dict(bot, rpg, nick, value):
 
     # check if nick has been pulled from db already
     if nick not in rpg.userdb:
@@ -1515,14 +1518,14 @@ def get_user_dict(bot, dclass, nick, dictkey):
 
 # set a value
 def set_user_dict(bot, dclass, nick, dictkey, value):
-    currentvalue = get_rpg_user_dict(bot, dclass, nick, dictkey)
+    currentvalue = get_user_dict(bot, dclass, nick, dictkey)
     nickdict = eval('dclass.userdb.' + nick)
     nickdict[dictkey] = value
 
 
 # reset a value
 def reset_user_dict(bot, dclass, nick, dictkey):
-    currentvalue = get_rpg_user_dict(bot, dclass, nick, dictkey)
+    currentvalue = get_user_dict(bot, dclass, nick, dictkey)
     nickdict = eval('dclass.userdb.' + nick)
     if dictkey in nickdict:
         del nickdict[dictkey]
@@ -1530,7 +1533,7 @@ def reset_user_dict(bot, dclass, nick, dictkey):
 
 # add or subtract from current value
 def adjust_user_dict(bot, dclass, nick, dictkey, value):
-    oldvalue = get_rpg_user_dict(bot, dclass, nick, dictkey)
+    oldvalue = get_user_dict(bot, dclass, nick, dictkey)
     if not str(oldvalue).isdigit():
         oldvalue = 0
     nickdict = eval('dclass.userdb.' + nick)
@@ -1554,16 +1557,11 @@ def save_user_dicts(bot, dclass):
         set_database_value(bot, nick, dclass.default, nickdict)
 
 
-"""
-array todo
-"""
-
-
 # add or subtract from current value
 def adjust_user_dict_array(bot, dclass, nick, dictkey, entries, adjustmentdirection):
     if not isinstance(entries, list):
         entries = [entries]
-    oldvalue = get_rpg_user_dict(bot, dclass, nick, dictkey)
+    oldvalue = get_user_dict(bot, dclass, nick, dictkey)
     nickdict = eval('dclass.userdb.' + nick)
     if not isinstance(oldvalue, list):
         oldvalue = []

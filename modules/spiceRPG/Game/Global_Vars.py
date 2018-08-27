@@ -40,13 +40,16 @@ Commands
 
 
 # Valid Command Types
-rpg_valid_command_types = ['administrator','settings','basic','location']
+rpg_valid_command_types = ['administrator','settings','basic','location','combat']
 
 # Administrator Commands
 rpg_commands_valid_administrator = ['administrator']
 
 # User Settings
 rpg_commands_valid_settings = ['settings']
+
+# Combat
+rpg_commands_valid_combat = ['combat']
 
 # Basic Commands
 rpg_commands_valid_basic = ['author','intent','about','version','docs','usage']
@@ -88,6 +91,9 @@ rpg_commands_valid_alt_author = ['credit','credits']
 
 # settings
 rpg_commands_valid_alt_settings = []
+
+# combat
+rpg_commands_valid_alt_combat = []
 
 # intent
 rpg_commands_valid_alt_intent = []
@@ -224,6 +230,10 @@ rpg_error_administrator = [
                     "RPG devmode is already off in $dev_chans.",  # 6
                     "RPG is already on in $game_chans.",  # 7
                     "RPG is already off in $game_chans."  # 8
+]
+
+rpg_error_combat = [
+                    ""
 ]
 
 # Basic

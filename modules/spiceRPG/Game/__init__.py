@@ -54,9 +54,6 @@ Command Processing
 
 def execute_start(bot, trigger, triggerargsarray, command_type):
 
-    # make a value that contains an ordered list of nicks in a triggerarg TODO
-    # new user check for dictionary method
-
     # RPG dynamic Class
     rpg = class_create('rpg')
     rpg.default = 'rpg'
@@ -72,7 +69,7 @@ def execute_start(bot, trigger, triggerargsarray, command_type):
     instigator.default = trigger.nick
     rpg.instigator = trigger.nick
 
-    rpg.tier_current = get_database_value(bot, 'rpg_game_records', 'current_tier') or 0
+    rpg.tier_current = get_user_dict(bot, rpg, 'rpg_game_records', 'current_tier') or 0
 
     # Channel Listing
     rpg = rpg_command_channels(bot, rpg, trigger)
@@ -83,7 +80,7 @@ def execute_start(bot, trigger, triggerargsarray, command_type):
     # Bacic User List
     rpg = rpg_command_users(bot, rpg)
 
-    # TODO valid stats
+    # map dictionary TODO
 
     # Error Display System Create
     rpg_errors_start(bot, rpg)
@@ -100,22 +97,6 @@ def execute_start(bot, trigger, triggerargsarray, command_type):
 
 def execute_main(bot, rpg, instigator, trigger, triggerargsarray):
 
-    # Verify Game enabled in current channel
-    if rpg.channel_current not in rpg.channels_game_enabled and rpg.channel_real:
-        if rpg.channels_game_enabled == []:
-            errors(bot, rpg, 'commands', 1, 1)
-            if rpg.instigator not in rpg.botadmins:
-                return
-        else:
-            errors(bot, rpg, 'commands', 2, 1)
-            if rpg.instigator not in rpg.botadmins:
-                return
-
-    # block instigator if
-    if rpg.instigator.lower() in rpg.valid_commands_all and rpg.instigator.lower() in rpg.valid_commands_alts and rpg.instigator.lower() in [x.lower() for x in rpg.bots_list]:
-        errors(bot, rpg, 'commands', 17, 1)
-        return
-
     # No Empty Commands
     if triggerargsarray == []:
         user_capable_coms = []
@@ -125,7 +106,6 @@ def execute_main(bot, rpg, instigator, trigger, triggerargsarray):
                     user_capable_coms.append(vcom)
             else:
                 user_capable_coms.append(vcom)
-        valid_commands_list = get_trigger_arg(bot, user_capable_coms, 'andlist')
         errors(bot, rpg, 'commands', 3, 1)
         return
 
@@ -149,11 +129,11 @@ def execute_main(bot, rpg, instigator, trigger, triggerargsarray):
         rpg.triggerargsarray = get_trigger_arg(bot, command_split_partial, 'create')
 
         # Admin only
-        rpg.admin = 0
+        rpg.adminswitch = 0
         if [x for x in rpg.triggerargsarray if x == "-a"]:
             rpg.triggerargsarray.remove("-a")
             if rpg.instigator in rpg.botadmins:
-                rpg.admin = 1
+                rpg.adminswitch = 1
             else:
                 errors(bot, rpg, 'commands', 4, 1)
 
@@ -171,16 +151,21 @@ def command_process(bot, trigger, rpg, instigator):
 
     rpg.command_run = 0
 
+    # block instigator if
+    if rpg.instigator.lower() in rpg.valid_commands_all and rpg.instigator.lower() in rpg.valid_commands_alts and rpg.instigator.lower() in [x.lower() for x in rpg.bots_list]:
+        errors(bot, rpg, 'commands', 17, 1)
+        return rpg
+
     # allow players to set custom shortcuts to numbers
     if str(rpg.command_main).isdigit():
-        number_command = get_database_value(bot, rpg.instigator, 'hotkey_'+str(rpg.command_main)) or 0
+        number_command = get_user_dict(bot, rpg, rpg.instigator, 'hotkey_'+str(rpg.command_main)) or 0
         if not number_command:
             errors(bot, rpg, 'commands', 8, rpg.command_main)
             return rpg
         else:
-            number_command_list = get_database_value(bot, rpg.instigator, 'hotkey_complete') or []
+            number_command_list = get_user_dict(bot, rpg, rpg.instigator, 'hotkey_complete') or []
             if rpg.command_main.lower() not in number_command_list:
-                adjust_database_array(bot, rpg.instigator, [rpg.command_main.lower()], 'hotkey_complete', 'add')
+                adjust_user_dict_array(bot, rpg, rpg.instigator, 'hotkey_complete', [rpg.command_main.lower()], 'add')
             commandremaining = get_trigger_arg(bot, rpg.triggerargsarray, '2+') or ''
             number_command = str(number_command + " " + commandremaining)
             rpg.triggerargsarray = get_trigger_arg(bot, number_command, 'create')
@@ -208,12 +193,12 @@ def command_process(bot, trigger, rpg, instigator):
             rpg.command_full = get_trigger_arg(bot, rpg.triggerargsarray, 0)
 
     # Instigator versus Instigator
-    if rpg.command_main.lower() == rpg.instigator.lower() and not rpg.admin:
+    if rpg.command_main.lower() == rpg.instigator.lower() and not rpg.adminswitch:
         errors(bot, rpg, 'commands', 13, 1)
         return rpg
 
     # Instigator versus Bot
-    if rpg.command_main.lower() == bot.nick.lower() and not rpg.admin:
+    if rpg.command_main.lower() == bot.nick.lower() and not rpg.adminswitch:
         errors(bot, rpg, 'commands', 12, 1)
         return rpg
 
@@ -240,7 +225,7 @@ def command_process(bot, trigger, rpg, instigator):
         rpg.command_full = get_trigger_arg(bot, rpg.triggerargsarray, 0)
 
     # multicom multiple of the same
-    if rpg.command_main.lower() in rpg.commands_ran and not rpg.admin:
+    if rpg.command_main.lower() in rpg.commands_ran and not rpg.adminswitch:
         errors(bot, rpg, 'commands', 5, 1)
         return rpg
 
@@ -251,13 +236,24 @@ def command_process(bot, trigger, rpg, instigator):
         errors(bot, rpg, 'commands', 6, rpg.command_main)
         return rpg
 
+    # Verify Game enabled in current channel
+    if rpg.channel_current not in rpg.channels_game_enabled and rpg.channel_real and rpg.command_main.lower() not in rpg_commands_valid_administrator:
+        if rpg.channels_game_enabled == []:
+            errors(bot, rpg, 'commands', 1, 1)
+            if rpg.instigator not in rpg.botadmins:
+                return rpg
+        else:
+            errors(bot, rpg, 'commands', 2, 1)
+            if rpg.instigator not in rpg.botadmins:
+                return rpg
+
     # Admin Block
-    if rpg.command_main.lower() in rpg_commands_valid_administrator and not rpg.admin:
+    if rpg.command_main.lower() in rpg_commands_valid_administrator and not rpg.adminswitch:
         errors(bot, rpg, 'commands', 7, rpg.command_main)
         return rpg
 
     # Commands that Must be run in a channel
-    if rpg.command_main.lower() in rpg_commands_valid_inchannel and not rpg.admin:
+    if rpg.command_main.lower() in rpg_commands_valid_inchannel and not rpg.adminswitch:
         errors(bot, rpg, 'commands', 10, rpg.command_main)
         return rpg
 
@@ -284,7 +280,7 @@ def command_run(bot, rpg, instigator):
     rpg.triggerargsarray.remove(rpg.command_main)
 
     # Check Initial Stamina
-    instigator.stamina = get_database_value(bot, instigator.default, 'stamina') or 10
+    instigator.stamina = get_user_dict(bot, rpg, instigator.default, 'stamina') or 10
     rpg.staminarequired, rpg.staminacharge = 0, 0
     """ TODO track rpg.staminarequired  adding/subtracting in comparison to completion of any action, and error if not enough"""
 
@@ -297,15 +293,24 @@ def command_run(bot, rpg, instigator):
 
     # Deduct stamina from instigator
     # if rpg.staminarequired:
-    #    adjust_database_value(bot, instigator.default, 'stamina', -abs(rpg.staminarequired))
+    #    adjust_user_dict(bot, rpg, instigator.default, 'stamina', -abs(rpg.staminarequired))
 
     # usage counter - instigator
-    adjust_database_value(bot, rpg.instigator, 'usage_total', 1)
-    adjust_database_value(bot, rpg.instigator, 'usage_' + rpg.command_main.lower(), 1)
+    adjust_user_dict(bot, rpg, rpg.instigator, 'usage_' + rpg.command_main.lower(), 1)
+    adjust_user_dict(bot, rpg, rpg.instigator, 'usage_total', 1)
 
     # usage counter - Total
-    adjust_database_value(bot, 'rpg_game_records', 'usage_total', 1)
-    adjust_database_value(bot, 'rpg_game_records', 'usage_' + rpg.command_main.lower(), 1)
+    adjust_user_dict(bot, rpg, 'rpg_game_records', 'usage_' + rpg.command_main.lower(), 1)
+    adjust_user_dict(bot, rpg, 'rpg_game_records', 'usage_total', 1)
+
+
+"""
+Exploration
+"""
+
+
+def rpg_command_main_travel(bot, rpg, instigator):
+    bot.say("wip")
 
 
 """
@@ -375,23 +380,19 @@ def rpg_command_main_administrator(bot, rpg, instigator):
             if channeltarget.lower() in [x.lower() for x in current_channel_facet]:
                 errors(bot, rpg, rpg.command_main, current_channel_facet_error, 1)
                 return
-            adjust_database_array(bot, 'rpg_game_records', [channeltarget], activation_type_db, 'add')
+            adjust_user_dict_array(bot, rpg, 'rpg_game_records', activation_type_db, [channeltarget], 'add')
             osd(bot, channeltarget, 'say', "RPG " + activation_type + " has been enabled in " + channeltarget + "!")
         elif activation_direction in deactivate_list:
             if channeltarget.lower() not in [x.lower() for x in current_channel_facet]:
                 errors(bot, rpg, rpg.command_main, current_channel_facet_error, 1)
                 return
-            adjust_database_array(bot, 'rpg_game_records', [channeltarget], activation_type_db, 'del')
+            adjust_user_dict_array(bot, rpg, 'rpg_game_records', activation_type_db, [channeltarget], 'del')
             osd(bot, channeltarget, 'say', "RPG " + activation_type + " has been disabled in " + channeltarget + "!")
 
         if activation_type == 'game':
             errors_reset(bot, rpg, 'commands', 1)
 
         return
-
-
-def rpg_command_main_travel(bot, rpg, instigator):
-    bot.say("wip")
 
 
 def rpg_command_main_settings(bot, rpg, instigator):
@@ -407,14 +408,14 @@ def rpg_command_main_settings(bot, rpg, instigator):
     # Who is the target
     target = get_trigger_arg(bot, [x for x in rpg.triggerargsarray if x in rpg.users_all], 1) or rpg.instigator
     if target != rpg.instigator:
-        if not rpg.admin:
+        if not rpg.adminswitch:
             errors(bot, rpg, rpg.command_main, 2, 1)
             return
         if target not in rpg.users_all:
             errors(bot, rpg, rpg.command_main, 3, target)
             return
 
-    # Hokey
+    # Hotkey
     if subcommand == 'hotkey':
         rpg.triggerargsarray.remove(subcommand)
 
@@ -423,13 +424,13 @@ def rpg_command_main_settings(bot, rpg, instigator):
         hotkeysetting = get_trigger_arg(bot, [x for x in rpg.triggerargsarray if x in subcommands_valid_settings_hotkey], 1) or 'view'
 
         if hotkeysetting == 'list':
-            hotkeyscurrent = get_database_value(bot, target, 'hotkey_complete') or []
+            hotkeyscurrent = get_user_dict(bot, rpg, target, 'hotkey_complete') or []
             if hotkeyscurrent == []:
                 errors(bot, rpg, rpg.command_main, 5, 1)
                 return
             hotkeyslist = []
             for key in hotkeyscurrent:
-                keynumber = get_database_value(bot, rpg.instigator, 'hotkey_'+str(key)) or 0
+                keynumber = get_user_dict(bot, rpg, rpg.instigator, 'hotkey_'+str(key)) or 0
                 if keynumber:
                     hotkeyslist.append(str(key) + "=" + str(keynumber))
             hotkeyslist = get_trigger_arg(bot, hotkeyslist, 'list')
@@ -439,7 +440,7 @@ def rpg_command_main_settings(bot, rpg, instigator):
         if numberused == 'nonumber':
             errors(bot, rpg, rpg.command_main, 4, 1)
             return
-        number_command = get_database_value(bot, rpg.instigator, 'hotkey_'+str(numberused)) or 0
+        number_command = get_user_dict(bot, rpg, rpg.instigator, 'hotkey_'+str(numberused)) or 0
 
         if hotkeysetting != 'update':
             if not number_command:
@@ -451,8 +452,8 @@ def rpg_command_main_settings(bot, rpg, instigator):
             return
 
         if hotkeysetting == 'reset':
-            reset_database_value(bot, rpg.instigator, 'hotkey_'+str(numberused))
-            adjust_database_array(bot, target, [numberused], 'hotkey_complete', 'del')
+            reset_user_dict(bot, rpg, rpg.instigator, 'hotkey_'+str(numberused))
+            adjust_user_dict_array(bot, rpg, target, 'hotkey_complete', [numberused], 'del')
             osd(bot, rpg.channel_current, 'say', "Your command for hotkey "+str(numberused)+" has been reset")
             return
 
@@ -472,8 +473,8 @@ def rpg_command_main_settings(bot, rpg, instigator):
                 errors(bot, rpg, rpg.command_main, 8, str(actualcommand_main))
                 return
 
-            set_database_value(bot, rpg.instigator, 'hotkey_'+str(numberused), newcommandhot)
-            adjust_database_array(bot, target, [numberused], 'hotkey_complete', 'add')
+            set_user_dict(bot, rpg, rpg.instigator, 'hotkey_'+str(numberused), newcommandhot)
+            adjust_user_dict_array(bot, rpg, target, 'hotkey_complete', [numberused], 'add')
             osd(bot, rpg.channel_current, 'say', "Your "+str(numberused)+" command has been set to '" + newcommandhot+"'")
             return
 
@@ -528,7 +529,7 @@ def rpg_command_main_usage(bot, rpg, instigator):  # TODO
         targetname = "The channel"
 
     # Usage Counter
-    totaluses = get_database_value(bot, target, 'usage_' + subcommand) or 0
+    totaluses = get_user_dict(bot, rpg, target, 'usage_' + subcommand) or 0
     if not totaluses:
         if subcommand == 'total':
             subcommand = ''
@@ -550,7 +551,9 @@ Bot Start
 
 @sopel.module.interval(1)  # TODO make this progress with the game
 def rpg_bot_start_script(bot):
-    channels_game_enabled = get_database_value(bot, 'rpg_game_records', 'game_enabled') or []
+    rpg = class_create('rpg')
+    rpg.default = 'rpg'
+    channels_game_enabled = get_user_dict(bot, rpg, 'rpg_game_records', 'game_enabled') or []
     for channel in bot.channels:
         if channel in channels_game_enabled:
             startupmonologue = str("startup_monologue_" + channel)
@@ -650,7 +653,7 @@ def rpg_errors_start(bot, rpg):
 
 def rpg_errors_end(bot, rpg):
     rpg.error_display = []
-    rpg.tier_current = get_database_value(bot, 'rpg_game_records', 'current_tier') or 0
+    rpg.tier_current = get_user_dict(bot, rpg, 'rpg_game_records', 'current_tier') or 0
     errorscanlist = []
     for vcom in rpg.valid_commands_all:
         errorscanlist.append(vcom)
@@ -794,10 +797,10 @@ def rpg_command_channels(bot, rpg, trigger):
         rpg.channels_list.append(channel)
 
     # Game Enabled
-    rpg.channels_game_enabled = get_database_value(bot, 'rpg_game_records', 'game_enabled') or []
+    rpg.channels_game_enabled = get_user_dict(bot, rpg, 'rpg_game_records', 'game_enabled') or []
 
     # Development mode
-    rpg.channels_devmode_enabled = get_database_value(bot, 'rpg_game_records', 'dev_enabled') or []
+    rpg.channels_devmode_enabled = get_user_dict(bot, rpg, 'rpg_game_records', 'dev_enabled') or []
     rpg.dev_bypass = 0
     if rpg.channel_current.lower() in [x.lower() for x in rpg.channels_devmode_enabled]:
         rpg.dev_bypass = 1
@@ -810,8 +813,7 @@ Users
 
 
 def rpg_command_users(bot, rpg):
-    # rpg.opadmin, rpg.owner, rpg.chanops, rpg.chanvoice, rpg.botadmins, rpg.users_current = [], [], [], [], [], []
-    usertypes = ['users_all', 'opadmin', 'owner', 'chanops', 'chanvoice', 'botadmins', 'users_current', 'bots_list']
+    usertypes = ['users_all', 'opadmin', 'owner', 'chanops', 'chanvoice', 'botadmins', 'users_current', 'users_offline', 'bots_list']
     for x in usertypes:
         currentvalue = str("rpg."+x+"=[]")
         exec(currentvalue)
@@ -819,11 +821,11 @@ def rpg_command_users(bot, rpg):
     for user in bot.users:
         if user not in rpg.valid_commands_all and user not in rpg.valid_commands_alts:
             rpg.users_current.append(str(user))
-    users_all = get_database_value(bot, 'channel', 'users_all') or []
+    users_all = get_user_dict(bot, rpg, 'channel', 'users_all') or []
     for user in users_all:
-        if user in rpg.users_current:
-            rpg.users_current.remove(user)
-    adjust_database_array(bot, 'channel', rpg.users_current, 'users_all', 'add')
+        if user not in rpg.users_current and user in users_all:
+            rpg.users_offline.append(user)
+    adjust_user_dict_array(bot, rpg, 'channel', 'users_all', rpg.users_current, 'add')
 
     rpg.bots_list = bot_config_names(bot)
 
@@ -831,7 +833,6 @@ def rpg_command_users(bot, rpg):
 
         if user in bot.config.core.owner:
             rpg.owner.append(user)
-
         if user in bot.config.core.admins:
             rpg.botadmins.append(user)
             rpg.opadmin.append(user)
@@ -850,18 +851,6 @@ def rpg_command_users(bot, rpg):
                 dummyvar = 1
 
     return rpg
-
-
-# Database Users
-def get_user_dict(bot, rpg, nick, value):
-
-    # check if nick has been pulled from db already
-    if nick not in rpg.userdb:
-        rpg.userdb.append(nick)
-        nickdict = get_database_value(bot, nick, 'rpg') or dict()
-        bot.say(str(nickdict))
-    # else:
-        # nickdict = eval()
 
 
 # Bot Nicks

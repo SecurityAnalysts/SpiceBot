@@ -80,10 +80,11 @@ def execute_start(bot, trigger, triggerargsarray, command_type):
     # Bacic User List
     rpg = rpg_command_users(bot, rpg)
 
-    # map dictionary TODO
-
     # Error Display System Create
     rpg_errors_start(bot, rpg)
+
+    # Get Map
+    rpg_get_map(bot, rpg)
 
     # Run the Process
     execute_main(bot, rpg, instigator, trigger, triggerargsarray)
@@ -311,6 +312,97 @@ Exploration
 
 def rpg_command_main_travel(bot, rpg, instigator):
     bot.say("wip")
+
+
+def rpg_command_main_map(bot, rpg, instigator):
+    bot.say("wip")
+
+
+# Database map
+def rpg_get_map(bot, dclass):
+
+    # check that db list is there
+    if not hasattr(dclass, 'map'):
+        dclass.map = class_create('map')
+    if not hasattr(dclass.map, 'list'):
+        dclass.map.list = rpg_map_names
+
+    cyclemapnumber = 0
+    for map in dclass.map.list:
+        cyclemapnumber += 1
+
+        # Get current map subdictionary
+        if not hasattr(dclass.map, map):
+            mapdict = get_user_dict(bot, dclass, 'rpg_game_records', map) or dict()
+            createmapdict = str("dclass.map." + map + " = mapdict")
+            exec(createmapdict)
+        else:
+            if not hasattr(dclass.map, map):
+                mapdict = dict()
+            else:
+                mapdict = eval('dclass.map' + 'map')
+
+        if 'maptier' not in mapdict.keys():
+            mapdict['maptier'] = cyclemapnumber
+
+        bot.say(str(map) + "(" + str(cyclemapnumber) + ")" + " = " + str(mapdict))
+
+    return
+    for x in stuff:
+
+        # Tier number
+        currentmaptier = 1
+        for i in range(0, len(rpg_map_names)):
+            map_tier_eval_number = i + 1
+            maptiereval = get_trigger_arg(bot, rpg_map_names, map_tier_eval_number)
+            if maptiereval == map:
+                maptiernumber = map_tier_eval_number
+        exec("dclass.map." + str(map) + ".tier_number = maptiernumber")
+
+        currentmaptier = 1
+
+        # load map size
+        if 'latitude' not in mapdict.keys():
+            stuff = 1
+        if 'longitude' not in mapdict.keys():
+            stuff = 1
+        # Load Town location in map
+
+    # check if nick has been pulled from db already
+    if nick not in dclass.userdb.list:
+        dclass.userdb.list.append(nick)
+        nickdict = get_database_value(bot, nick, dclass.default) or dict()
+        createuserdict = str("dclass.userdb." + nick + " = nickdict")
+        exec(createuserdict)
+    else:
+        if not hasattr(dclass.userdb, nick):
+            nickdict = dict()
+        else:
+            nickdict = eval('dclass.userdb.' + nick)
+
+    if dictkey in nickdict.keys():
+        returnvalue = nickdict[dictkey]
+    else:
+        nickdict[dictkey] = 0
+        returnvalue = 0
+
+
+"""
+def rpg_map_location(bot, rpg):
+
+    'rpg_game_records'
+
+    # Draw map
+    for town in rpg_map_names:
+
+
+    # where is player currently
+    localtown = get_user_dict(bot, rpg, nick, 'localtown') or get_trigger_arg(bot, rpg_map_names, 1)
+    latitude = get_user_dict(bot, rpg, nick, 'latitude')
+    longitude = get_user_dict(bot, rpg, nick, 'longitude')
+
+    #
+"""
 
 
 """

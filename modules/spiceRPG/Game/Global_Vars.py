@@ -35,6 +35,33 @@ deactivate_list = ['deactivate','disable','off']
 
 
 """
+Map
+"""
+
+
+rpg_map_center_latitude = "0"
+rpg_map_center_longitude = "0"
+rpg_map_scale = 10
+
+rpg_map_names = ["Bouldersummit",  # 1
+                 "Cliffstall",  # 2
+                 "Whitfield",  # 3
+                 "Deepharbor",  # 4
+                 "Mightvale",  # 5
+                 "Winterkeep",  # 6
+                 "Boneshade",  # 7
+                 "Faymeadow",  # 8
+                 "Bonehollow",  # 9
+                 "Honeygulf",  # 10
+                 "Rimeshell",  # 11
+                 "Wolfbarrow",  # 12
+                 "Rivershield",  # 13
+                 "Millsummit",  # 14
+                 "Dryharbor"  # 15
+                 ]
+
+
+"""
 Commands
 """
 
@@ -55,7 +82,7 @@ rpg_commands_valid_combat = ['combat']
 rpg_commands_valid_basic = ['author','intent','about','version','docs','usage']
 
 # Location
-rpg_commands_valid_location = ['travel']
+rpg_commands_valid_location = ['travel','map']
 
 
 """
@@ -109,6 +136,9 @@ rpg_commands_valid_alt_usage = []
 
 # travel
 rpg_commands_valid_alt_travel = []
+
+# Map
+rpg_commands_valid_alt_map = []
 
 """
 Command Tiers
@@ -263,5 +293,9 @@ rpg_error_usage = [
 ]
 
 rpg_error_travel = [
+                    ""
+]
+
+rpg_error_map = [
                     ""
 ]

@@ -13,7 +13,7 @@ fishtypes = ["Pike", "Carp", "Marlin", "Trout", "Cod", "Anchovy", "Venezuelan Be
 vowels = ('a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U')
 
 
-@sopel.module.commands('fish')
+@sopel.module.commands('fish', 'slap')
 def mainfunction(bot, trigger):
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'fish')
     if not enablestatus:

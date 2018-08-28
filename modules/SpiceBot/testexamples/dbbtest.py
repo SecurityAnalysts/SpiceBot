@@ -56,6 +56,9 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         adjust_user_dict_array(bot, rpg, bot.nick, 'weapons', [whatisleft], 'add')
     elif command == 'delarray':
         adjust_user_dict_array(bot, rpg, bot.nick, 'weapons', [whatisleft], 'del')
+    else:
+        bot.say("invalid command")
+        return
 
     """
     End of all of the rpg stuff after error handling

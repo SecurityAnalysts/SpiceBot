@@ -341,8 +341,6 @@ def rpg_map_read(bot, dclass):
     for map in dclass.map.list:
         cyclemapnumber += 1
 
-
-
         # Get current map subdictionary
         if not hasattr(dclass.map, map):
             mapdict = get_user_dict(bot, dclass, 'rpg_game_records', map) or dict()

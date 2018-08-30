@@ -92,9 +92,6 @@ def execute_start(bot, trigger, triggerargsarray, command_type):
     # Error Display System Display
     rpg_errors_end(bot, rpg)
 
-    # Save map
-    rpg_map_save(bot, rpg)
-
     # Save any open user values
     save_user_dicts(bot, rpg)
 
@@ -321,79 +318,263 @@ Exploration
 
 
 def rpg_command_main_travel(bot, rpg, instigator):
-    bot.say("wip")
+
+    subcommand_valid = ['north', 'south', 'east', 'west', 'town', 'current']
+    subcommand = get_trigger_arg(bot, [x for x in rpg.triggerargsarray if x in subcommand_valid], 1) or 'current'
+
+    nickmap, nickcoord = rpg_map_nick_get(bot, rpg, rpg.instigator)
+    nickcoord = eval(str(nickcoord))
+    locationdict = rpg_get_latlong(bot, rpg, nickmap, str(nickcoord), 'returndict')
+
+    if subcommand == 'current':
+        bot.say(str(nickmap))
+        bot.say(str(nickcoord))
+        bot.say(str(locationdict))
+        return
+
+    latitude = nickcoord[0]
+    longitude = nickcoord[1]
+    newlatitude = latitude
+    newlongitude = longitude
+
+    if subcommand == 'north':
+        newlatitude = int(latitude) + 1
+    elif subcommand == 'south':
+        newlatitude = int(latitude) - 1
+    elif subcommand == 'east':
+        newlongitude = int(longitude) + 1
+    elif subcommand == 'west':
+        newlongitude = int(longitude) - 1
+    elif subcommand == 'town':
+        towncoordinates = rpg_map_town(bot, rpg, nickmap)
+        towncoordinates = eval(str(towncoordinates))
+        newlatitude = towncoordinates[0]
+        newlongitude = towncoordinates[1]
+
+    mapsize = get_user_dict(bot, rpg, nickmap, 'mapsize')
+    if int(newlatitude) > abs(mapsize):
+        bot.say("cant go north anymore")
+        return
+    if int(newlatitude) < -abs(mapsize):
+        bot.say("cant go south anymore")
+        return
+    if int(newlongitude) > abs(mapsize):
+        bot.say("cant go east anymore")
+        return
+    if int(newlongitude) < -abs(mapsize):
+        bot.say("cant go west anymore")
+        return
+    if str(latitude) == str(newlatitude) and str(longitude) == str(newlongitude):
+        bot.say("stay current location")
+        return
+
+    newnickcoord = str("(" + str(newlatitude) + "," + str(newlongitude) + ")")
+
+    rpg_map_move_nick(bot, rpg, rpg.instigator, nickmap, str(newnickcoord))
+    bot.say("moved to " + str(newnickcoord))
 
 
-def rpg_command_main_map(bot, rpg, instigator):
-    bot.say("wip")
+def rpg_map_nick_get(bot, rpg, nick):
 
-
-# Database map
-def rpg_map_read(bot, dclass):
-
-    # check that db list is there
-    if not hasattr(dclass, 'map'):
-        dclass.map = class_create('map')
-    if not hasattr(dclass.map, 'list'):
-        dclass.map.list = rpg_map_names
+    nickmap, nickcoord = 0, 0
 
     cyclemapnumber = 0
-    for map in dclass.map.list:
+    for map in rpg_map_names:
         cyclemapnumber += 1
 
-        # Get current map subdictionary
-        if not hasattr(dclass.map, map):
-            mapdict = get_user_dict(bot, dclass, 'rpg_game_records', map) or dict()
-            createmapdict = str("dclass.map." + map + " = mapdict")
-            exec(createmapdict)
+        mapnicklist = get_user_dict(bot, rpg, map, 'mapnicklist')
+        if not mapnicklist:
+            mapnicklist = []
+            set_user_dict(bot, rpg, map, 'mapnicklist', mapnicklist)
+        if nick in mapnicklist:
+            nickmap = map
+
+            mapsize = get_user_dict(bot, rpg, map, 'mapsize')
+            if not mapsize:
+                mapsize = rpg_map_scale * cyclemapnumber
+                set_user_dict(bot, rpg, map, 'mapsize', mapsize)
+
+            # map size from center
+            latitudearray, longitudearray = [], []
+            for i in range(-abs(mapsize), mapsize + 1):
+                latitudearray.append(i)
+                longitudearray.append(i)
+
+            # generate dictionary values for all locations
+            coordinatecombinations = []
+            for coordcombo in itertools.product(latitudearray, longitudearray):
+                coordinatecombinations.append(coordcombo)
+            for coordinates in coordinatecombinations:
+                latlongnicklist = rpg_get_latlong(bot, rpg, map, str(coordinates), 'latlongnicklist') or []
+                bot.say(str(coordinates) + " = " + str(latlongnicklist))
+                if nick in latlongnicklist:
+                    nickcoord = coordinates
+
+    if not nickmap:
+        nickmap = get_trigger_arg(bot, rpg_map_names, 1)
+    if not nickcoord:
+        nickcoord = rpg_map_town(bot, rpg, nickmap)
+    rpg_map_move_nick(bot, rpg, nick, nickmap, str(nickcoord))
+
+    return nickmap, nickcoord
+
+
+def rpg_map_move_nick(bot, rpg, nick, newmap, newcoordinates):
+
+    for map in rpg_map_names:
+
+        mapnicklist = get_user_dict(bot, rpg, map, 'mapnicklist') or []
+        if map == newmap:
+            if nick not in mapnicklist:
+                mapnicklist.append(nick)
         else:
-            if not hasattr(dclass.map, map):
-                mapdict = dict()
-            else:
-                mapdict = eval('dclass.map' + map)
+            if nick in mapnicklist:
+                mapnicklist.remove(nick)
+        set_user_dict(bot, rpg, map, 'mapnicklist', mapnicklist)
 
-        # set tier that the map is accessible to a player
-        if 'maptier' not in mapdict.keys():
-            mapdict['maptier'] = cyclemapnumber
-
-        # max height/width (from zero center)
-        if 'mapsize' not in mapdict.keys():
-            mapdict['mapsize'] = rpg_map_scale * cyclemapnumber
+        mapsize = get_user_dict(bot, rpg, map, 'mapsize')
+        if not mapsize:
+            mapsize = rpg_map_scale * cyclemapnumber
+            set_user_dict(bot, rpg, map, 'mapsize', mapsize)
 
         # map size from center
-        maxfromcenter = mapdict['mapsize']
         latitudearray, longitudearray = [], []
-        for i in range(-abs(maxfromcenter), maxfromcenter + 1):
+        for i in range(-abs(mapsize), mapsize + 1):
             latitudearray.append(i)
             longitudearray.append(i)
 
         # generate dictionary values for all locations
-        for latitude, longitude in zip(latitudearray, longitudearray):
+        coordinatecombinations = []
+        townfound = 0
+        for coordcombo in itertools.product(latitudearray, longitudearray):
+            coordinatecombinations.append(coordcombo)
+        for coordinates in coordinatecombinations:
+            latlongnicklist = rpg_get_latlong(bot, rpg, map, str(coordinates), 'mapnicklist') or []
+            if str(coordinates) == str(newcoordinates):
+                if nick not in latlongnicklist:
+                    bot.say("move to " + str(coordinates))
+                    latlongnicklist.append(nick)
+                    rpg_set_latlong(bot, rpg, map, str(coordinates), 'mapnicklist', latlongnicklist)
+            else:
+                if nick in latlongnicklist:
+                    bot.say("move from " + str(coordinates))
+                    latlongnicklist.remove(nick)
+                    rpg_set_latlong(bot, rpg, map, str(coordinates), 'mapnicklist', latlongnicklist)
 
-            bot.say(str(latitude) + "x" + str(longitude))
 
-        # set town location
-        # if 'town_latitude' not in mapdict.keys():
-        #    mapdict['town_latitude'] = randint(-abs(maxfromcenter), maxfromcenter)
-        # if 'town_longitude' not in mapdict.keys():
-        #    mapdict['town_longitude'] = randint(-abs(maxfromcenter), maxfromcenter)
+def rpg_map_town(bot, rpg, map):
+
+    returntown = str((0, 0))
+
+    mapsize = get_user_dict(bot, rpg, map, 'mapsize')
+    if not mapsize:
+        mapsize = rpg_map_scale * cyclemapnumber
+        set_user_dict(bot, rpg, map, 'mapsize', mapsize)
+
+    # map size from center
+    latitudearray, longitudearray = [], []
+    for i in range(-abs(mapsize), mapsize + 1):
+        latitudearray.append(i)
+        longitudearray.append(i)
+
+    # generate dictionary values for all locations
+    coordinatecombinations = []
+    townfound = 0
+    for coordcombo in itertools.product(latitudearray, longitudearray):
+        coordinatecombinations.append(coordcombo)
+    for coordinates in coordinatecombinations:
+        latlongdict = rpg_get_latlong(bot, rpg, map, str(coordinates), 'returndict')
+        if 'town' in latlongdict.keys():
+            townfound += 1
+        mapnicklist = rpg_get_latlong(bot, rpg, map, str(coordinates), 'mapnicklist')
+        if not mapnicklist:
+            mapnicklist = []
+            rpg_set_latlong(bot, rpg, map, str(coordinates), 'mapnicklist', mapnicklist)
+    if not townfound:
+        townlatitude = randint(-abs(mapsize), mapsize)
+        townlongitude = randint(-abs(mapsize), mapsize)
+        rpg_set_latlong(bot, rpg, map, str((townlatitude, townlongitude)), 'town', 1)
+    for coordinates in coordinatecombinations:
+        latlongdict = rpg_get_latlong(bot, rpg, map, str(coordinates), 'returndict')
+        if 'town' in latlongdict.keys():
+            returntown = str(coordinates)
+    return returntown
 
 
-def rpg_map_save(bot, dclass):
+def rpg_map_read(bot, rpg):
 
-    # check that db list is there
-    if not hasattr(dclass, 'map'):
-        dclass.map = class_create('map')
-    if not hasattr(dclass.map, 'list'):
-        dclass.map.list = rpg_map_names
+    cyclemapnumber = 0
+    for map in rpg_map_names:
+        cyclemapnumber += 1
 
-    for map in dclass.map.list:
+        maptier = get_user_dict(bot, rpg, map, 'maptier')
+        if not maptier:
+            maptier = cyclemapnumber
+            set_user_dict(bot, rpg, map, 'maptier', maptier)
 
-        if not hasattr(dclass.map, map):
-            mapdict = dict()
-        else:
-            mapdict = eval('dclass.map.' + map)
-        set_user_dict(bot, dclass, 'rpg_game_records', map, mapdict)
+        mapsize = get_user_dict(bot, rpg, map, 'mapsize')
+        if not mapsize:
+            mapsize = rpg_map_scale * cyclemapnumber
+            set_user_dict(bot, rpg, map, 'mapsize', mapsize)
+
+        # map size from center
+        latitudearray, longitudearray = [], []
+        for i in range(-abs(mapsize), mapsize + 1):
+            latitudearray.append(i)
+            longitudearray.append(i)
+
+        # generate dictionary values for all locations
+        coordinatecombinations = []
+        townfound = 0
+        for coordcombo in itertools.product(latitudearray, longitudearray):
+            coordinatecombinations.append(coordcombo)
+        for coordinates in coordinatecombinations:
+            coordlatitude = coordinates[0]
+            coordlongitude = coordinates[1]
+            latlongdict = rpg_get_latlong(bot, rpg, map, str(coordinates), 'returndict')
+            if 'town' in latlongdict.keys():
+                townfound += 1
+            mapnicklist = rpg_get_latlong(bot, rpg, map, str(coordinates), 'mapnicklist')
+            if not mapnicklist:
+                mapnicklist = []
+                rpg_set_latlong(bot, rpg, map, str(coordinates), 'mapnicklist', mapnicklist)
+            coordquadrant = rpg_get_latlong(bot, rpg, map, str(coordinates), 'coordquadrant')
+            if not coordquadrant:
+                if int(coordlatitude) > 0 and int(coordlongitude) > 0:
+                    coordquadrant = 'northeast'
+                elif int(coordlatitude) > 0 and int(coordlongitude) < 0:
+                    coordquadrant = 'northwest'
+                elif int(coordlatitude) < 0 and int(coordlongitude) > 0:
+                    coordquadrant = 'southeast'
+                elif int(coordlatitude) < 0 and int(coordlongitude) < 0:
+                    coordquadrant = 'southwest'
+                else:
+                    coordquadrant = 'center'
+                rpg_set_latlong(bot, rpg, map, str(coordinates), 'coordquadrant', coordquadrant)
+        if not townfound:
+            townlatitude = randint(-abs(mapsize), mapsize)
+            townlongitude = randint(-abs(mapsize), mapsize)
+            rpg_set_latlong(bot, rpg, map, str((townlatitude, townlongitude)), 'town', 1)
+
+
+def rpg_get_latlong(bot, rpg, map, coordinates, dictkey):
+    latlongdict = get_user_dict(bot, rpg, map, str(coordinates))
+    if not latlongdict:
+        latlongdict = dict()
+        set_user_dict(bot, rpg, map, str(coordinates), latlongdict)
+    if dictkey == 'returndict':
+        returnvalue = latlongdict
+    else:
+        if dictkey not in latlongdict.keys():
+            latlongdict[dictkey] = 0
+        returnvalue = latlongdict[dictkey]
+    return returnvalue
+
+
+def rpg_set_latlong(bot, rpg, map, coordinates, dictkey, value):
+    latlongdict = get_user_dict(bot, rpg, map, str(coordinates)) or dict()
+    latlongdict[dictkey] = value
+    set_user_dict(bot, rpg, map, str(coordinates), latlongdict)
 
 
 """
@@ -1557,27 +1738,27 @@ def adjust_database_array(bot, nick, entries, databasekey, adjustmentdirection):
 
 
 # Database Users
-def get_user_dict(bot, dclass, nick, dictkey):
+def get_user_dict(bot, rpg, nick, dictkey):
 
     # check that db list is there
-    if not hasattr(dclass, 'userdb'):
-        dclass.userdb = class_create('userdblist')
-    if not hasattr(dclass.userdb, 'list'):
-        dclass.userdb.list = []
+    if not hasattr(rpg, 'userdb'):
+        rpg.userdb = class_create('userdblist')
+    if not hasattr(rpg.userdb, 'list'):
+        rpg.userdb.list = []
 
     returnvalue = 0
 
     # check if nick has been pulled from db already
-    if nick not in dclass.userdb.list:
-        dclass.userdb.list.append(nick)
-        nickdict = get_database_value(bot, nick, dclass.default) or dict()
-        createuserdict = str("dclass.userdb." + nick + " = nickdict")
+    if nick not in rpg.userdb.list:
+        rpg.userdb.list.append(nick)
+        nickdict = get_database_value(bot, nick, rpg.default) or dict()
+        createuserdict = str("rpg.userdb." + nick + " = nickdict")
         exec(createuserdict)
     else:
-        if not hasattr(dclass.userdb, nick):
+        if not hasattr(rpg.userdb, nick):
             nickdict = dict()
         else:
-            nickdict = eval('dclass.userdb.' + nick)
+            nickdict = eval('rpg.userdb.' + nick)
 
     if dictkey in nickdict.keys():
         returnvalue = nickdict[dictkey]
@@ -1589,52 +1770,52 @@ def get_user_dict(bot, dclass, nick, dictkey):
 
 
 # set a value
-def set_user_dict(bot, dclass, nick, dictkey, value):
-    currentvalue = get_user_dict(bot, dclass, nick, dictkey)
-    nickdict = eval('dclass.userdb.' + nick)
+def set_user_dict(bot, rpg, nick, dictkey, value):
+    currentvalue = get_user_dict(bot, rpg, nick, dictkey)
+    nickdict = eval('rpg.userdb.' + nick)
     nickdict[dictkey] = value
 
 
 # reset a value
-def reset_user_dict(bot, dclass, nick, dictkey):
-    currentvalue = get_user_dict(bot, dclass, nick, dictkey)
-    nickdict = eval('dclass.userdb.' + nick)
+def reset_user_dict(bot, rpg, nick, dictkey):
+    currentvalue = get_user_dict(bot, rpg, nick, dictkey)
+    nickdict = eval('rpg.userdb.' + nick)
     if dictkey in nickdict:
         del nickdict[dictkey]
 
 
 # add or subtract from current value
-def adjust_user_dict(bot, dclass, nick, dictkey, value):
-    oldvalue = get_user_dict(bot, dclass, nick, dictkey)
+def adjust_user_dict(bot, rpg, nick, dictkey, value):
+    oldvalue = get_user_dict(bot, rpg, nick, dictkey)
     if not str(oldvalue).isdigit():
         oldvalue = 0
-    nickdict = eval('dclass.userdb.' + nick)
+    nickdict = eval('rpg.userdb.' + nick)
     nickdict[dictkey] = float(oldvalue) + float(value)
 
 
 # Save all database users in list
-def save_user_dicts(bot, dclass):
+def save_user_dicts(bot, rpg):
 
     # check that db list is there
-    if not hasattr(dclass, 'userdb'):
-        dclass.userdb = class_create('userdblist')
-    if not hasattr(dclass.userdb, 'list'):
-        dclass.userdb.list = []
+    if not hasattr(rpg, 'userdb'):
+        rpg.userdb = class_create('userdblist')
+    if not hasattr(rpg.userdb, 'list'):
+        rpg.userdb.list = []
 
-    for nick in dclass.userdb.list:
-        if not hasattr(dclass.userdb, nick):
+    for nick in rpg.userdb.list:
+        if not hasattr(rpg.userdb, nick):
             nickdict = dict()
         else:
-            nickdict = eval('dclass.userdb.' + nick)
-        set_database_value(bot, nick, dclass.default, nickdict)
+            nickdict = eval('rpg.userdb.' + nick)
+        set_database_value(bot, nick, rpg.default, nickdict)
 
 
 # add or subtract from current value
-def adjust_user_dict_array(bot, dclass, nick, dictkey, entries, adjustmentdirection):
+def adjust_user_dict_array(bot, rpg, nick, dictkey, entries, adjustmentdirection):
     if not isinstance(entries, list):
         entries = [entries]
-    oldvalue = get_user_dict(bot, dclass, nick, dictkey)
-    nickdict = eval('dclass.userdb.' + nick)
+    oldvalue = get_user_dict(bot, rpg, nick, dictkey)
+    nickdict = eval('rpg.userdb.' + nick)
     if not isinstance(oldvalue, list):
         oldvalue = []
     for x in entries:

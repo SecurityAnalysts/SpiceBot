@@ -11,7 +11,7 @@ sys.path.append(shareddir)
 from BotShared import *
 
 
-@sopel.module.commands('tap')
+@sopel.module.commands('tap', 'mic')
 def mainfunction(bot, trigger):
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, trigger.group(1))
     if not enablestatus:

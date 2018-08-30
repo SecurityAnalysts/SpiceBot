@@ -82,7 +82,7 @@ rpg_commands_valid_combat = ['combat']
 rpg_commands_valid_basic = ['author','intent','about','version','docs','usage']
 
 # Location
-rpg_commands_valid_location = ['travel','map']
+rpg_commands_valid_location = ['travel']
 
 
 """
@@ -137,8 +137,6 @@ rpg_commands_valid_alt_usage = []
 # travel
 rpg_commands_valid_alt_travel = []
 
-# Map
-rpg_commands_valid_alt_map = []
 
 """
 Command Tiers
@@ -293,9 +291,5 @@ rpg_error_usage = [
 ]
 
 rpg_error_travel = [
-                    ""
-]
-
-rpg_error_map = [
                     ""
 ]

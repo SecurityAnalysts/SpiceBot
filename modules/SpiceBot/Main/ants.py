@@ -11,26 +11,19 @@ from BotShared import *
 
 # author jimender2
 
-insalton = ["clock speed",
-            "test"]
 
-insalttw = ["clock speed",
-            "test"]
-
-insaltth = ["clock speed",
-            "test"]
-
-
-@sopel.module.commands('insult')
+@sopel.module.commands('ants', 'ant')
 def mainfunction(bot, trigger):
-    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'insult')
+    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'ant')
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    answer = get_trigger_arg(bot, insalton, 'random')
-    answer = get_trigger_arg(bot, insalttw, 'random')
-    answer = get_trigger_arg(bot, insaltth, 'random')
+    command = get_trigger_arg(bot, triggerargsarray, 1+)
+    if not command:
+        message = "Do you want ants cause that's how you get ants!"
+    else:
+        message = "Do you want " + command + " cause that's how you get " + command + "!"
 
-    osd(bot, trigger.sender, 'say', "do the thing")
+    osd(bot, trigger.sender, 'say', message)

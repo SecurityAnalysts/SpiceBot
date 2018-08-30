@@ -37,7 +37,7 @@ testarray = ["DoubleD recommends these new drapes https://goo.gl/BMTMde",
 hardcoded_not_in_this_chan = ["#spiceworks", "##spicebottest", "#spicebottest"]
 
 
-@sopel.module.commands('ads', 'advertisements', 'ad', 'advertisement')
+@sopel.module.commands('ads', 'advertisements', 'ad', 'advertisement', 'spam')
 def mainfunction(bot, trigger):
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'ads')
     if not enablestatus:

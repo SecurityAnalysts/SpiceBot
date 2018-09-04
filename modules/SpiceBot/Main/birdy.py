@@ -44,4 +44,4 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         instigator = trigger.nick
         if not target:
             message = instigator + " shows the birdy off to everyone in the room"
-        osd(bot, trigger.sender, 'say', "do the thing")
+        osd(bot, trigger.sender, 'say', message)

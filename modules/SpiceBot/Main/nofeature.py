@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# coding=utf-8
 from __future__ import unicode_literals, absolute_import, print_function, division
 import sopel.module
 import sys
@@ -7,16 +9,21 @@ shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
+# author jimender2
 
-@sopel.module.commands('suicide', 'savealife')
+
+@sopel.module.commands('nofeature')
 def mainfunction(bot, trigger):
-    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'suicide')
+    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'nofeature')
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    url = "https://suicidepreventionlifeline.org/"
-    phonenumber = "1-800-273-8255"
-    message = "If you or someone you know is having a crisis and needs someone to talk to call " + phonenumber + " or visit: " + url
+    command = get_trigger_arg(bot, triggerargsarray, '1+')
+    if not command:
+        message = "Really ?? We dont have a new feature yet?"
+    else:
+        message = "Really ?? We dont have a " + command + " feature yet?"
+
     osd(bot, trigger.sender, 'say', message)

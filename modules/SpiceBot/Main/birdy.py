@@ -21,7 +21,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    rand = random.randint(1,2)
+    rand = random.randint(1,20)
     if rand == 1:
         osd(bot, trigger.sender, 'say', "_________$$____________")
         osd(bot, trigger.sender, 'say', "________$__$___________")

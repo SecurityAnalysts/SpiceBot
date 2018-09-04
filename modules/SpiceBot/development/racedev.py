@@ -96,19 +96,19 @@ def race(bot, botcom, target, instigator, trigger):
 
 
 def resetWin(bot, botcom, person):
-    databasekey = "raceStreak"
+    databasekey = "devRaceStreak"
     set_database_value(bot, person, databasekey, 0)
 
 
 def increaseWin(bot, botcom, person):
-    databasekey = "raceStreak"
+    databasekey = "devRaceStreak"
     wins = get_database_value(bot, person, databasekey) or 0
     wins = int(wins) + 1
     set_database_value(bot, person, databasekey, wins)
 
 
 def getWins(bot, botcom, trigger, person):
-    databasekey = "raceStreak"
+    databasekey = "devRaceStreak"
     wins = get_database_value(bot, person, databasekey) or 0
     osd(bot, trigger.sender, 'say', person + " has a streak of " + str(wins) + " wins")
 

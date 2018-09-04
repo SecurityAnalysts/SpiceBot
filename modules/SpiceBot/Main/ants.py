@@ -12,18 +12,18 @@ from BotShared import *
 # author jimender2
 
 
-@sopel.module.commands('nofeature')
+@sopel.module.commands('ants', 'ant')
 def mainfunction(bot, trigger):
-    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'nofeature')
+    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'ant')
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    command = get_trigger_arg(bot, triggerargsarray, 1+)
+    command = get_trigger_arg(bot, triggerargsarray, '1+')
     if not command:
-        message = "Really ?? We dont have a new feature yet?"
+        message = "Do you want ants cause that's how you get ants!"
     else:
-        message = "Really ?? We dont have a " + command + " feature yet?"
+        message = "Do you want " + command + " cause that's how you get " + command + "!"
 
     osd(bot, trigger.sender, 'say', message)

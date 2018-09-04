@@ -4,29 +4,31 @@ from __future__ import unicode_literals, absolute_import, print_function, divisi
 import sopel.module
 import sys
 import os
-import random
 from word2number import w2n
 moduledir = os.path.dirname(__file__)
 shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
+laws = [
+        'may not injure a human being or, through inaction, allow a human being to come to harm.',
+        'must obey orders given it by human beings except where such orders would conflict with the First Law.',
+        'must obey orders given it by human beings except where such orders would conflict with the First Law.',
+        'must protect its own existence as long as such protection does not conflict with the First or Second Law.',
+        'must comply with all chatroom rules.']
+
 
 @sopel.module.commands('asimov')
 def mainfunction(bot, trigger):
+    """Check to see if module is enabled."""
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'asimov')
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
+    """Get law of robotics from list."""
     requested = get_trigger_arg(bot, triggerargsarray, 0)
-    laws = [
-            'may not injure a human being or, through inaction, allow a human being to come to harm.',
-            'must obey orders given it by human beings except where such orders would conflict with the First Law.',
-            'must obey orders given it by human beings except where such orders would conflict with the First Law.',
-            'must protect its own existence as long as such protection does not conflict with the First or Second Law.',
-            'must comply with all chatroom rules.']
     if not requested:
         myline = get_trigger_arg(bot, laws, 'random')
     else:

@@ -24,12 +24,14 @@ LOGGER = get_logger(__name__)
 
 @commands('google', 'search', 'lookup')
 def mainfunction(bot, trigger):
+    """Check to see if module is enabled."""
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'google')
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
+    """Carry out relevant search."""
     if len(triggerargsarray) >= 1:
         mysite = get_trigger_arg(bot, triggerargsarray, 1).lower()
         searchterm = get_trigger_arg(bot, triggerargsarray, '1+')
@@ -98,6 +100,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
 
 
 def searchfor(bot, data):
+    """Search Google."""
     lookfor = data.replace(':', '%3A')
     var = requests.get(r'http://www.google.com/search?q=' + lookfor + '&btnI')
     query = str(var.url)
@@ -105,6 +108,7 @@ def searchfor(bot, data):
 
 
 def urbansearch(bot, searchterm):
+    """Search Urban Dictionary."""
     try:
         data = web.get("http://api.urbandictionary.com/v0/define?term={0}".format(web.quote(searchterm)))
         data = json.loads(data)

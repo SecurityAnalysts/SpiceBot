@@ -11,26 +11,13 @@ from BotShared import *
 
 # author jimender2
 
-insalton = ["clock speed",
-            "test"]
 
-insalttw = ["clock speed",
-            "test"]
-
-insaltth = ["clock speed",
-            "test"]
-
-
-@sopel.module.commands('insult')
+@sopel.module.commands('mild')
 def mainfunction(bot, trigger):
-    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'insult')
+    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, trigger.group(1))
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    answer = get_trigger_arg(bot, insalton, 'random')
-    answer = get_trigger_arg(bot, insalttw, 'random')
-    answer = get_trigger_arg(bot, insaltth, 'random')
-
-    osd(bot, trigger.sender, 'say', "do the thing")
+    osd(bot, trigger.sender, 'say', "and the crowd goes.......... mild!!!!!!!!")

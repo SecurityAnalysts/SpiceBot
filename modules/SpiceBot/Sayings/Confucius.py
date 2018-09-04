@@ -15,12 +15,14 @@ commandarray = ["add", "remove", "count", "last"]
 
 @sopel.module.commands('confucius')
 def mainfunction(bot, trigger):
+    """Check to see if module is enabled."""
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'yes')
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
+    """Retrieve 'Confucius' saying from database."""
     instigator = trigger.nick
     inchannel = trigger.sender
     databasekey = 'confucius'

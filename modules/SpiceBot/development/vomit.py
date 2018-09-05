@@ -20,4 +20,4 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    osd(bot, trigger.sender,  trigger.nick + 'say', "vomits in to a mesh waste basket, spraying it in every direction")
+    osd(bot, trigger.sender,  'say', trigger.nick + " vomits in to a mesh waste basket, spraying it in every direction")

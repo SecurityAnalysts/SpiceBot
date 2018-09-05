@@ -24,4 +24,4 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     if not target:
         osd(bot, trigger.sender, 'say', "Like I always say, 'Fuck you, payme!'")
     else:
-        osd(bot, trigger.sender, 'say', target.upper() ", fuck you, pay me! ")
+        osd(bot, trigger.sender, 'say', target.upper( ", fuck you, pay me! ")

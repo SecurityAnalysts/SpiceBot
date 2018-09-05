@@ -4667,6 +4667,7 @@ Chance Events
 @sopel.module.interval(61)
 @sopel.module.thread(True)
 def duels_chanceevents(bot):
+    return
 
     duels = class_create('main')
 

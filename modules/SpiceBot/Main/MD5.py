@@ -4,12 +4,13 @@ from __future__ import unicode_literals, absolute_import, print_function, divisi
 import sopel.module
 import sys
 import os
+import hashlib
 moduledir = os.path.dirname(__file__)
 shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
-# author yournamehere
+# author jimender2
 
 
 @sopel.module.commands('md5')
@@ -20,4 +21,6 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    osd(bot, trigger.sender, 'say', "do the thing")
+    target = get_trigger_arg(bot, triggerargsarray, '1+') or 'test'
+    message = hashlib.md5(target.encode('utf-8')).hexdigest()
+    osd(bot, trigger.sender, 'say', message)

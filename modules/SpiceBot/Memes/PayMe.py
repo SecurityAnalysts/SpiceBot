@@ -9,15 +9,21 @@ shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
-# author yournamehere
+# author SniperClif
 
 
-@sopel.module.commands('hex')
+@sopel.module.commands('payme')
 def mainfunction(bot, trigger):
+    """Check to see if module is enabled."""
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, trigger.group(1))
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    osd(bot, trigger.sender, 'say', "do the thing")
+    """Take input and use it in a "fuck you, pay me" style sentence."""
+    target = get_trigger_arg(bot, triggerargsarray, '1+')
+    if not target:
+        osd(bot, trigger.sender, 'say', "Like I always say, 'Fuck you, pay me!'")
+    else:
+        osd(bot, trigger.sender, 'say', target.upper() + ", fuck you, pay me! ")

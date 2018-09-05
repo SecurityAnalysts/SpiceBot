@@ -17,15 +17,18 @@ ______________________________________
 
 ## SpiceBot Wiki
 
-[Wiki](https://github.com/SpiceBot/SpiceBot/wiki)
+[ New Wiki](https://wiki.spicebot.net/index.php/Main_Page)
+[Old Wiki](https://github.com/SpiceBot/SpiceBot/wiki)
 
 ______________________________________
 
 ## Commands
 
-[List Of Commands](https://github.com/SpiceBot/SpiceBot/wiki/Modules)
+[List of Modules (in progress)](https://wiki.spicebot.net/index.php/Modules)
+[List Of Commands (super outdated)](https://github.com/SpiceBot/SpiceBot/wiki/Modules)
 ______________________________________
 
 ## Install Procedure
 
-[Install Procedure](https://github.com/SpiceBot/SpiceBot/wiki/Installation-Procedure)
+[Running your own bot](https://wiki.spicebot.net/index.php/Running_the_Bot)
+[Install Procedure (old)](https://github.com/SpiceBot/SpiceBot/wiki/Installation-Procedure)

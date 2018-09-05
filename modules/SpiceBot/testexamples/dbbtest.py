@@ -101,38 +101,6 @@ def get_user_dict(bot, dclass, nick, dictkey):
     return returnvalue
 
 
-# Database Users
-def get_user_dict_good(bot, dclass, nick, dictkey):
-
-    # check that db list is there
-    if not hasattr(dclass, 'userdb'):
-        dclass.userdb = class_create('userdblist')
-    if not hasattr(dclass.userdb, 'list'):
-        dclass.userdb.list = []
-
-    returnvalue = 0
-
-    # check if nick has been pulled from db already
-    if nick not in dclass.userdb.list:
-        dclass.userdb.list.append(nick)
-        nickdict = get_database_value(bot, nick, dclass.default) or dict()
-        createuserdict = str("dclass.userdb." + nick + " = nickdict")
-        exec(createuserdict)
-    else:
-        if not hasattr(dclass.userdb, nick):
-            nickdict = dict()
-        else:
-            nickdict = eval('dclass.userdb.' + nick)
-
-    if dictkey in nickdict.keys():
-        returnvalue = nickdict[dictkey]
-    else:
-        nickdict[dictkey] = 0
-        returnvalue = 0
-
-    return returnvalue
-
-
 # set a value
 def set_user_dict(bot, dclass, nick, dictkey, value):
     currentvalue = get_user_dict(bot, dclass, nick, dictkey)
@@ -154,7 +122,7 @@ def adjust_user_dict(bot, dclass, nick, dictkey, value):
     if not str(oldvalue).isdigit():
         oldvalue = 0
     nickdict = eval('dclass.userdb.' + nick)
-    nickdict[dictkey] = float(oldvalue) + float(value)
+    nickdict[dictkey] = oldvalue + value
 
 
 # Save all database users in list

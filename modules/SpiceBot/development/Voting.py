@@ -12,12 +12,14 @@ from BotShared import *
 
 @sopel.module.commands('vote', 'rate', 'poll')
 def mainfunction(bot, trigger):
+    """Check to see if module is enabled."""
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'vote')
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
+    """Take votes and create polls."""
     now = time.time()
     commandused = trigger.group(1)
     choice = get_trigger_arg(bot, triggerargsarray, 1)

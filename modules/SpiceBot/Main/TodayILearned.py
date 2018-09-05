@@ -2,50 +2,51 @@
 # coding=utf-8
 from __future__ import unicode_literals, absolute_import, print_function, division
 import sopel.module
-import os
 import sys
+import os
+import datetime
 moduledir = os.path.dirname(__file__)
 shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
-# add reset and sort list
+# author jimender2
 
 
-@sopel.module.commands('techsupport', 'itsupport')
+@sopel.module.commands('til')
 def mainfunction(bot, trigger):
-    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'techsupport')
+    enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'til')
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
-    inchannel = trigger.sender
-    databasekey = 'techsupport'
+    databasekey = 'todayILearned'
     command = get_trigger_arg(bot, triggerargsarray, 1)
     inputstring = get_trigger_arg(bot, triggerargsarray, '2+')
-    existingarray = get_database_value(bot, bot.nick, databasekey) or []
+    existingarray = get_database_value(bot, trigger.nick, databasekey) or []
     if command == "add":
         if inputstring not in existingarray:
             adjust_database_array(bot, bot.nick, inputstring, databasekey, 'add')
             message = "Added to database."
         else:
-            message = "That response is already in the database."
+            message = "That is already in the database."
     elif command == "remove":
         if inputstring not in existingarray:
-            message = "That response was not found in the database."
+            message = "That was not found in the database."
         else:
             adjust_database_array(bot, bot.nick, inputstring, databasekey, 'del')
             message = "Removed from database."
     elif command == "count":
         messagecount = len(existingarray)
-        message = "There are currently " + str(messagecount) + " responses for that in the database."
+        message = "There are currently " + str(messagecount) + " responses in the database for that."
     elif command == "last":
         message = get_trigger_arg(bot, existingarray, "last")
-
     else:
-        message = get_trigger_arg(bot, existingarray, "random") or ''
-        if message == '':
+        message1 = get_trigger_arg(bot, existingarray, "random") or ''
+        if message1 == '':
             message = "No response found. Have any been added?"
+        else:
+            message = "Today I Learned that " + message1 + "!"
     osd(bot, trigger.sender, 'say', message)

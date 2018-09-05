@@ -9,8 +9,12 @@ shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
-commandarray = ["add", "remove", "count", "last"]
-# add reset and sort list
+# author = dysonparkes
+defaultoptions = [
+    "Man who lie on back, fucks up.", "Man who piss into wind get wet.", "Panties not best thing on earth, but next to it.", "Virginity like bubble: one prick, all gone.", "Man who stand on toilet high on pot.",
+    "Man who stand on toilet high on pot.", "If a bulldog and a Shitsu are mated, it would be called a Bullshit.", "Nail on board is not good as screw on bench.",
+    "Tight dress is like a barbed fence; it protects the premises without restricting the view."
+]
 
 
 @sopel.module.commands('confucius')
@@ -23,39 +27,11 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     """Retrieve 'Confucius' saying from database."""
-    instigator = trigger.nick
-    inchannel = trigger.sender
     databasekey = 'confucius'
-    command = get_trigger_arg(bot, triggerargsarray, 1)
-    inputstring = get_trigger_arg(bot, triggerargsarray, '2+')
-    existingarray = get_database_value(bot, bot.nick, databasekey) or []
-    if command in commandarray:
-        if command == "add":
-            if inputstring not in existingarray:
-                adjust_database_array(bot, bot.nick, inputstring, databasekey, 'add')
-                message = "Added to database."
-            else:
-                message = "That is already in the database."
-        elif command == "remove":
-            if inputstring not in existingarray:
-                message = "That was not found in the database."
-            else:
-                adjust_database_array(bot, bot.nick, inputstring, databasekey, 'del')
-                message = "Removed from database."
-        elif command == "count":
-            messagecount = len(existingarray)
-            message = "There are currently " + str(messagecount) + " responses in the database for that."
-        # elif command == "list":
-        #    if inchannel.startswith("#"):
-        #        message = "List can only be run in privmsg to avoid flooding."
-        #    else:
-        #        message = get_trigger_arg(bot, existingarray, "list")
-        elif command == "last":
-            message = get_trigger_arg(bot, existingarray, "last")
-    else:
-        message = get_trigger_arg(bot, existingarray, "random") or ''
-        if message == '':
-            message = "No response found. Have any been added?"
-        elif not message.startswith("Confucius"):
-            message = "Confucius say " + message
+    command = get_trigger_arg(bot, triggerargsarray, 1) or 'get'
+    if not sayingscheck(bot, databasekey) and command != "add":
+        sayingsmodule(bot, databasekey, defaultoptions, 'initialise')
+    message = sayingsmodule(bot, databasekey, triggerargsarray, command)
+    if not message.startswith("Confucius"):
+        message = "Confucius say... " + message
     osd(bot, trigger.sender, 'say', message)

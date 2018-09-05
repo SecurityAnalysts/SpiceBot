@@ -14,14 +14,12 @@ from BotShared import *
 
 @sopel.module.commands('wonder')
 def mainfunction(bot, trigger):
-    """Check to see if the module is enabled."""
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'wonder')
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    """Take input option or instigator and say what they are wondering about."""
     command = get_trigger_arg(bot, triggerargsarray, '1+')
     instigator = trigger.nick
     if not command:

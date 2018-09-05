@@ -9,10 +9,10 @@ shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
-# author SniperClif
+# author yournamehere
 
 
-@sopel.module.commands('payme')
+@sopel.module.commands('vomit')
 def mainfunction(bot, trigger):
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, trigger.group(1))
     if not enablestatus:
@@ -20,8 +20,4 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    target = get_trigger_arg(bot, triggerargsarray, 1)
-    if not target:
-        osd(bot, trigger.sender, 'say', "Like I always say, 'Fuck you, payme!'")
-    else:
-        osd(bot, trigger.sender, 'say', target.upper() ", fuck you, pay me! ")
+    osd(bot, trigger.sender,  trigger.nick + 'say', "vomits in to a mesh waste basket, spraying it in every direction")

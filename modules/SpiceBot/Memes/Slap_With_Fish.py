@@ -9,7 +9,11 @@ shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
-fishtypes = ["Pike", "Carp", "Marlin", "Trout", "Cod", "Anchovy", "Venezuelan Beaverfish", "fish", "jellyfish"]
+fishtypes = ["Pike", "Carp", "Marlin", "Trout", "Cod", "Anchovy", "Venezuelan Beaverfish",
+             "fish", "Ocean Sunfish", "blobfish", "red-bellied pacu", "oyster toadfish",
+             "Halichoeres bivittatus (slippery dick)", "Humuhumunukunukuāpuaʻa", "Giant Goliath Tiger Fish",
+             "Red-lipped batfish", "suckermouth catfish", "Northern red snapper", "Tasseled Wobbegong", "Sarcastic fringehead",
+             "Collared carpetshark", "Naked-back knifefish"]
 vowels = ('a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U')
 
 

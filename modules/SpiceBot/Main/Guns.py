@@ -21,8 +21,4 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     target = get_trigger_arg(bot, triggerargsarray, 1) or trigger.nick
-    if not target:
-        action = ["Guns don't kill people.", "People kill people.", "With Guns."]
-    else:
-        action = ["Guns don't kill people.", target + " kills people.", "With Guns."]
-    osd(bot, botcom.channel_current, 'action', action)
+    osd(bot, botcom.channel_current, 'say', ["Guns don't kill people.", target + " kills people.", "With Guns."])

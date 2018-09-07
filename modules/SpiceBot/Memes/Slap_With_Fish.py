@@ -9,22 +9,22 @@ shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
-fishtypes = ["Pike", "Carp", "Marlin", "Trout", "Cod", "Anchovy", "Venezuelan Beaverfish",
-             "fish", "Ocean Sunfish", "blobfish", "red-bellied pacu", "oyster toadfish",
-             "Halichoeres bivittatus (slippery dick)", "Humuhumunukunukuāpuaʻa", "Giant Goliath Tiger Fish",
-             "Red-lipped batfish", "suckermouth catfish", "Northern red snapper", "Tasseled Wobbegong", "Sarcastic fringehead",
-             "Collared carpetshark", "Naked-back knifefish"]
+fishtypes = ["Pike", "Carp", "Marlin", "Trout", "Cod", "Anchovy", "Venezuelan Beaverfish", "Fish", "Ocean Sunfish", "Blobfish", "Red-bellied Pacu", "Oyster Toadfish",
+             "Slippery Dick", "Humuhumunukunukuāpuaʻa", "Giant Goliath Tiger Fish", "Red-lipped Batfish", "Suckermouth Catfish", "Northern Red Snapper", "Tasseled Wobbegong", "Sarcastic Fringehead",
+             "Collared Carpetshark", "Naked-back Knifefish"]
 vowels = ('a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U')
 
 
 @sopel.module.commands('fish', 'slap')
 def mainfunction(bot, trigger):
+    """Check to see if module is enabled."""
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'fish')
     if not enablestatus:
         execute_main(bot, trigger, triggerargsarray, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
+    """Slap some bitch with a fish. Unless it's bear`. He gets fed a tasty fish."""
     target = get_trigger_arg(bot, triggerargsarray, 1)
     reason = get_trigger_arg(bot, triggerargsarray, '2+')
     message = "Whoops, something went wrong."

@@ -18,6 +18,9 @@ from fake_useragent import UserAgent
 import praw
 from prawcore import NotFound
 import twitter
+from googleapiclient.discovery import build
+from httplib2 import Http
+from oauth2client import file, client, tools
 import sys
 import os
 moduledir = os.path.dirname(__file__)
@@ -25,10 +28,18 @@ shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
+# author deathbybandaid
 
 # creds
 config = ConfigParser.ConfigParser()
 config.read("/home/spicebot/spicebot.conf")
+
+# Google Calendar API
+# SCOPES = 'https://www.googleapis.com/auth/calendar'
+SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
+gcaljsonpath = '/home/spicebot/gcal.json'
+gcalstore = file.Storage(gcaljsonpath)
+gcalcreds = gcalstore.get()
 
 # Reddit Creds
 RCLIENTID = config.get("reddit", "clientid")
@@ -50,8 +61,6 @@ twiterapi = twitter.Api(consumer_key=TKEY,
 # user agent and header
 ua = UserAgent()
 header = {'User-Agent': str(ua.chrome)}
-
-# author deathbybandaid
 
 feeds_dir = "feeds/"
 feeds_file_path = os.path.join(moduledir, feeds_dir)
@@ -441,12 +450,28 @@ def feeds_display(bot, feed, feeds, displayifnotnew):
 
             # if not displayifnotnew:
             #    set_database_value(bot, bot.nick, feed + '_lastbuildcurrent', str(lastBuildXML))
+        elif feed_type == 'googlecalendar':
+            return
+
+            currentcalendar = eval("feeds." + feed + ".calendar")
+
+            service = build('calendar', 'v3', http=gcalcreds.authorize(Http()))
+
+            events_result = service.events().list(calendarId=currentcalendar, timeMin=now,
+                                                  maxResults=1, singleEvents=True,
+                                                  orderBy='startTime').execute()
+            events = events_result.get('items', [])
+            if not events:
+                bot.say("no events")
+                return
+            event = events[0]
+
+            bot.say(str(event))
 
         elif feed_type == 'twitter':
 
             currenttweetat = eval("feeds." + feed + ".tweetat")
 
-            # currenttweats = twiterapi.GetSearch(currenttweetat)
             currenttweats = twiterapi.GetUserTimeline(screen_name=currenttweetat, count=1)
             listarray = []
             for tweet in currenttweats:

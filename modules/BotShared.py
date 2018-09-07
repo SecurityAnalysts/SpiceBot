@@ -547,7 +547,7 @@ def sayingsmodule(bot, databasekey, inputarray, thingtodo):
             response = "Added to database."
         else:
             response = "That is already in the database."
-    elif thingtodo == "remove":
+    elif thingtodo == "remove" or thingtodo == 'del':
         if inputstring not in existingarray:
             response = "That was not found in the database."
         else:
@@ -573,6 +573,21 @@ def sayingscheck(bot, databasekey):
         return True
     else:
         return False
+
+
+"""
+Get line from raw text site.
+"""
+
+
+def randomline(bot, address):
+    """Retrieve random line from given raw file."""
+    htmlfile = urllib.urlopen(address)
+    lines = htmlfile.read().splitlines()
+    myline = random.choice(lines)
+    if not myline or myline == '\n':
+        myline = randomline()
+    return myline
 
 
 """

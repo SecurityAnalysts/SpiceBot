@@ -873,7 +873,7 @@ def spicemanip_reverse(bot, inputs, outputtask, mainoutputtask, suboutputtask):
 def spicemanip_list(bot, inputs, outputtask, mainoutputtask, suboutputtask):
     if inputs == []:
         return 0
-    return ', '.join(str(x) for x in inputs)
+    return str(', '.join(str(x) for x in inputs))
 
 
 # comma seperated list with and
@@ -887,7 +887,7 @@ def spicemanip_andlist(bot, inputs, outputtask, mainoutputtask, suboutputtask):
     inputs.append(lastentry)
     if len(inputs) == 2:
         return ' '.join(inputs)
-    return ', '.join(str(x) for x in inputs)
+    return str(', '.join(str(x) for x in inputs))
 
 
 # comma seperated list with or
@@ -901,7 +901,7 @@ def spicemanip_orlist(bot, inputs, outputtask, mainoutputtask, suboutputtask):
     inputs.append(lastentry)
     if len(inputs) == 2:
         return ' '.join(inputs)
-    return ', '.join(str(x) for x in inputs)
+    return str(', '.join(str(x) for x in inputs))
 
 
 # exclude number
@@ -909,14 +909,14 @@ def spicemanip_exclude(bot, inputs, outputtask, mainoutputtask, suboutputtask):
     if inputs == []:
         return 0
     del inputs[int(mainoutputtask) - 1]
-    return ' '.join(inputs)
+    return str(' '.join(inputs))
 
 
 # Convert list to string
 def spicemanip_string(bot, inputs, outputtask, mainoutputtask, suboutputtask):
     if inputs == []:
         return 0
-    return ' '.join(inputs)
+    return str(' '.join(inputs))
 
 
 # Get number item from list

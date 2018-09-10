@@ -432,7 +432,7 @@ def subcommands(bot, trigger, triggerargsarray, command_full, command_main, duel
             osd(bot, duels.instigator, 'notice', "You do not have enough stamina to move from the "+instigatorbio.location+" area to the "+command_location+" area AND perform this action.")
             return
         osd(bot, duels.instigator, 'notice', "You have been moved from the " + instigatorbio.location + " area to the " + command_location + " area at an extra cost of "+str(staminarequiredtomove)+" stamina.")
-        duels_stamina_charge(bot, duels.instigator, 'location')
+        duels_stamina_charge(bot, duels, duels.instigator, 'location')
         duels_location_move(bot, duels, duels.instigator, command_location)
         instigatorbio.location = duels_get_location(bot, duels, duels.instigator)
         # Rebuild again
@@ -480,7 +480,7 @@ def subcommands(bot, trigger, triggerargsarray, command_full, command_main, duel
 
     # Stamina charge
     if duels.command_stamina_cost:
-        duels_stamina_charge(bot, duels.instigator, command_main.lower())
+        duels_stamina_charge(bot, duels, duels.instigator, command_main.lower())
 
     # usage counter
     adjust_user_dict(bot, duels, duels.instigator, 'usage_total', 1)
@@ -5537,7 +5537,7 @@ def duels_stamina_check(bot, nick, command, duels):
 
 
 # Charge the appropriate stamina
-def duels_stamina_charge(bot, nick, command):
+def duels_stamina_charge(bot, duels, nick, command):
 
     if command in duels_commands_stamina_required:
         commandstaminacost = array_compare(bot, command, duels_commands_stamina_required, duels_commands_stamina_cost)

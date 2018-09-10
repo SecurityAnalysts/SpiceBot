@@ -228,7 +228,7 @@ def execute_main(bot, trigger, triggerargsarray, command_type):
 
     # Tiers
     duels.currenttier = get_user_dict(bot, duels, 'duelrecorduser', 'tier') or 0
-    duels.tierscaling = duels_tier_current_to_ratio(bot)
+    duels.tierscaling = duels_tier_current_to_ratio(bot, duels)
 
     # Validate Instigator
     duels_check_nick_condition(bot, duels.instigator, duels)
@@ -392,7 +392,7 @@ def subcommands(bot, trigger, triggerargsarray, command_full, command_main, duel
     duels.command_restructure = get_trigger_arg(bot, command_restructure, 'create')
     docscheck = get_trigger_arg(bot, duels.command_restructure, 1)
     if docscheck == 'docs' or docscheck in duels_commands_alternate_docs:
-        endmessage = duels_docs_commands(bot, command_main)
+        endmessage = duels_docs_commands(bot, duels, command_main)
         osd(bot, duels.channel_current, 'say', endmessage)
         return
 
@@ -579,21 +579,21 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
             playerbio_loser = playerbio_maindueler
 
         # Body Part Hit
-        bodypart, bodypartname = duels_bodypart_select(bot, loser)
+        bodypart, bodypartname = duels_bodypart_select(bot, duels, loser)
 
         # Weapon
         if playerbio_winner.actual == playerbio_maindueler.actual and manualweapon:
             if manualweapon == 'all':
-                weapon = duels_weaponslocker_channel(bot)
+                weapon = duels_weaponslocker_channel(bot, duels)
             elif manualweapon == 'target':
-                weapon = duels_weaponslocker_nick_selection(bot, playerbio_target.actual)
+                weapon = duels_weaponslocker_nick_selection(bot, duels, playerbio_target.actual)
                 weapon = str(playerbio_target.nametext + "'s " + weapon)
             else:
                 weapon = manualweapon
         elif playerbio_winner.actual == bot.nick or playerbio_winner.actual == 'duelsmonster':
             weapon = ''
         else:
-            weapon = duels_weaponslocker_nick_selection(bot, playerbio_winner.actual)
+            weapon = duels_weaponslocker_nick_selection(bot, duels, playerbio_winner.actual)
         # Format Weapon Name
         weapon = duels_weapons_formatter(bot, weapon)
         if weapon != '':
@@ -633,7 +633,7 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
                 if playerbio_winner.actual == bot.nick or playerbio_winner.actual == 'duelsmonster':
                     weapon = ''
                 else:
-                    weapon = duels_weaponslocker_nick_selection(bot, playerbio_winner.actual)
+                    weapon = duels_weaponslocker_nick_selection(bot, duels, playerbio_winner.actual)
                 weapon = duels_weapons_formatter(bot, weapon)
                 if weapon != '':
                     weapon = str(" " + weapon)
@@ -649,7 +649,7 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
             else:
                 transformodds = randint(playerbio_loser.agility * 10, 100)
             if transformodds >= 80:
-                currentanimals = duels_druid_current_array(bot, playerbio_loser.actual)
+                currentanimals = duels_druid_current_array(bot, duels, playerbio_loser.actual)
                 currentanimal = get_trigger_arg(bot, currentanimals, 'random')
                 aoran = 'a'
                 if currentanimal.lower().startswith(('a', 'e', 'i', 'o', 'u')):
@@ -744,18 +744,18 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
 
         # Streaks Text
         if playerbio_winner.actual != playerbio_loser.actual:
-            streaktext = duels_get_streaktext(bot, playerbio_winner, playerbio_loser) or ''
+            streaktext = duels_get_streaktext(bot, duels, playerbio_winner, playerbio_loser) or ''
             if streaktext != []:
                 for x in streaktext:
                     combattextarraycomplete.append(x)
 
         # new pepper level?
         if playerbio_winner.actual != playerbio_loser.actual and playerbio_winner.actual != 'duelsmonster' and playerbio_winner.actual != bot.nick:
-            pepper_now_winner = duels_tier_nick_to_pepper(bot, playerbio_winner.actual)
+            pepper_now_winner = duels_tier_nick_to_pepper(bot, duels, playerbio_winner.actual)
             if pepper_now_winner != playerbio_winner.pepperstart:
                 combattextarraycomplete.append(playerbio_winner.nametext + " graduates to " + pepper_now_winner + "! ")
         if playerbio_loser.actual != playerbio_winner.actual and loser != 'duelsmonster':
-            pepper_now_loser = duels_tier_nick_to_pepper(bot, playerbio_loser.actual)
+            pepper_now_loser = duels_tier_nick_to_pepper(bot, duels, playerbio_loser.actual)
             if pepper_now_loser != playerbio_loser.pepperstart:
                 combattextarraycomplete.append(playerbio_loser.nametext + " graduates to " + pepper_now_loser + "! ")
 
@@ -771,7 +771,7 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
                     osd(bot, duels.duels_enabled_channels, 'say', "New Tier Unlocked!     Feature(s) now available: " + newtierlist)
 
         # Magic Attributes text
-        magicattributestext = duels_magic_attributes_text(bot, playerbio_winner, playerbio_loser)
+        magicattributestext = duels_magic_attributes_text(bot, duels, playerbio_winner, playerbio_loser)
         for x in magicattributestext:
             combattextarraycomplete.append(x)
 
@@ -842,7 +842,7 @@ def duels_command_function_combat(bot, triggerargsarray, command_main, trigger, 
     duel_combat(bot, duels.instigator, [target], duels.command_restructure, 'target', duels)
 
 
-def duels_docs_combat(bot):
+def duels_docs_combat(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This the main function of gameplay.")
     dispmsgarray.append("Usage: Target another player.")
@@ -924,7 +924,7 @@ def duels_command_function_classic(bot, triggerargsarray, command_main, trigger,
         return
 
 
-def duels_docs_classic(bot):
+def duels_docs_classic(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This shows the gameplay that this game is based on. Note: this does not have an effect your actual stats.")
     dispmsgarray.append("Usage: Target another player.")
@@ -996,7 +996,7 @@ def duels_command_function_assault(bot, triggerargsarray, command_main, trigger,
     set_user_dict(bot, duels, duels.instigator, 'lastfought', lastfoughtstart)
 
 
-def duels_docs_assault(bot):
+def duels_docs_assault(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This a combat event that allows you to attack every other duels player.")
     return dispmsgarray
@@ -1081,7 +1081,7 @@ def duels_command_function_mayhem(bot, triggerargsarray, command_main, trigger, 
         osd(bot, duels.channel_current, 'say', assaultstatsarray)
 
 
-def duels_docs_mayhem(bot):
+def duels_docs_mayhem(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This a combat event that finds every combination of combat possible.")
     return dispmsgarray
@@ -1154,7 +1154,7 @@ def duels_command_function_hungergames(bot, triggerargsarray, command_main, trig
     osd(bot, duels.channel_current, 'say', dispmsgarray)
 
 
-def duels_docs_hungergames(bot):
+def duels_docs_hungergames(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This pits all duels players against eachother with one victorious.")
     return dispmsgarray
@@ -1219,7 +1219,7 @@ def duels_command_function_colosseum(bot, triggerargsarray, command_main,  trigg
     osd(bot, duels.channel_current, 'say', "The Winner is: " + colosseumwinner + "! Total winnings: " + str(riskcoins) + " coin! Losers took " + str(riskcoins) + " damage.")
 
 
-def duels_docs_colosseum(bot):
+def duels_docs_colosseum(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This pits all users against eachother with a prize that is based on the amount of players present.")
     return dispmsgarray
@@ -1320,7 +1320,7 @@ def duels_command_function_monster(bot, triggerargsarray, command_main, trigger,
             duels_monster_stats_reset(bot, duels)
 
 
-def duels_docs_monster(bot):
+def duels_docs_monster(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This allows you to do combat against a random low-level monster.")
     dispmsgarray.append("Additional Switches: " + 'You may use -w="weapon name" to manually use a weapon.')
@@ -1352,7 +1352,7 @@ def duels_command_function_random(bot, triggerargsarray, command_main, trigger, 
     duel_combat(bot, duels.instigator, [target], triggerargsarray, 'random', duels)
 
 
-def duels_docs_random(bot):
+def duels_docs_random(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This allows you to combat a random player. This has an added bonus if you win. There is a chance that the bot or monster may be selected. The bot always wins.")
     dispmsgarray.append("Additional Switches: " + 'You may use -w="weapon name" to manually use a weapon.')
@@ -1400,7 +1400,7 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
             return
 
     # Instigator must wait a day after death
-    getlastdeath = duels_time_since(bot, duels.instigator, 'roulettedeath') or array_compare(bot, 'rouelette_death', duels_timeouts, duels_timeouts_duration)
+    getlastdeath = duels_time_since(bot, duels, duels.instigator, 'roulettedeath') or array_compare(bot, 'rouelette_death', duels_timeouts, duels_timeouts_duration)
     if getlastdeath < array_compare(bot, 'rouelette_death', duels_timeouts, duels_timeouts_duration):
         if duels.channel_current in duels.duels_dev_channels or duels.admin:
             allowpass = 1
@@ -1412,7 +1412,7 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
             return
 
     # Small timeout
-    getlastusage = duels_time_since(bot, 'duelrecorduser', str('lastfullroom' + command_main)) or array_compare(bot, 'roulette', duels_timeouts, duels_timeouts_duration)
+    getlastusage = duels_time_since(bot, duels, 'duelrecorduser', str('lastfullroom' + command_main)) or array_compare(bot, 'roulette', duels_timeouts, duels_timeouts_duration)
     if getlastusage < array_compare(bot, 'roulette', duels_timeouts, duels_timeouts_duration):
         if duels.channel_current in duels.duels_dev_channels or duels.admin:
             allowpass = 1
@@ -1578,7 +1578,7 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
     set_user_dict(bot, duels, 'duelrecorduser', 'roulettelastplayeractualtext', roulettelastplayeractualtext)
 
 
-def duels_docs_roulette(bot):
+def duels_docs_roulette(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This allows you to risk a shot in the head for the chance at big coin winnings.")
     dispmsgarray.append("Subcommand 'last': Displays the last player to bite the bullet.")
@@ -1612,7 +1612,7 @@ def duels_command_function_trebuchet(bot, triggerargsarray, command_main, trigge
     targetbio = duel_target_playerbio(bot, duels, target)
 
     # Bodypart
-    bodypart, bodypartname = duels_bodypart_select(bot, target)
+    bodypart, bodypartname = duels_bodypart_select(bot, duels, target)
 
     # Damage
     damage = randint(1, 120)
@@ -1628,7 +1628,7 @@ def duels_command_function_trebuchet(bot, triggerargsarray, command_main, trigge
     osd(bot, duels.channel_current, 'say', dispmsgarray)
 
 
-def duels_docs_trebuchet(bot):
+def duels_docs_trebuchet(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This is a spinning target hitter.")
     return dispmsgarray
@@ -1659,7 +1659,7 @@ def duels_command_function_deathblow(bot, triggerargsarray, command_main, trigge
         deathblowcurrentarray = deathblowtargetarray
 
     for deathblowavail in deathblowcurrentarray:
-        deathblowtargettime = duels_time_since(bot, deathblowavail, 'deathblowtargettime') or 0
+        deathblowtargettime = duels_time_since(bot, duels, deathblowavail, 'deathblowtargettime') or 0
         if deathblowtargettime <= 120:
             targetbio = duel_target_playerbio(bot, duels, target)
             osd(bot, duels.channel_current, 'say', duels.instigator + " strikes a deathblow upon " + deathblowavail + ".")
@@ -1673,7 +1673,7 @@ def duels_command_function_deathblow(bot, triggerargsarray, command_main, trigge
         reset_user_dict(bot, duels, deathblowavail, 'deathblowkiller')
 
 
-def duels_docs_template(bot):
+def duels_docs_template(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This checks to see if a recent combat provided you with the chance to finish a player.")
     dispmsgarray.append("Usage: Either run the base command, or specify a target.")
@@ -1754,7 +1754,7 @@ def duels_command_function_grenade(bot, triggerargsarray, command_main, trigger,
     adjust_user_dict(bot, duels, 'duelsmerchant', str("vendor_track_value_grenade"), int(quantity))
 
 
-def duels_docs_grenade(bot):
+def duels_docs_grenade(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This allows you to throw a grenade into the room. Damage is randomly based on who is able to jump out of the way.")
     return dispmsgarray
@@ -1766,7 +1766,7 @@ def duels_docs_grenade(bot):
 def duels_command_function_magic(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
     # Instigator
-    instigatormagic = duels_special_get(bot, duels.instigator, 'magic')
+    instigatormagic = duels_special_get(bot, duels, duels.instigator, 'magic')
     instigatorclass = get_user_dict(bot, duels, duels.instigator, 'class')
     instigatormana = get_user_dict(bot, duels, duels.instigator, 'mana')
     if not instigatormana:
@@ -1870,7 +1870,7 @@ def duels_command_function_magic(bot, triggerargsarray, command_main, trigger, c
         reset_user_dict(bot, duels, duels.instigator, 'mana')
 
 
-def duels_docs_magic(bot):
+def duels_docs_magic(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This allows you to use mana to do various magic functions.")
     return dispmsgarray
@@ -2035,14 +2035,14 @@ def duels_command_function_character(bot, triggerargsarray, command_main, trigge
                     return
 
             if targetbio.actual == duels.instigator and duels.channel_current not in duels.duels_dev_channels:
-                classtime = duels_time_since(bot, duels.instigator, 'class_timeout')
+                classtime = duels_time_since(bot, duels, duels.instigator, 'class_timeout')
                 if classtime < array_compare(bot, 'class', duels_timeouts, duels_timeouts_duration):
                     if duels.channel_current in duels.duels_dev_channels or duels.admin:
                         allowpass = 1
                     elif not duels.inchannel and len(duels_dev_channels) > 0:
                         allowpass = 1
                     else:
-                        instigatorclasstime = duels_time_since(bot, duels.instigator, 'class_timeout')
+                        instigatorclasstime = duels_time_since(bot, duels, duels.instigator, 'class_timeout')
                         osd(bot, duels.instigator, 'notice', "You may not change your class more than once per " + str(duels_hours_minutes_seconds((array_compare(bot, 'class', duels_timeouts, duels_timeouts_duration) - 1))) + ". Please wait "+str(duels_hours_minutes_seconds((array_compare(bot, 'class', duels_timeouts, duels_timeouts_duration) - instigatorclasstime)))+" to change.")
                         duels.command_stamina_cost = 0
                         return
@@ -2062,7 +2062,7 @@ def duels_command_function_character(bot, triggerargsarray, command_main, trigge
         return
 
 
-def duels_docs_character(bot):
+def duels_docs_character(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This shows your character sheet.")
     return dispmsgarray
@@ -2136,7 +2136,7 @@ def duels_command_function_special(bot, triggerargsarray, command_main, trigger,
         duels_stats_view(bot, duels, target_stats_view, targetbio, customview, 'character sheet')
 
 
-def duels_docs_armor(bot):
+def duels_docs_armor(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This displays the current durability of any armor that you may possess.")
     return dispmsgarray
@@ -2265,7 +2265,7 @@ def duels_command_function_stats(bot, triggerargsarray, command_main, trigger, c
         osd(bot, duels.instigator, 'notice', "Possibly done Adjusting "+str(statset)+" stat(s) for "+str(targetbio.actual)+" to " + str(newvalue))
 
 
-def duels_docs_stats(bot):
+def duels_docs_stats(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This provides a brief sysnopsis of your current condition.")
     return dispmsgarray
@@ -2318,7 +2318,7 @@ def duels_command_function_health(bot, triggerargsarray, command_main, trigger, 
         duels_stats_view(bot, duels, target_stats_view, targetbio, customview, command_main.lower())
 
 
-def duels_docs_health(bot):
+def duels_docs_health(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This displays a detailed look at each bodyparts current status.")
     return dispmsgarray
@@ -2369,7 +2369,7 @@ def duels_command_function_streaks(bot, triggerargsarray, command_main, trigger,
         duels_stats_view(bot, duels, target_stats_view, targetbio, customview, command_main.lower())
 
 
-def duels_docs_streaks(bot):
+def duels_docs_streaks(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This shows your current winning/losing streak. A streak is more than 2 in a row.")
     return dispmsgarray
@@ -2586,7 +2586,7 @@ def duels_command_function_loot(bot, triggerargsarray, command_main, trigger, co
             osd(bot, targetbio.actual, 'notice', mainlootusemessage)
 
 
-def duels_docs_loot(bot):
+def duels_docs_loot(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This shows the items you currently possess and can use. You may also buy, sell, these items with the ingame store.")
     return dispmsgarray
@@ -2637,7 +2637,7 @@ def duels_command_function_armor(bot, triggerargsarray, command_main, trigger, c
         duels_stats_view(bot, duels, target_stats_view, targetbio, customview, command_main.lower())
 
 
-def duels_docs_armor(bot):
+def duels_docs_armor(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This displays the current durability of any armor that you may possess.")
     return dispmsgarray
@@ -2727,7 +2727,7 @@ def duels_command_function_opt(bot, triggerargsarray, command_main, trigger, com
                 return
 
     # User can't toggle status all the time
-    targetopttime = duels_time_since(bot, target, 'timeout_opttimetime')
+    targetopttime = duels_time_since(bot, duels, target, 'timeout_opttimetime')
     if targetopttime < array_compare(bot, 'opttime', duels_timeouts, duels_timeouts_duration):
         if duels.channel_current in duels.duels_dev_channels or duels.admin:
             allowpass = 1
@@ -2787,7 +2787,7 @@ def duels_command_function_opt(bot, triggerargsarray, command_main, trigger, com
         osd(bot, duels.duels_enabled_channels, 'say', dispmsgarray)
 
 
-def duels_docs_opt(bot):
+def duels_docs_opt(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This opts you in/out.")
     dispmsgarray.append("Your opt status will announce to the channel. You can also use this command to have the bot primsg a nick to tell somebody join the fun.")
@@ -2858,7 +2858,7 @@ def duels_command_function_location(bot, triggerargsarray, command_main, trigger
         osd(bot, duels.duels_enabled_channels, 'say', dispmsgarray)
 
 
-def duels_docs_location(bot):
+def duels_docs_location(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This allows you to travel between game locations.")
     return dispmsgarray
@@ -2898,7 +2898,7 @@ def duels_command_function_harakiri(bot, triggerargsarray, command_main, trigger
     osd(bot, duels.channel_current, 'say', suicidetextarray)
 
 
-def duels_docs_template(bot):
+def duels_docs_template(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This is a suicide command. You will lose all your items and respawn.")
     dispmsgarray.append("Usage: You must Confirm this command.")
@@ -2968,7 +2968,7 @@ def duels_command_function_title(bot, triggerargsarray, command_main, trigger, c
         osd(bot, duels.instigator, 'notice', "Your title is now " + titletoset + ".")
 
 
-def duels_docs_title(bot):
+def duels_docs_title(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This allows you to set a vanity title in front of your nick during combat.")
     return dispmsgarray
@@ -3069,7 +3069,7 @@ def duels_command_function_weaponslocker(bot, triggerargsarray, command_main, tr
     osd(bot, duels.instigator, 'notice', weaponchange + " is " + weaponlockerstatus + " in your weapons locker.")
 
 
-def duels_docs_weaponslocker(bot):
+def duels_docs_weaponslocker(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This allows you to add, remove, and view items in your weapons locker. These weapon names are included in combat, and provide a boost for having.")
     return dispmsgarray
@@ -3252,7 +3252,7 @@ def duels_command_function_forge(bot, triggerargsarray, command_main, trigger, c
         return
 
 
-def duels_docs_forge(bot):
+def duels_docs_forge(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This allows you to purchase armor.")
     return dispmsgarray
@@ -3283,7 +3283,7 @@ def duels_command_function_merchant(bot, triggerargsarray, command_main, trigger
     else:
         targetbio = instigatorbio
 
-    merchinv = duels_merchant_inventory(bot)
+    merchinv = duels_merchant_inventory(bot, duels)
 
     # View target/own inventory
     if lootcommand == 'view':
@@ -3402,7 +3402,7 @@ def duels_command_function_merchant(bot, triggerargsarray, command_main, trigger
         osd(bot, duels.channel_current, 'say', 'The Merchant says "Thank you, come again"')
 
 
-def duels_docs_merchant(bot):
+def duels_docs_merchant(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This allows you to purchase loot items.")
     return dispmsgarray
@@ -3552,7 +3552,7 @@ def duels_command_function_locker(bot, triggerargsarray, command_main, trigger, 
         osd(bot, duels.channel_current, 'say', duels.instigator + " takes " + str(quantity) + " " + lootitem + " from their locker.")
 
 
-def duels_docs_locker(bot):
+def duels_docs_locker(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This allows you to store loot items long term.")
     return dispmsgarray
@@ -3631,7 +3631,7 @@ def duels_command_function_craft(bot, triggerargsarray, command_main, trigger, c
         return
 
 
-def duels_docs_craft(bot):
+def duels_docs_craft(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This allows you to craft loot items.")
     return dispmsgarray
@@ -3724,7 +3724,7 @@ def duels_command_function_tavern(bot, triggerargsarray, command_main, trigger, 
     osd(bot, duels.channel_current, 'say', mainlootusemessage)
 
 
-def duels_docs_tavern(bot):
+def duels_docs_tavern(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This allows you to relax your character with a pint.")
     return dispmsgarray
@@ -3867,7 +3867,7 @@ def duels_command_function_tier(bot, triggerargsarray, command_main, trigger, co
     osd(bot, duels.channel_current, 'say', dispmsgarray)
 
 
-def duels_docs_tier(bot):
+def duels_docs_tier(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This will display information about the channels progress in the game.")
     return dispmsgarray
@@ -3933,7 +3933,7 @@ def duels_command_function_warroom(bot, triggerargsarray, command_main, trigger,
             osd(bot, duels.instigator, 'notice', "It looks like you can duel " + target + ".")
 
 
-def duels_docs_warroom(bot):
+def duels_docs_warroom(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This allows you to see what channel users are opted into the game and can be challenged.")
     return dispmsgarray
@@ -4123,7 +4123,7 @@ def duels_command_function_leaderboard(bot, triggerargsarray, command_main, trig
         return
 
 
-def duels_docs_leaderboard(bot):
+def duels_docs_leaderboard(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This shows the top scores/stats of the game.")
     return dispmsgarray
@@ -4181,7 +4181,7 @@ def duels_command_function_bounty(bot, triggerargsarray, command_main, trigger, 
     adjust_user_dict(bot, duels, target, 'bounty', amount)
 
 
-def duels_docs_bounty(bot):
+def duels_docs_bounty(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This allows you to place a bounty on another player. This bounty can be won by the player that kills them. This should be incentive for players to gang up on another.")
     return dispmsgarray
@@ -4244,7 +4244,7 @@ def duels_command_function_game(bot, triggerargsarray, command_main, trigger, co
         osd(bot, duels.instigator, 'notice', "Invalid command.")
 
 
-def duels_docs_game(bot):
+def duels_docs_game(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This is used by bot admins to enable/disable the game for a specific channel.")
     return dispmsgarray
@@ -4302,7 +4302,7 @@ def duels_command_function_devmode(bot, triggerargsarray, command_main, trigger,
         osd(bot, duels.instigator, 'notice', "Invalid command.")
 
 
-def duels_docs_devmode(bot):
+def duels_docs_devmode(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This is used by bot admins to cause the game to bypass game-limiting features for a specific channel.")
     return dispmsgarray
@@ -4392,7 +4392,7 @@ def duels_command_function_admin(bot, triggerargsarray, command_main, trigger, c
         osd(bot, duels.instigator, 'notice', "An admin command has not been written for the " + subcommand + " command.")
 
 
-def duels_docs_admin(bot):
+def duels_docs_admin(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This allows bot admins to make changes to the game.")
     return dispmsgarray
@@ -4410,7 +4410,7 @@ def duels_command_function_author(bot, triggerargsarray, command_main, trigger, 
     osd(bot, duels.channel_current, 'say', "The author of Duels is deathbybandaid. Credit to DGW for the original game. Run .duel classic to see his version.")
 
 
-def duels_docs_author(bot):
+def duels_docs_author(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This will display the author of Duels.")
     return dispmsgarray
@@ -4506,7 +4506,7 @@ def duels_command_function_hotkey(bot, triggerargsarray, command_main, trigger, 
         return
 
 
-def duels_docs_hotkey(bot):
+def duels_docs_hotkey(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This will allow you to set quick shortcuts for your common commands.")
     return dispmsgarray
@@ -4546,7 +4546,7 @@ def duels_command_function_intent(bot, triggerargsarray, command_main, trigger, 
     osd(bot, duels.channel_current, 'say', "The intent is to provide "+target+" with a sense of pride and accomplishment...")
 
 
-def duels_docs_intent(bot):
+def duels_docs_intent(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("A joke regarding EA games.")
     return dispmsgarray
@@ -4559,7 +4559,7 @@ def duels_command_function_about(bot, triggerargsarray, command_main, trigger, c
     osd(bot, duels.channel_current, 'say', "The purpose behind duels is for deathbybandaid to learn python, while providing a fun, evenly balanced gameplay.")
 
 
-def duels_docs_about(bot):
+def duels_docs_about(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("Basic Description of the games purpose.")
     return dispmsgarray
@@ -4573,7 +4573,7 @@ def duels_command_function_version(bot, triggerargsarray, command_main, trigger,
     osd(bot, duels.channel_current, 'say', "The duels framework was last modified on " + str(versionfetch) + ".")
 
 
-def duels_docs_template(bot):
+def duels_docs_template(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This checks the last modified date of the Master branch of the game.")
     return dispmsgarray
@@ -4609,13 +4609,13 @@ def duels_command_function_docs(bot, triggerargsarray, command_main, trigger, co
                 duels_commands_alternate_eval = eval("duels_commands_alternate_"+subcom)
                 if messageinput.lower() in duels_commands_alternate_eval:
                     messageinput = subcom
-        endmessage = duels_docs_commands(bot, messageinput)
+        endmessage = duels_docs_commands(bot, duels, messageinput)
         osd(bot, target, 'say', endmessage)
         duels.command_stamina_cost = 0
         return
 
 
-def duels_docs_docs(bot):
+def duels_docs_docs(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("Helps display Dynamic help for ingame usage.")
     return dispmsgarray
@@ -4654,7 +4654,7 @@ def duels_command_function_usage(bot, triggerargsarray, command_main, trigger, c
     osd(bot, duels.channel_current, 'say', targetname + " has used duel " + subcommand + " " + str(totaluses) + " times.")
 
 
-def duels_docs_usage(bot):
+def duels_docs_usage(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("This is used to track your usage of the game. You can also specify a subcommand.")
     return dispmsgarray
@@ -4694,7 +4694,7 @@ def duels_chanceevents(bot):
     if not chance_event_next_type:
         runtheevent = 0
 
-    chance_event_last_timesince = duels_time_since(bot, 'duelrecorduser', "chance_event_last_time") or 0
+    chance_event_last_timesince = duels_time_since(bot, duels, 'duelrecorduser', "chance_event_last_time") or 0
     chance_event_next_timeout = get_user_dict(bot, duels, 'duelrecorduser', "chance_event_next_timeout") or 0
     if chance_event_last_timesince <= chance_event_next_timeout and runtheevent > 0:
         return
@@ -4769,10 +4769,10 @@ def chance_event_run(bot, duels, eventtype, eventlocation):
 @sopel.module.thread(True)
 def duels_halfhourtimer(bot):
 
-    chance_event_last_timesince = duels_time_since(bot, 'duelrecorduser', "halfhour_last_time") or 0
-    if chance_event_last_timesince > 1800:
+    duels = class_create('main')
 
-        duels = class_create('main')
+    chance_event_last_timesince = duels_time_since(bot, duels, 'duelrecorduser', "halfhour_last_time") or 0
+    if chance_event_last_timesince > 1800:
 
         duels.duels_enabled_channels = get_user_dict(bot, duels, 'duelrecorduser', 'gameenabled') or []
 
@@ -4796,8 +4796,8 @@ def duels_halfhourtimer(bot):
 
         for u in duels.users_current_allchan_opted:
             # Log out users that aren't playing
-            lastcommandusedtime = duels_time_since(bot, u, 'lastcommand') or 0
-            lastping = duels_time_since(bot, u, 'lastping') or 0
+            lastcommandusedtime = duels_time_since(bot, duels, u, 'lastcommand') or 0
+            lastping = duels_time_since(bot, duels, u, 'lastping') or 0
             if array_compare(bot, 'auto-opt', duels_timeouts, duels_timeouts_duration) < lastcommandusedtime and lastping < array_compare(bot, 'auto-opt', duels_timeouts, duels_timeouts_duration):
                 logoutarray.append(u)
                 reset_user_dict(bot, duels, u, 'lastping')
@@ -4893,7 +4893,7 @@ Internal Documentation
 """
 
 
-def duels_docs_template(bot):
+def duels_docs_template(bot, duels):
     dispmsgarray = []
     dispmsgarray.append("Basic Description.")
     dispmsgarray.append("Usage: ")
@@ -4902,7 +4902,7 @@ def duels_docs_template(bot):
     return dispmsgarray
 
 
-def duels_docs_commands(bot, command):
+def duels_docs_commands(bot, duels, command):
     endmessage = []
 
     # Admin Only
@@ -4913,7 +4913,7 @@ def duels_docs_commands(bot, command):
 
     # Command Doc Function
     try:
-        duels_command_function_run = str('duels_docs_' + command.lower() + '(bot)')
+        duels_command_function_run = str('duels_docs_' + command.lower() + '(bot, duels)')
         endmessageeval = eval(duels_command_function_run)
         for commandappend in endmessageeval:
             endmessage.append(commandappend)
@@ -5034,6 +5034,8 @@ def duels_user_lists(bot, duels):
             current_channel = current_channel.replace("#", "")
         current_channel = current_channel.strip()
 
+        exec("duels.users_all_current_" + current_channel + " = []")
+
         # Current Channel users
         current_chan_str = str("duels.users_current_" + current_channel + " = []")
         exec(current_chan_str)
@@ -5065,7 +5067,9 @@ def duels_user_lists(bot, duels):
         for validtarget in othervalidtargets:
             if validtarget not in users_all_current_channel:
                 users_all_current_channel.append(validtarget)
-        exec("duels.users_all_current_" + current_channel + " = " + str(users_all_current_channel))
+        users_all_current_class = eval("duels.users_all_current_" + current_channel)
+        for user in users_all_current_channel:
+            users_all_current_class.append(user)
         duels.users_all_allchan = get_user_dict(bot, duels, 'duelrecorduser', 'users_all_allchan') or []
         for validtarget in othervalidtargets:
             if validtarget not in duels.users_all_allchan:
@@ -5238,7 +5242,7 @@ def duels_check_instigator(bot, trigger, command_main, duels, instigatorbio):
 
     # Check if Instigator is Opted in
     if duels.instigator not in duels.users_opted:
-        instigatoropttime = duels_time_since(bot, duels.instigator, 'timeout_opttimetime')
+        instigatoropttime = duels_time_since(bot, duels, duels.instigator, 'timeout_opttimetime')
         if instigatoropttime < array_compare(bot, 'opttime', duels_timeouts, duels_timeouts_duration) and duels.dev_bypass_checks == 1 and not trigger.admin:
             osd(bot, duels.instigator, 'notice', "You are not opted into duels. It looks like you can't enable/disable duels for " + str(duels_hours_minutes_seconds((array_compare(bot, 'opttime', duels_timeouts, duels_timeouts_duration) - instigatoropttime))) + ".")
             return checkpass
@@ -5255,7 +5259,7 @@ def duels_check_instigator(bot, trigger, command_main, duels, instigatorbio):
 
     deathblow = get_user_dict(bot, duels, duels.instigator, 'deathblow')
     if deathblow:
-        deathblowtargettime = duels_time_since(bot, duels.instigator, 'deathblowtargettime') or 0
+        deathblowtargettime = duels_time_since(bot, duels, duels.instigator, 'deathblowtargettime') or 0
         if deathblowtargettime <= 120:
             deathblowkiller = get_user_dict(bot, duels, duels.instigator, 'deathblowkiller') or 'unknown'
             osd(bot, duels.instigator, 'notice', "you can't run duels for " + str(duels_hours_minutes_seconds((120 - deathblowtargettime))) + " due to a possible deathblow from " + deathblowkiller + ".")
@@ -5333,7 +5337,7 @@ def duel_combat_playerbios(bot, playerone, playertwo, typeofduel, duels):
         playerbio.nicktitle = get_user_dict(bot, duels, player, 'title')
 
         # Starting pepper
-        playerbio.pepperstart = duels_tier_nick_to_pepper(bot, player)
+        playerbio.pepperstart = duels_tier_nick_to_pepper(bot, duels, player)
 
         playerbio.lastfoughtstart = get_user_dict(bot, duels, player, 'lastfought')
 
@@ -5353,7 +5357,7 @@ def duel_combat_playerbios(bot, playerone, playertwo, typeofduel, duels):
             playerbio.Class = get_user_dict(bot, duels, player, 'class') or 'unknown'
             playerbio.race = get_user_dict(bot, duels, player, 'race') or 'unknown'
 
-        playerbio.special = duels_special_combination(bot, playerbio.actual)
+        playerbio.special = duels_special_combination(bot, duels, playerbio.actual)
         playerbio.strength, playerbio.perception, playerbio.endurance, playerbio.charisma, playerbio.intelligence, playerbio.agility, playerbio.luck, playerbio.magic = duels_special_humanize(bot, playerbio.special)
 
         playerbio.tier = get_user_dict(bot, duels, player, 'tier')
@@ -5450,7 +5454,7 @@ def duel_target_playerbio(bot, duels, player):
         playerbio.nametextpos = str(playerbio.nametext + "s")
 
     # Pepper
-    playerbio.pepperstart = duels_tier_nick_to_pepper(bot, player)
+    playerbio.pepperstart = duels_tier_nick_to_pepper(bot, duels, player)
     playerbio.pepper = playerbio.pepperstart
 
     # Magic attributes
@@ -5482,7 +5486,7 @@ def duel_target_playerbio(bot, duels, player):
     playerbio.bounty = get_user_dict(bot, duels, player, 'bounty') or 0
 
     # SPECIAL+M
-    playerbio.special = duels_special_combination(bot, playerbio.actual)
+    playerbio.special = duels_special_combination(bot, duels, playerbio.actual)
     playerbio.strength, playerbio.perception, playerbio.endurance, playerbio.charisma, playerbio.intelligence, playerbio.agility, playerbio.luck, playerbio.magic = duels_special_humanize(bot, playerbio.special)
 
     # Tier
@@ -5552,7 +5556,7 @@ def duels_check_nick_condition(bot, nick, duels):
     healthsplit = healthsplit / 30
     manasmath = halfhour_regen_mage_mana / 30
     staminasmath = staminaregen / 30
-    nick_regen_last = duels_time_since(bot, nick, 'nick_regen_last')
+    nick_regen_last = duels_time_since(bot, duels, nick, 'nick_regen_last')
     nick_minutes_since_regen = nick_regen_last / 60
     health_to_regen = nick_minutes_since_regen * healthsplit
     mana_to_regen = nick_minutes_since_regen * manasmath
@@ -5592,7 +5596,7 @@ def duels_check_nick_condition(bot, nick, duels):
     # Deathblow chance missed
     deathblow = get_user_dict(bot, duels, nick, 'deathblow')
     if deathblow:
-        deathblowtargettime = duels_time_since(bot, nick, 'deathblowtargettime') or 0
+        deathblowtargettime = duels_time_since(bot, duels, nick, 'deathblowtargettime') or 0
         if deathblowtargettime > 120:
             deathblowkiller = get_user_dict(bot, duels, nick, 'deathblowkiller') or 'unknown'
             osd(bot, nick, 'notice', "it looks like you were almost killed by "+deathblowkiller+", but the deathblow command was not issued in time. Your health has been restored! You have been moved to town.")
@@ -5714,7 +5718,7 @@ def duels_check_nick_condition(bot, nick, duels):
     for effect in duels_special_full:
         geteffects = get_user_dict(bot, duels, nick, effect+"_effect") or 0
         if geteffects:
-            geteffectstime = duels_time_since(bot, nick, effect+"_effect_time") or 0
+            geteffectstime = duels_time_since(bot, duels, nick, effect+"_effect_time") or 0
             geteffectsduration = get_user_dict(bot, duels, nick, effect+"_effect_duration") or 0
             if geteffectstime > geteffectsduration:
                 reset_user_dict(bot, duels, nick, effect+"_effect")
@@ -5725,7 +5729,7 @@ def duels_check_nick_condition(bot, nick, duels):
 
 
 # combine class and race for SPECIAL
-def duels_special_combination(bot, nick):
+def duels_special_combination(bot, duels, nick):
 
     nickclass = get_user_dict(bot, duels, nick, 'class') or 0
     nickrace = get_user_dict(bot, duels, nick, 'race') or 0
@@ -5748,7 +5752,7 @@ def duels_special_combination(bot, nick):
         # check SPECIAL modifiers
         geteffects = get_user_dict(bot, duels, nick, statname+"_effect") or 0
         if geteffects:
-            geteffectstime = duels_time_since(bot, nick, statname+"_effect_time") or 0
+            geteffectstime = duels_time_since(bot, duels, nick, statname+"_effect_time") or 0
             geteffectsduration = get_user_dict(bot, duels, nick, statname+"_effect_duration") or 0
             if geteffectstime > geteffectsduration:
                 reset_user_dict(bot, duels, nick, statname+"_effect")
@@ -5777,14 +5781,14 @@ def duels_special_humanize(bot, statsarray):
     return strength, perception, endurance, charisma, intelligence, agility, luck, magic
 
 
-def duels_special_get(bot, nick, typewanted):
+def duels_special_get(bot, duels, nick, typewanted):
 
     # Nick base
     nickclass = get_user_dict(bot, duels, nick, 'class') or 'unknown'
     nickrace = get_user_dict(bot, duels, nick, 'race') or 'unknown'
 
     # combined
-    combinedstats = duels_special_combination(bot, nick)
+    combinedstats = duels_special_combination(bot, duels, nick)
 
     # humanized
     strength, perception, endurance, charisma, intelligence, agility, luck, magic = duels_special_humanize(bot, combinedstats)
@@ -5881,7 +5885,7 @@ def duels_death_handling(bot, duels, inflicter, inflictee):
 
 
 # Total Health
-def duels_get_health(bot, nick):
+def duels_get_health(bot, duels, nick):
     totalhealth = 0
     for x in duels_bodyparts:
         gethowmany = get_user_dict(bot, duels, nick, x)
@@ -5891,7 +5895,7 @@ def duels_get_health(bot, nick):
 
 
 # Non-Crippled Body Parts
-def duels_nick_bodyparts_remaining(bot, nick):
+def duels_nick_bodyparts_remaining(bot, duels, nick):
     currentbodypartsarray = []
     for x in duels_bodyparts:
         gethowmany = get_user_dict(bot, duels, nick, x)
@@ -5910,7 +5914,7 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
     bodypartinflictarray = []
     if bodypartselection != 'none' and situation != 'chance_event':
         if bodypartselection == 'random':
-            bodypart, bodypartname = duels_bodypart_select(bot, inflictee.actual)
+            bodypart, bodypartname = duels_bodypart_select(bot, duels, inflictee.actual)
             bodypartinflictarray.append(bodypart)
         elif bodypartselection != 'all':
             bodypartinflictarray.append(bodypartselection)
@@ -5936,7 +5940,7 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
     if effect in duels_special_full:
         geteffects = get_user_dict(bot, duels, inflictee.actual, effect+"_effect") or 0
         if geteffects and situation != 'tavern':
-            geteffectstime = duels_time_since(bot, inflictee.actual, effect+"_effect_time") or 0
+            geteffectstime = duels_time_since(bot, duels, inflictee.actual, effect+"_effect_time") or 0
             geteffectsduration = get_user_dict(bot, duels, inflictee.actual, effect+"_effect_duration") or 0
             if geteffectstime <= geteffectsduration:
                 dispmsgarray.append(inflictee.nametextpos + " "+effect+" is unaffected due to an existing condition")
@@ -6171,7 +6175,7 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
                                     adjust_user_dict(bot, duels, inflictee.actual, 'combat_track_deaths', 1)
                                 inflicteedeath = 1
 
-                        if duels_get_health(bot, inflictee.actual) < deathblow_amount or finishthem:
+                        if duels_get_health(bot, duels, inflictee.actual) < deathblow_amount or finishthem:
                             if inflicter.actual != inflictee.actual and inflicter.actual != 'duelsmonster' and inflictee.actual != 'duelsmonster':
                                 currentdeathblowcheck = get_user_dict(bot, duels, inflictee.actual, 'deathblow')
                                 if not currentdeathblowcheck:
@@ -6214,18 +6218,18 @@ def duels_stats_view(bot, duels, target_stats_view, targetbio, customview, actua
     # Get the amounts
     for x in target_stats_view:
         if x == 'health':
-            gethowmany = duels_get_health(bot, targetbio.actual)
+            gethowmany = duels_get_health(bot, duels, targetbio.actual)
         elif x == 'location':
             gethowmany = duels_get_location(bot, duels, targetbio.actual)
         elif x == 'charsheet':
             gethowmany = 1
         elif x in stats_view_functions:
-            scriptdef = str('duels_get_' + x + '(bot,targetbio.actual)')
+            scriptdef = str('duels_get_' + x + '(bot,duels,targetbio.actual)')
             gethowmany = eval(scriptdef)
         elif x == 'pepper':
             gethowmany = targetbio.pepper
         elif x.startswith("timeout_") or x.startswith("lastfullroom"):
-            gethowmany = duels_time_since(bot, 'duelrecorduser', x) or 0
+            gethowmany = duels_time_since(bot, duels, 'duelrecorduser', x) or 0
             if gethowmany >= eval(x):
                 gethowmany = 0
         elif x in stats_armor:
@@ -6240,7 +6244,7 @@ def duels_stats_view(bot, duels, target_stats_view, targetbio, customview, actua
                     geteffectstext = str("+"+str(geteffects))
                 else:
                     geteffectstext = str(geteffects)
-                geteffectstime = duels_time_since(bot, targetbio.actual, x+"_effect_time") or 0
+                geteffectstime = duels_time_since(bot, duels, targetbio.actual, x+"_effect_time") or 0
                 geteffectsduration = get_user_dict(bot, duels, targetbio.actual, x+"_effect_duration") or 0
                 if geteffectstime <= geteffectsduration:
                     gethowmany = gethowmany - geteffects
@@ -6386,7 +6390,7 @@ def duels_tier_xp_to_number(bot, xp):
 
 
 # nick pepper
-def duels_tier_nick_to_pepper(bot, nick):
+def duels_tier_nick_to_pepper(bot, duels, nick):
     if nick == bot.nick:
         pepper = 'Dragon Breath Chilli'
         return pepper
@@ -6409,13 +6413,13 @@ def duels_tier_nick_to_pepper(bot, nick):
 
 
 # current tier to ratio
-def duels_tier_current_to_ratio(bot):
+def duels_tier_current_to_ratio(bot, duels):
     currenttier = get_user_dict(bot, duels, 'duelrecorduser', 'tier') or 1
     tierratio = get_trigger_arg(bot, duels_commands_tier_ratio, currenttier) or 1
     return tierratio
 
 
-def duels_druid_current_array(bot, target):
+def duels_druid_current_array(bot, duels, target):
     druidanimals = []
     targettier = get_user_dict(bot, duels, target, 'tier') or 0
     for i in range(0, targettier + 1):
@@ -6495,7 +6499,7 @@ Merchant
 def duels_merchant_restock(bot):
 
     # Current inventory
-    merchinv = duels_merchant_inventory(bot)
+    merchinv = duels_merchant_inventory(bot, duels)
 
     # half full
     shelfhalf = duels_merchant_inv_max / 2
@@ -6521,8 +6525,9 @@ def duels_merchant_restock(bot):
 
 
 # How much inventory does the merchant have?
-def duels_merchant_inventory(bot):
+def duels_merchant_inventory(bot, duels):
 
+    duels = class_create('duels')
     merchinv = class_create('merchant')
 
     # New Vendor?
@@ -6582,7 +6587,7 @@ def duels_criteria(bot, player_two, duels, verbose):
     # pending deathblow
     deathblow = get_user_dict(bot, duels, targetbio.actual, 'deathblow')
     if deathblow:
-        deathblowtargettime = duels_time_since(bot, targetbio.actual, 'deathblowtargettime') or 0
+        deathblowtargettime = duels_time_since(bot, duels, targetbio.actual, 'deathblowtargettime') or 0
         if deathblowtargettime <= 120:
             deathblowkiller = get_user_dict(bot, duels, targetbio.actual, 'deathblowkiller') or 'unknown'
             validtargetmsg.append(targetbio.nametext + " can't run duels for " + str(duels_hours_minutes_seconds((120 - deathblowtargettime))) + " due to a potential deathblow from " + deathblowkiller + ".")
@@ -6676,7 +6681,7 @@ def duels_target_check(bot, target, duels, instigatorbio):
 
     deathblow = get_user_dict(bot, duels, target, 'deathblow')
     if deathblow:
-        deathblowtargettime = duels_time_since(bot, target, 'deathblowtargettime') or 0
+        deathblowtargettime = duels_time_since(bot, duels, target, 'deathblowtargettime') or 0
         if deathblowtargettime <= 120:
             deathblowkiller = get_user_dict(bot, duels, target, 'deathblowkiller') or 'unknown'
             validtargetmsg.append(target + " can't run duels for " + str(duels_hours_minutes_seconds((120 - deathblowtargettime))) + " due to a potential deathblow from " + deathblowkiller + ".")
@@ -6715,7 +6720,7 @@ def duels_events_check(bot, command_main, duels):
             validtargetmsg.append(x)
 
     timeouteval = array_compare(bot, command_main.lower(), duels_timeouts, duels_timeouts_duration)
-    getlastusage = duels_time_since(bot, 'duelrecorduser', str('lastfullroom' + command_main)) or timeouteval
+    getlastusage = duels_time_since(bot, duels, 'duelrecorduser', str('lastfullroom' + command_main)) or timeouteval
     getlastinstigator = get_user_dict(bot, duels, 'duelrecorduser', str('lastfullroom' + command_main + 'instigator')) or bot.nick
 
     if getlastusage < timeouteval and duels.channel_current not in duels.duels_dev_channels and not duels.admin:
@@ -6936,7 +6941,7 @@ def duels_combat_selectwinner(bot, competitors, duels, playerbio_maindueler, pla
             if x != 'health':
                 value = get_user_dict(bot, duels, u, x) or 0
             elif x == 'health':
-                value = duels_get_health(bot, u)
+                value = duels_get_health(bot, duels, u)
             else:
                 scriptdef = str('duels_get_' + x + '(bot,u)')
                 value = eval(scriptdef)
@@ -7030,7 +7035,7 @@ def duels_combat_damage(bot, duels, playerbio_winner, playerbio_loser):
 
 
 # bodypart selector
-def duels_bodypart_select(bot, nick):
+def duels_bodypart_select(bot, duels, nick):
     # selection roll
     hitchance = randint(1, 101)
     if hitchance <= 50:
@@ -7038,7 +7043,7 @@ def duels_bodypart_select(bot, nick):
     elif hitchance >= 90:
         bodypart = 'head'
     else:
-        currentbodypartsarray = duels_nick_bodyparts_remaining(bot, nick)
+        currentbodypartsarray = duels_nick_bodyparts_remaining(bot, duels, nick)
         bodypart = get_trigger_arg(bot, currentbodypartsarray, 'random')
     if "_" in bodypart:
         bodypartname = bodypart.replace("_", " ")
@@ -7048,7 +7053,7 @@ def duels_bodypart_select(bot, nick):
 
 
 # Magic attributes
-def duels_magic_attributes_text(bot, playerbio_winner, playerbio_loser):
+def duels_magic_attributes_text(bot, duels, playerbio_winner, playerbio_loser):
     playerbio_winner.shield_now = get_user_dict(bot, duels, playerbio_winner.actual, 'shield') or 0
     playerbio_winner.curse_now = get_user_dict(bot, duels, playerbio_winner.actual, 'curse') or 0
     playerbio_loser.shield_now = get_user_dict(bot, duels, playerbio_loser.actual, 'shield') or 0
@@ -7148,7 +7153,7 @@ Weaponslocker
 
 
 # allchan weapons
-def duels_weaponslocker_channel(bot):
+def duels_weaponslocker_channel(bot, duels):
     allchanweaponsarray = []
     for u in bot.users:
         weaponslist = get_user_dict(bot, duels, u, 'weaponslocker_complete') or ['fist']
@@ -7158,7 +7163,7 @@ def duels_weaponslocker_channel(bot):
     return weapon
 
 
-def duels_weaponslocker_nick_selection(bot, nick):
+def duels_weaponslocker_nick_selection(bot, duels, nick):
     weaponslistselect = []
     weaponslist = get_user_dict(bot, duels, nick, 'weaponslocker_complete') or []
     lastusedweaponarry = get_user_dict(bot, duels, nick, 'weaponslocker_lastweaponusedarray') or []
@@ -7173,7 +7178,7 @@ def duels_weaponslocker_nick_selection(bot, nick):
             weaponslistselect.append(x)
     if weaponslistselect == [] and weaponslist != []:
         reset_user_dict(bot, duels, nick, 'weaponslocker_lastweaponusedarray')
-        return duels_weaponslocker_nick_selection(bot, nick)
+        return duels_weaponslocker_nick_selection(bot, duels, nick)
     weapon = get_trigger_arg(bot, weaponslistselect, 'random') or 'fist'
     adjust_user_dict_array(bot, duels, nick, 'weaponslocker_lastweaponusedarray', [weapon], 'add')
     set_user_dict(bot, duels, nick, 'weaponslocker_lastweaponused', weapon)
@@ -7238,7 +7243,7 @@ Time
 
 
 # compare timestamps
-def duels_time_since(bot, nick, databasekey):
+def duels_time_since(bot, duels, nick, databasekey):
     now = time.time()
     last = get_user_dict(bot, duels, nick, databasekey)
     return abs(now - int(last))
@@ -7271,7 +7276,7 @@ ScoreCard
 
 
 # compare wins/losses
-def duels_get_winlossratio(bot, target):
+def duels_get_winlossratio(bot, duels, target):
     wins = get_user_dict(bot, duels, target, 'wins')
     wins = int(wins)
     losses = get_user_dict(bot, duels, target, 'losses')
@@ -7315,13 +7320,13 @@ def duels_set_current_streaks(bot, nick, winlose):
     reset_user_dict(bot, duels, nick, oppositestreaktype)
 
 
-def duels_get_current_streaks(bot, winner, loser):
+def duels_get_current_streaks(bot, duels, winner, loser):
     winner_loss_streak = get_user_dict(bot, duels, winner, 'streak_loss_current') or 0
     loser_win_streak = get_user_dict(bot, duels, loser, 'streak_win_current') or 0
     return winner_loss_streak, loser_win_streak
 
 
-def duels_get_streaktext(bot, playerbio_winner, playerbio_loser):
+def duels_get_streaktext(bot, duels, playerbio_winner, playerbio_loser):
     streaktext = []
 
     playerbio_winner.win_streak_end = get_user_dict(bot, duels, playerbio_winner.actual, 'streak_win_current') or 0
@@ -7749,7 +7754,7 @@ def adjust_user_dict(bot, duels, nick, dictkey, value):
     if not str(oldvalue).isdigit():
         oldvalue = 0
     nickdict = eval('duels.userdb.' + nick)
-    nickdict[dictkey] = oldvalue + valueS
+    nickdict[dictkey] = oldvalue + value
 
 
 # Save all database users in list

@@ -37,6 +37,14 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
             osd(bot, trigger.sender, 'say', trigger.nick + ' poops in the designated corner!')
         elif versionblank == 'boss':
             osd(bot, trigger.sender, 'say', "Boss makes a dollar, I make a dime. That's why I poop on company time.")
+    elif target == 'random':
+        target = randomUser(bot, botcom, trigger.sender)
+        failchance = random.randint(1, failureodds)
+        if failchance == 1:
+            poopfail = get_trigger_arg(bot, backfires, 'random')
+            osd(bot, trigger.sender, 'say', trigger.nick + poopfail)
+        else:
+            osd(bot, trigger.sender, 'say', trigger.nick + ' poops on ' + target + "'s desk, maintaining eye contact the entire time!")
     elif target == 'group':
         target = get_trigger_arg(bot, triggerargsarray, 2) or trigger.nick
         osd(bot, trigger.sender, 'say', target + ', get your poop in a group.')
@@ -49,3 +57,9 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
             osd(bot, trigger.sender, 'say', trigger.nick + poopfail)
         else:
             osd(bot, trigger.sender, 'say', trigger.nick + ' poops on ' + target + "'s desk, maintaining eye contact the entire time!")
+
+
+def randomUser(bot, botcom, instigator):
+    allUsers = [u.lower() for u in bot.users]
+    user = get_trigger_arg(bot, allUsers, "random") or 'spicebot'
+    return user

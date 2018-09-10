@@ -739,8 +739,8 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
         # Update streaks
         if playerbio_winner.actual != playerbio_loser.actual:
             if playerbio_winner.actual != bot.nick:
-                duels_set_current_streaks(bot, playerbio_winner.actual, 'win')
-                duels_set_current_streaks(bot, playerbio_loser.actual, 'loss')
+                duels_set_current_streaks(bot, duels, playerbio_winner.actual, 'win')
+                duels_set_current_streaks(bot, duels, playerbio_loser.actual, 'loss')
 
         # Streaks Text
         if playerbio_winner.actual != playerbio_loser.actual:
@@ -7296,7 +7296,7 @@ def duels_get_winlossratio(bot, duels, target):
     return winlossratio
 
 
-def duels_set_current_streaks(bot, nick, winlose):
+def duels_set_current_streaks(bot, duels, nick, winlose):
     if winlose == 'win':
         beststreaktype = 'streak_win_best'
         currentstreaktype = 'streak_win_current'

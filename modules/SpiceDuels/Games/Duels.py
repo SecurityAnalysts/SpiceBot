@@ -7713,7 +7713,6 @@ def get_user_dict(bot, duels, nick, dictkey):
     returnvalue = 0
 
     # check if nick has been pulled from db already
-    bot.say(str(nick))
     if nick not in duels.userdb.list:
         duels.userdb.list.append(nick)
         nickdict = get_database_value(bot, nick, duels.default) or dict()

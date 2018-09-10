@@ -1466,6 +1466,8 @@ def spicemanip_count(bot, inputs, outputtask, mainoutputtask, suboutputtask):
 
 # random item from list
 def spicemanip_random(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    if inputs == []:
+        return 0
     randomselectlist = []
     for temppart in inputs:
         randomselectlist.append(temppart)
@@ -1479,6 +1481,8 @@ def spicemanip_random(bot, inputs, outputtask, mainoutputtask, suboutputtask):
 
 # remove random item from list
 def spicemanip_exrandom(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    if inputs == []:
+        return []
     randremove = spicemanip_random(bot, inputs, outputtask, mainoutputtask, suboutputtask)
     inputs.remove(randremove)
     return inputs
@@ -1486,31 +1490,43 @@ def spicemanip_exrandom(bot, inputs, outputtask, mainoutputtask, suboutputtask):
 
 # Convert list into lowercase
 def spicemanip_lower(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    if inputs == []:
+        return 0
     return [inputspart.lower() for inputspart in inputs]
 
 
 # Convert list to uppercase
 def spicemanip_upper(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    if inputs == []:
+        return 0
     return [inputspart.upper() for inputspart in inputs]
 
 
 # Convert list to uppercase
 def spicemanip_title(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    if inputs == []:
+        return 0
     return [inputspart.title() for inputspart in inputs]
 
 
 # Reverse List Order
 def spicemanip_reverse(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    if inputs == []:
+        return []
     return inputs[::-1]
 
 
 # comma seperated list
 def spicemanip_list(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    if inputs == []:
+        return 0
     return ', '.join(str(x) for x in inputs)
 
 
 # comma seperated list with and
 def spicemanip_andlist(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    if inputs == []:
+        return 0
     if len(inputs) < 2:
         return ' '.join(inputs)
     lastentry = str("and " + str(inputs[len(inputs) - 1]))
@@ -1523,6 +1539,8 @@ def spicemanip_andlist(bot, inputs, outputtask, mainoutputtask, suboutputtask):
 
 # comma seperated list with or
 def spicemanip_orlist(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    if inputs == []:
+        return 0
     if len(inputs) < 2:
         return ' '.join(inputs)
     lastentry = str("or " + str(inputs[len(inputs) - 1]))
@@ -1533,14 +1551,18 @@ def spicemanip_orlist(bot, inputs, outputtask, mainoutputtask, suboutputtask):
     return ', '.join(str(x) for x in inputs)
 
 
-# comma seperated list with or
+# exclude number
 def spicemanip_exclude(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    if inputs == []:
+        return 0
     del inputs[int(mainoutputtask) - 1]
     return ' '.join(inputs)
 
 
 # Convert list to string
 def spicemanip_string(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    if inputs == []:
+        return 0
     return ' '.join(inputs)
 
 
@@ -1558,11 +1580,15 @@ def spicemanip_number(bot, inputs, outputtask, mainoutputtask, suboutputtask):
 
 # Get Last item from list
 def spicemanip_last(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    if inputs == []:
+        return 0
     return inputs[len(inputs) - 1]
 
 
 # range between items in list
 def spicemanip_rangebetween(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    if inputs == []:
+        return 0
     if not str(mainoutputtask).isdigit() or not str(suboutputtask).isdigit():
         return ''
     mainoutputtask, suboutputtask = int(mainoutputtask), int(suboutputtask)
@@ -1581,21 +1607,29 @@ def spicemanip_rangebetween(bot, inputs, outputtask, mainoutputtask, suboutputta
 
 # Forward Range includes index number
 def spicemanip_incrange_plus(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    if inputs == []:
+        return 0
     return spicemanip_rangebetween(bot, inputs, outputtask, int(mainoutputtask) - 1, len(inputs))
 
 
 # Reverse Range includes index number
 def spicemanip_incrange_minus(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    if inputs == []:
+        return 0
     return spicemanip_rangebetween(bot, inputs, outputtask, 0, int(mainoutputtask) - 1)
 
 
 # Forward Range excludes index number
 def spicemanip_excrange_plus(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    if inputs == []:
+        return 0
     return spicemanip_rangebetween(bot, inputs, outputtask, int(mainoutputtask) + 1, len(inputs))
 
 
 # Reverse Range excludes index number
 def spicemanip_excrange_minus(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    if inputs == []:
+        return 0
     return spicemanip_rangebetween(bot, inputs, outputtask, 0, int(mainoutputtask) - 2)
 
 

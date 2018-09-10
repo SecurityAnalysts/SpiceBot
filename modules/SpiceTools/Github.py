@@ -23,87 +23,106 @@ PASSWORD = config.get("github", "password")
 # Repo
 REPO_OWNER = 'SpiceBot'
 REPO_NAME = 'SpiceBot'
+valid_colabs = ['zsutton92', 'josh-cunning', 'Berserkir-Wolf', 'deathbybandaid', 'thetechnerd', 'SniperClif', 'jimender2']
 
 # Invalid Requests
 dontaskforthese = ['instakill', 'instant kill', 'random kill', 'random deaths', 'butterfingers', 'bad grenade', 'grenade failure', 'suicide', 'go off in', 'dud grenade']
 
+github_types = {
+                "feature": {
+                            "labels": ['Feature Request'],
+                            "title": 'Feature Request',
+                            "body": "requested",
+                            "assignee": False
+                            },
+                "issue": {
+                            "labels": ['Issue Report'],
+                            "title": 'Issue Report',
+                            "body": "found an issue",
+                            "assignee": False
+                            },
+                "wiki": {
+                            "labels": ['Wiki Update'],
+                            "title": 'Wiki Update Request',
+                            "body": "requested",
+                            "assignee": "Berserkir-Wolf"
+                            }
+}
+
 
 @sopel.module.commands('feature', 'feetcher', 'fr', 'bug', 'br', 'borked', 'issue', 'wiki')
 def execute_main(bot, trigger):
-    banneduserarray = get_database_value(bot, bot.nick, 'users_blocked_github') or []  # Banned Users
     maincommand = trigger.group(1)
     instigator = trigger.nick
-    inputtext = trigger.group(2) or 'nothing'
-    badquery = 0
-    baduser = 0
-    noquery = 0
-    if maincommand == 'feature' or maincommand == 'feetcher' or maincommand == 'fr':
-        labels = ['Feature Request']
-        title = 'Feature Request'
-        action = " requested"
-        assignee = ''
-    elif maincommand == 'wiki':
-        labels = ['Wiki Update']
-        title = 'Wiki Update'
-        action = " requested"
-        assignee = "Berserkir-Wolf"
-    else:
-        labels = ['Issue Report']
-        title = 'Issue Report'
-        action = " found an issue"
-        assignee = ''
-    if inputtext == 'nothing':
-        noquery = 1
-    for request in dontaskforthese:
-        if request in inputtext and not trigger.admin:
-            badquery = 1
-    if str(instigator) in banneduserarray:
-        baduser = 1
-    if badquery or baduser or noquery:
-        if badquery:
-            if inputtext.startswith('duel'):
-                osd(bot, trigger.sender, 'say', "The duels developer has already said no to that. Stop asking.")
-            else:
-                osd(bot, trigger.sender, 'say', "That feature has already been rejected by the dev team.")
-        if baduser:
-            osd(bot, trigger.sender, 'say', "Due to abusing this module you have been banned from using it, %s" % instigator)
-        if noquery:
-            osd(bot, trigger.sender, 'say', "What feature/issue do you want to post?")
-    else:
-        if inputtext.startswith('duel') or inputtext.startswith('rpg'):
-            title = "DUELS/RPG: " + title
-            assignee = "deathbybandaid"
-            body = inputtext
-            body = str(instigator + action + ": " + body)
-            make_github_issue(bot, body, labels, title, assignee, instigator)
-        elif inputtext.startswith('gamble') or inputtext.startswith('casino'):
-            title = "CASINO: " + title
-            assignee = "josh-cunning"
-            body = inputtext
-            body = str(instigator + action + ": " + body)
-            make_github_issue(bot, body, labels, title, assignee, instigator)
+
+    # some users are not allowed to request code changes from within chat, due to abuse
+    banneduserarray = get_database_value(bot, bot.nick, 'users_blocked_github') or []  # Banned Users
+    if instigator.lower() in [x.lower() for x in banneduserarray]:
+        return osd(bot, trigger.sender, 'say', "Due to abusing this module you have been banned from using it, %s" % instigator)
+
+    # create array for input, determine that there is a request/report
+    triggerargsarray = get_trigger_arg(bot, trigger.group(2), 'create')
+    if triggerargsarray == []:
+        return osd(bot, trigger.sender, 'say', "What feature/issue do you want to post?")
+
+    # block request for rejected features
+    for inputpart in triggerargsarray:
+        if inputpart.lower() in [x.lower() for x in dontaskforthese]:
+            return osd(bot, trigger.sender, 'say', "That feature has already been rejected by the dev team.")
+
+    # what type of request/report
+    if maincommand in ['feature', 'fr', 'feetcher']:
+        reqreptype = 'feature'
+    elif maincommand in ['issue', 'bug', 'br', 'borked']:
+        reqreptype = 'issue'
+    elif maincommand in ['wiki']:
+        reqreptype = 'wiki'
+
+    reqrepdict = github_types[reqreptype]
+
+    # Special Handling for modules
+    subtype = get_trigger_arg(bot, triggerargsarray, 1)
+
+    # Duel/RPG
+    if subtype in ["duel", ".duel", "rpg", ".rpg", "challenge", ".challenge"]:
+        reqrepdict['title'] = "DUELS/RPG: " + reqrepdict['title']
+        reqrepdict['assignee'] = "deathbybandaid"
+
+    # Casino
+    elif subtype in ["gamble", ".gamble", "casino", ".casino"]:
+        reqrepdict['title'] = "CASINO: " + reqrepdict['title']
+        reqrepdict['assignee'] = "josh-cunning"
+
+    # possible title catch
+    elif subtype.startswith("."):
+        reqrepdict['title'] = reqrepdict['title'] + ": " + str(subtype)
+
+    # manual assigning
+    if not reqrepdict['assignee']:
+        assignee = get_trigger_arg(bot, [x for x in triggerargsarray if x.startswith("@")], 1) or None
+        if assignee:
+            assignee = str(assignee).replace("@", "")
+            if assignee in valid_colabs:
+                reqrepdict['assignee'] = assignee
+                triggerargsarray.remove("@" + assignee)
         else:
-            body = inputtext
-            body = str(instigator + action + ": " + body)
-            make_github_issue(bot, body, labels, title, assignee, instigator)
+            del reqrepdict['assignee']
+
+    # Body text
+    inputtext = get_trigger_arg(bot, triggerargsarray, 0)
+    reqrepdict['body'] = instigator + " " + reqrepdict['body'] + ": " + inputtext
+
+    # make it happen
+    make_github_issue(bot, reqrepdict, instigator)
 
 
-def make_github_issue(bot, body, labels, title, assignee, instigator):
+def make_github_issue(bot, issue, instigator):
     url = 'https://api.github.com/repos/%s/%s/issues' % (REPO_OWNER, REPO_NAME)
     session = requests.Session()
     session.auth = (USERNAME, PASSWORD)
-    if assignee == '':
-        issue = {'title': title,
-                 'body': body,
-                 'labels': labels}
-    else:
-        issue = {'title': title,
-                 'body': body,
-                 'assignee': assignee,
-                 'labels': labels}
     r = session.post(url, json.dumps(issue))
     if r.status_code == 201:
-        osd(bot, instigator, 'priv', "Successfully created " + title)
+        osd(bot, instigator, 'priv', "Successfully created " + issue['title'])
     else:
-        osd(bot, instigator, 'priv', "Could not create " + title)
+        osd(bot, instigator, 'priv', "Could not create " + issue['title'])
         osd(bot, instigator, 'priv', str('Response:' + r.content))

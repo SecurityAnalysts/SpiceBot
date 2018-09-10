@@ -17,7 +17,7 @@ vehicleType = ["ford f150", "toyota corrola", "Kia Ultima", "shermin tank", "wal
 maximumHealth = ["100", "90", "50", "1000", "1"]
 
 
-@sopel.module.commands('racedev')
+@sopel.module.commands('race')
 def mainfunction(bot, trigger):
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'race')
     if not enablestatus:

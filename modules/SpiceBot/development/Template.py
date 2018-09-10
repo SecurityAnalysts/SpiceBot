@@ -10,6 +10,7 @@ sys.path.append(shareddir)
 from BotShared import *
 
 # author yournamehere
+# contributers yournamehere
 
 
 @sopel.module.commands('yourcommandhere')

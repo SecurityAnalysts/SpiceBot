@@ -30,35 +30,35 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     osd(bot, trigger.sender, 'say', message)
 
 
-    myline = ''
-    if not linechoice:
-        myline = randomurlline()
-    else:
-        linechoice.lstrip("-")
-        if (linechoice == '0' or linechoice.lower() == 'zero'):
-            myline = 'That doesnt appear to be a rule number.'
-        elif linechoice == 'random':
-            myline = randomurlline()
-        else:
-            htmlfile = urllib.urlopen(fileaddress)
-            lines = htmlfile.readlines()
-            numberoflines = len(lines)
-
-            if linechoice.isdigit():
-                rulenumber = int(linechoice)
-                if rulenumber > numberoflines:
-                    myline = "Please select a rule number between 1 and " + str(numberoflines) + ""
-                else:
-                    myline = get_trigger_arg(bot, lines, rulenumber)
-            else:
-                try:
-                    rulenumber = w2n.word_to_num(str(linechoice))
-                    myline = get_trigger_arg(bot, lines, rulenumber)
-                except ValueError:
-                    myline = 'That doesnt appear to be a rule number.'
-    if not myline or myline == '\n':
-        myline = 'There is no cannonized rule tied to this number.'
-    osd(bot, trigger.sender, 'say', myline)
+    # myline = ''
+    # if not linechoice:
+    #     myline = randomurlline()
+    # else:
+    #     linechoice.lstrip("-")
+    #     if (linechoice == '0' or linechoice.lower() == 'zero'):
+    #         myline = 'That doesnt appear to be a rule number.'
+    #     elif linechoice == 'random':
+    #         myline = randomurlline()
+    #     else:
+    #         htmlfile = urllib.urlopen(fileaddress)
+    #         lines = htmlfile.readlines()
+    #         numberoflines = len(lines)
+    #
+    #         if linechoice.isdigit():
+    #             rulenumber = int(linechoice)
+    #             if rulenumber > numberoflines:
+    #                 myline = "Please select a rule number between 1 and " + str(numberoflines) + ""
+    #             else:
+    #                 myline = get_trigger_arg(bot, lines, rulenumber)
+    #         else:
+    #             try:
+    #                 rulenumber = w2n.word_to_num(str(linechoice))
+    #                 myline = get_trigger_arg(bot, lines, rulenumber)
+    #             except ValueError:
+    #                 myline = 'That doesnt appear to be a rule number.'
+    # if not myline or myline == '\n':
+    #     myline = 'There is no cannonized rule tied to this number.'
+    # osd(bot, trigger.sender, 'say', myline)
 
 
 # random rule

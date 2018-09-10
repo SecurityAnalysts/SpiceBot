@@ -219,7 +219,7 @@ def execute_main(bot, trigger, triggerargsarray, command_type):
     # Check that their character has all valid basic setup components
     opening_monologue = []
     for char_basic in duels_character_basics:
-        char_basic_check = get_database_value(bot, duels.instigator, char_basic)
+        char_basic_check = get_user_dict(bot, duels, duels.instigator, char_basic)
         char_basic_valid = eval('duels_character_valid_'+char_basic)
         if not char_basic_check or char_basic_check not in char_basic_valid:
             opening_monologue.append(char_basic)
@@ -227,7 +227,7 @@ def execute_main(bot, trigger, triggerargsarray, command_type):
         duels_opening_monologue(bot, duels, duels.instigator, opening_monologue, 1, duels_character_basics_empty)
 
     # Tiers
-    duels.currenttier = get_database_value(bot, 'duelrecorduser', 'tier') or 0
+    duels.currenttier = get_user_dict(bot, duels, 'duelrecorduser', 'tier') or 0
     duels.tierscaling = duels_tier_current_to_ratio(bot)
 
     # Validate Instigator
@@ -269,14 +269,14 @@ def execute_main(bot, trigger, triggerargsarray, command_type):
 
         # allow players to set custom shortcuts to numbers
         if command_main_part.isdigit():
-            number_command = get_database_value(bot, duels.instigator, 'hotkey_'+str(command_main_part)) or 0
+            number_command = get_user_dict(bot, duels, duels.instigator, 'hotkey_'+str(command_main_part)) or 0
             if not number_command:
                 osd(bot, duels.instigator, 'notice', "You don't have a command hotlinked to "+str(command_main_part)+".")
                 return
             else:
-                number_command_list = get_database_value(bot, duels.instigator, 'hotkey_complete') or []
+                number_command_list = get_user_dict(bot, duels, duels.instigator, 'hotkey_complete') or []
                 if command_main_part not in number_command_list:
-                    adjust_database_array(bot, duels.instigator, [command_main_part], 'hotkey_complete', 'add')
+                    adjust_user_dict_array(bot, duels, duels.instigator, 'hotkey_complete', [command_main_part], 'add')
                 commandremaining = get_trigger_arg(bot, triggerargsarray_part, '2+') or ''
                 number_command = str(number_command + " " + commandremaining)
                 triggerargsarray_part = get_trigger_arg(bot, number_command, 'create')
@@ -287,35 +287,37 @@ def execute_main(bot, trigger, triggerargsarray, command_type):
         command_main_process(bot, trigger, triggerargsarray_part, command_full_part, command_main_part, duels, instigatorbio)
 
     # Deathblow
-    deathblowpeoplearray = get_database_value(bot, 'duelrecorduser', 'deathblowmessagepeoplearray') or []
+    deathblowpeoplearray = get_user_dict(bot, duels, 'duelrecorduser', 'deathblowmessagepeoplearray') or []
     if deathblowpeoplearray != []:
         for inflicter in deathblowpeoplearray:
-            inflicterdeathblowpeoplearray = get_database_value(bot, inflicter, 'deathblowtargetsnew') or []
+            inflicterdeathblowpeoplearray = get_user_dict(bot, duels, inflicter, 'deathblowtargetsnew') or []
             if inflicterdeathblowpeoplearray != []:
                 deathblowlist = get_trigger_arg(bot, inflicterdeathblowpeoplearray, "list")
                 deathblowmsg = str(inflicter + " has a chance of striking a deathblow on " + deathblowlist + "! FINISH THEM!!!!")
                 osd(bot, duels.channel_current, 'say', deathblowmsg)
-                reset_database_value(bot, inflicter, 'deathblowtargetsnew')
+                reset_user_dict(bot, duels, inflicter, 'deathblowtargetsnew')
             for inflictee in inflicterdeathblowpeoplearray:
                 deathblownow = time.time()
-                set_database_value(bot, inflictee, 'deathblowtargettime', deathblownow)
-        reset_database_value(bot, 'duelrecorduser', 'deathblowmessagepeoplearray')
+                set_user_dict(bot, duels, inflictee, 'deathblowtargettime', deathblownow)
+        reset_user_dict(bot, duels, 'duelrecorduser', 'deathblowmessagepeoplearray')
 
     # bot does not need stats or backpack items
     duels_refresh_bot(bot, duels)
 
     # Instigator last used
-    set_database_value(bot, duels.instigator, 'lastcommand', duels.now)
+    set_user_dict(bot, duels, duels.instigator, 'lastcommand', duels.now)
 
     # Usage Counter
-    adjust_database_value(bot, duels.instigator, 'usage_total', 1)
-    adjust_database_value(bot, 'duelrecorduser', 'usage_total', 1)
+    adjust_user_dict(bot, duels, duels.instigator, 'usage_total', 1)
+    adjust_user_dict(bot, duels, 'duelrecorduser', 'usage_total', 1)
 
     # reset the game
-    currenttier = get_database_value(bot, 'duelrecorduser', 'tier') or 0
+    currenttier = get_user_dict(bot, duels, 'duelrecorduser', 'tier') or 0
     if currenttier >= 15:
         osd(bot, duels.duels_enabled_channels, 'say', "Somebody has Triggered the Endgame! Stats will be reset.")
         duels_endgame(bot, duels)  # TODO
+
+    save_user_dicts(bot, duels)
 
 
 # Seperate Targets from Commands. Handle Misspellings of commands, and translate alternate commands
@@ -462,29 +464,29 @@ def subcommands(bot, trigger, triggerargsarray, command_full, command_main, duel
     eval(duels_command_function_run)
     # Don't allow event repetition
     if command_main.lower() in duels_commands_events:
-        set_database_value(bot, 'duelrecorduser', str('lastfullroom' + command_main.lower()), duels.now)
-        set_database_value(bot, 'duelrecorduser', str('lastfullroom' + command_main.lower() + 'instigator'), duels.instigator)
+        set_user_dict(bot, duels, 'duelrecorduser', str('lastfullroom' + command_main.lower()), duels.now)
+        set_user_dict(bot, duels, 'duelrecorduser', str('lastfullroom' + command_main.lower() + 'instigator'), duels.instigator)
 
     # Special Event
     if not duels.inchannel and command_main.lower() in duels_commands_special_events:
         speceventtext = ''
-        speceventtotal = get_database_value(bot, 'duelrecorduser', 'specevent') or 0
+        speceventtotal = get_user_dict(bot, duels, 'duelrecorduser', 'specevent') or 0
         if speceventtotal >= 49:
-            set_database_value(bot, 'duelrecorduser', 'specevent', 1)
+            set_user_dict(bot, duels, 'duelrecorduser', 'specevent', 1)
             osd(bot, duels.channel_current, 'say', duels.instigator + " triggered the special event! Winnings are "+str(array_compare(bot, 'specialevent', duels_ingame_coin_usage, duels_ingame_coin))+" Coins!")
-            adjust_database_value(bot, duels.instigator, 'coin', array_compare(bot, 'specialevent', duels_ingame_coin_usage, duels_ingame_coin))
+            adjust_user_dict(bot, duels, duels.instigator, 'coin', array_compare(bot, 'specialevent', duels_ingame_coin_usage, duels_ingame_coin))
         else:
-            adjust_database_value(bot, 'duelrecorduser', 'specevent', 1)
+            adjust_user_dict(bot, duels, 'duelrecorduser', 'specevent', 1)
 
     # Stamina charge
     if duels.command_stamina_cost:
         duels_stamina_charge(bot, duels.instigator, command_main.lower())
 
     # usage counter
-    adjust_database_value(bot, duels.instigator, 'usage_total', 1)
-    adjust_database_value(bot, duels.instigator, 'usage_'+command_main.lower(), 1)
-    adjust_database_value(bot, 'duelrecorduser', 'usage_total', 1)
-    adjust_database_value(bot, 'duelrecorduser', 'usage_'+command_main.lower(), 1)
+    adjust_user_dict(bot, duels, duels.instigator, 'usage_total', 1)
+    adjust_user_dict(bot, duels, duels.instigator, 'usage_'+command_main.lower(), 1)
+    adjust_user_dict(bot, duels, 'duelrecorduser', 'usage_total', 1)
+    adjust_user_dict(bot, duels, 'duelrecorduser', 'usage_'+command_main.lower(), 1)
 
 
 """
@@ -500,10 +502,10 @@ def subcommands(bot, trigger, triggerargsarray, command_full, command_main, duel
 def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duels):
 
     # Same person can't instigate twice in a row
-    set_database_value(bot, 'duelrecorduser', 'lastinstigator', maindueler)
+    set_user_dict(bot, duels, 'duelrecorduser', 'lastinstigator', maindueler)
 
     # Starting Tier
-    currenttierstart = get_database_value(bot, 'duelrecorduser', 'tier') or 0
+    currenttierstart = get_user_dict(bot, duels, 'duelrecorduser', 'tier') or 0
     tierunlockweaponslocker = duels_tier_command_to_number(bot, 'weaponslocker_complete')
 
     # Manual Weapon Usage
@@ -518,7 +520,7 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
 
         # Events does not touch lastfought
         if typeofduel in duels_commands_events:
-            targetlastfoughtstart = get_database_value(bot, target, 'lastfought')
+            targetlastfoughtstart = get_user_dict(bot, duels, target, 'lastfought')
 
         # Current Competitors
         competitors = [maindueler, target]
@@ -562,7 +564,7 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
                 if loot.lower().startswith(('a', 'e', 'i', 'o', 'u')):
                     aoran = 'an'
                 combattextarraycomplete.append(playerbio_maindueler.nametext + howluckyarethey + " found " + str(aoran) + " " + str(loot) + "!")
-                adjust_database_value(bot, 'duelsmerchant', str("vendor_track_value_"+loot), -1)
+                adjust_user_dict(bot, duels, 'duelsmerchant', str("vendor_track_value_"+loot), -1)
 
         # Winner Selection
         winner = duels_combat_selectwinner(bot, competitors, duels, playerbio_maindueler, playerbio_target)
@@ -607,7 +609,7 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
 
         # Damage
         if typeofduel == 'colosseum':
-            damage = get_database_value(bot, 'duelrecorduser', 'colosseum_damage')
+            damage = get_user_dict(bot, duels, 'duelrecorduser', 'colosseum_damage')
         else:
             damage = duels_combat_damage(bot, duels, playerbio_winner, playerbio_loser)
 
@@ -692,11 +694,11 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
         if randominventoryfind:
             if playerbio_winner.actual == playerbio_target.actual:
                 combattextarraycomplete.append(playerbio_winner.nametext + " gains the " + str(loot))
-            adjust_database_value(bot, lootwinner, loot, 1)
+            adjust_user_dict(bot, duels, lootwinner, loot, 1)
             lootloser = get_trigger_arg(bot, [x for x in competitors if x != lootwinner], 1) or lootwinner
             if typeofduel in duels_commands_events:
-                adjust_database_value(bot, lootwinner, 'combat_track_loot_won', 1)
-                adjust_database_value(bot, lootloser, 'combat_track_loot_lost', 1)
+                adjust_user_dict(bot, duels, lootwinner, 'combat_track_loot_won', 1)
+                adjust_user_dict(bot, duels, lootloser, 'combat_track_loot_lost', 1)
 
         # Update eXPerience for winner
         if playerbio_winner.actual != playerbio_loser.actual:
@@ -704,35 +706,35 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
             if playerbio_winner.Class == 'ranger':
                 XPearnedwinner = XPearnedwinner * 2
             XPearnedwinner = XPearnedwinner * duels.tierscaling
-            adjust_database_value(bot, playerbio_winner.actual, 'xp', XPearnedwinner)
+            adjust_user_dict(bot, duels, playerbio_winner.actual, 'xp', XPearnedwinner)
             XPearnedloser = playerbio_loser.intelligence
             if playerbio_loser.Class == 'ranger':
                 XPearnedloser = XPearnedloser * 2
             XPearnedloser = XPearnedloser * duels.tierscaling
-            adjust_database_value(bot, playerbio_loser.actual, 'xp', XPearnedloser)
+            adjust_user_dict(bot, duels, playerbio_loser.actual, 'xp', XPearnedloser)
             if typeofduel in duels_commands_events:
-                adjust_database_value(bot, playerbio_winner.actual, 'combat_track_xp_earned', XPearnedwinner)
+                adjust_user_dict(bot, duels, playerbio_winner.actual, 'combat_track_xp_earned', XPearnedwinner)
             if typeofduel in duels_commands_events:
-                adjust_database_value(bot, playerbio_loser.actual, 'combat_track_xp_earned', XPearnedloser)
+                adjust_user_dict(bot, duels, playerbio_loser.actual, 'combat_track_xp_earned', XPearnedloser)
 
         # hungergames winner value
         if typeofduel == "hungergames":
-            set_database_value(bot, 'duelrecorduser', 'hungergame_winner', playerbio_winner.actual)
-            set_database_value(bot, 'duelrecorduser', 'hungergame_loser', loser)
+            set_user_dict(bot, duels, 'duelrecorduser', 'hungergame_winner', playerbio_winner.actual)
+            set_user_dict(bot, duels, 'duelrecorduser', 'hungergame_loser', loser)
 
         # colosseum winner value
         if typeofduel == "colosseum":
-            set_database_value(bot, 'duelrecorduser', 'colosseum_winner', playerbio_winner.actual)
-            set_database_value(bot, 'duelrecorduser', 'colosseum_loser', loser)
+            set_user_dict(bot, duels, 'duelrecorduser', 'colosseum_winner', playerbio_winner.actual)
+            set_user_dict(bot, duels, 'duelrecorduser', 'colosseum_loser', loser)
 
         # Update Wins and Losses
         if playerbio_winner.actual != playerbio_loser.actual:
             if playerbio_winner.actual != bot.nick:
-                adjust_database_value(bot, winner, 'wins', 1)
-                adjust_database_value(bot, loser, 'losses', 1)
+                adjust_user_dict(bot, duels, winner, 'wins', 1)
+                adjust_user_dict(bot, duels, loser, 'losses', 1)
             if typeofduel in duels_commands_events:
-                adjust_database_value(bot, playerbio_winner.actual, 'combat_track_wins', 1)
-                adjust_database_value(bot, playerbio_loser.actual, 'combat_track_losses', 1)
+                adjust_user_dict(bot, duels, playerbio_winner.actual, 'combat_track_wins', 1)
+                adjust_user_dict(bot, duels, playerbio_loser.actual, 'combat_track_losses', 1)
 
         # Update streaks
         if playerbio_winner.actual != playerbio_loser.actual:
@@ -758,7 +760,7 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
                 combattextarraycomplete.append(playerbio_loser.nametext + " graduates to " + pepper_now_loser + "! ")
 
         # Tier update
-        currenttierend = get_database_value(bot, 'duelrecorduser', 'tier') or 1
+        currenttierend = get_user_dict(bot, duels, 'duelrecorduser', 'tier') or 1
         if int(currenttierend) > int(currenttierstart):
             combattextarraycomplete.append("New Tier Unlocked!")
             tiercheck = eval("duels_commands_tier_unlocks_"+str(currenttierend))
@@ -776,23 +778,23 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
         # Random Bonus
         if typeofduel == 'random':
             if playerbio_winner.actual != bot.nick and playerbio_winner.actual != playerbio_loser.actual:
-                adjust_database_value(bot, playerbio_winner.actual, 'coin', array_compare(bot, 'random', duels_ingame_coin_usage, duels_ingame_coin))
+                adjust_user_dict(bot, duels, playerbio_winner.actual, 'coin', array_compare(bot, 'random', duels_ingame_coin_usage, duels_ingame_coin))
                 combattextarraycomplete.append(playerbio_winner.nametext + " won the random attack payout of " + str(array_compare(bot, 'random', duels_ingame_coin_usage, duels_ingame_coin)) + " coin!")
 
         # Update last fought
         if playerbio_maindueler.actual != playerbio_target.actual and typeofduel in duels_commands_events:
             if playerbio_maindueler.actual == 'duelsmonster':
-                set_database_value(bot, playerbio_target.actual, 'lastfought', playerbio_maindueler.nametext)
+                set_user_dict(bot, duels, playerbio_target.actual, 'lastfought', playerbio_maindueler.nametext)
             else:
-                set_database_value(bot, playerbio_target.actual, 'lastfought', playerbio_maindueler.actual)
+                set_user_dict(bot, duels, playerbio_target.actual, 'lastfought', playerbio_maindueler.actual)
             if playerbio_target.actual == 'duelsmonster':
-                set_database_value(bot, playerbio_maindueler.actual, 'lastfought', playerbio_target.nametext)
+                set_user_dict(bot, duels, playerbio_maindueler.actual, 'lastfought', playerbio_target.nametext)
             else:
-                set_database_value(bot, playerbio_maindueler.actual, 'lastfought', playerbio_target.actual)
+                set_user_dict(bot, duels, playerbio_maindueler.actual, 'lastfought', playerbio_target.actual)
 
         # End Of event
         if typeofduel in duels_commands_events:
-            set_database_value(bot, playerbio_target.actual, 'lastfought', targetlastfoughtstart)
+            set_user_dict(bot, duels, playerbio_target.actual, 'lastfought', targetlastfoughtstart)
 
         # Final Announce
         if typeofduel in duels_commands_events:
@@ -805,8 +807,8 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
         lastlog.append(playerbio_maindueler.announce + " VERSUS " + playerbio_target.announce)
         for x in combattextarraycomplete:
             lastlog.append(x)
-        set_database_value(bot, playerbio_maindueler.actual, 'combatlastplayeractualtext', lastlog)
-        set_database_value(bot, playerbio_target.actual, 'combatlastplayeractualtext', lastlog)
+        set_user_dict(bot, duels, playerbio_maindueler.actual, 'combatlastplayeractualtext', lastlog)
+        set_user_dict(bot, duels, playerbio_target.actual, 'combatlastplayeractualtext', lastlog)
 
 
 """ Combat """
@@ -825,7 +827,7 @@ def duels_command_function_combat(bot, triggerargsarray, command_main, trigger, 
         return
 
     if subcommand == 'last':
-        combatlastplayeractual = get_database_value(bot, target, 'combatlastplayeractualtext') or str("I don't have a record of the last combat for "+target+".")
+        combatlastplayeractual = get_user_dict(bot, duels, target, 'combatlastplayeractualtext') or str("I don't have a record of the last combat for "+target+".")
         osd(bot, duels.channel_current, 'say', combatlastplayeractual)
         duels.command_stamina_cost = 0
         return
@@ -957,18 +959,18 @@ def duels_command_function_assault(bot, triggerargsarray, command_main, trigger,
     osd(bot, duels.channel_current, 'say', duels.instigator + " Initiated a full channel " + command_main + " event. Good luck to " + displaymessage)
 
     # Temp stats
-    lastfoughtstart = get_database_value(bot, duels.instigator, 'lastfought')
+    lastfoughtstart = get_user_dict(bot, duels, duels.instigator, 'lastfought')
     for astat in combat_track_results:
-        reset_database_value(bot, duels.instigator, "combat_track_" + astat)
+        reset_user_dict(bot, duels, duels.instigator, "combat_track_" + astat)
     for player in duels.users_canduel_allchan:
         for astat in combat_track_results:
-            reset_database_value(bot, player, "combat_track_" + astat)
+            reset_user_dict(bot, duels, player, "combat_track_" + astat)
 
     # Instigator versus the array
     for target in duels.users_canduel_allchan:
-        currentdeathblowcheck = get_database_value(bot, target, 'deathblow')
+        currentdeathblowcheck = get_user_dict(bot, duels, target, 'deathblow')
         if not currentdeathblowcheck:
-            currentdeathblowcheckb = get_database_value(bot, duels.instigator, 'deathblow')
+            currentdeathblowcheckb = get_user_dict(bot, duels, duels.instigator, 'deathblow')
             if not currentdeathblowcheckb:
                 duel_combat(bot, duels.instigator, [target], duels.command_restructure, 'assault', duels)
 
@@ -978,20 +980,20 @@ def duels_command_function_assault(bot, triggerargsarray, command_main, trigger,
     assaultstatsarray = []
     assaultstatsarray.append(maindueler + "'s Full Channel Assault results:")
     for astat in combat_track_results:
-        astateval = get_database_value(bot, duels.instigator, "combat_track_" + astat) or 0
+        astateval = get_user_dict(bot, duels, duels.instigator, "combat_track_" + astat) or 0
         if astateval:
             astatname = astat.replace("_", " ")
             astatname = astatname.title()
             astatstr = str(str(astatname) + " = " + str(astateval))
             assaultstatsarray.append(astatstr)
-            reset_database_value(bot, duels.instigator, "combat_track_" + astat)
+            reset_user_dict(bot, duels, duels.instigator, "combat_track_" + astat)
     osd(bot, duels.channel_current, 'say', assaultstatsarray)
 
     # Cleanup
     for player in duels.users_canduel_allchan:
         for astat in combat_track_results:
-            reset_database_value(bot, player, "combat_track_" + astat)
-    set_database_value(bot, duels.instigator, 'lastfought', lastfoughtstart)
+            reset_user_dict(bot, duels, player, "combat_track_" + astat)
+    set_user_dict(bot, duels, duels.instigator, 'lastfought', lastfoughtstart)
 
 
 def duels_docs_assault(bot):
@@ -1025,7 +1027,7 @@ def duels_command_function_mayhem(bot, triggerargsarray, command_main, trigger, 
     # Temp stats
     for user in duels.users_canduel_allchan:
         for astat in combat_track_results:
-            reset_database_value(bot, duels.instigator, "combat_track_" + astat)
+            reset_user_dict(bot, duels, duels.instigator, "combat_track_" + astat)
 
     # Build second users_current_arena
     mainduelerarray = []
@@ -1045,29 +1047,29 @@ def duels_command_function_mayhem(bot, triggerargsarray, command_main, trigger, 
         playera = get_trigger_arg(bot, currentcombo, 1)
         playerb = get_trigger_arg(bot, currentcombo, "last")
         if playera != playerb:
-            playerafought = get_database_value(bot, playera, 'mayhemorganizer') or []
-            playerbfought = get_database_value(bot, playerb, 'mayhemorganizer') or []
+            playerafought = get_user_dict(bot, duels, playera, 'mayhemorganizer') or []
+            playerbfought = get_user_dict(bot, duels, playerb, 'mayhemorganizer') or []
             if playera not in playerbfought and playerb not in playerafought:
-                currentdeathblowcheck = get_database_value(bot, playerb, 'deathblow')
+                currentdeathblowcheck = get_user_dict(bot, duels, playerb, 'deathblow')
                 if not currentdeathblowcheck:
-                    currentdeathblowcheckb = get_database_value(bot, playera, 'deathblow')
+                    currentdeathblowcheckb = get_user_dict(bot, duels, playera, 'deathblow')
                     if not currentdeathblowcheckb:
                         duel_combat(bot, playera, [playerb], duels.command_restructure, 'assault', duels)
-                adjust_database_array(bot, playera, playerb, 'mayhemorganizer', 'add')
-                adjust_database_array(bot, playerb, playera, 'mayhemorganizer', 'add')
+                adjust_user_dict_array(bot, duels, playera, 'mayhemorganizer', playerb, 'add')
+                adjust_user_dict_array(bot, duels, playerb, 'mayhemorganizer', playera, 'add')
 
     # Results
     assaultstatsarray = []
     for user in duels.users_canduel_allchan:
-        reset_database_value(bot, user, 'mayhemorganizer')
+        reset_user_dict(bot, duels, user, 'mayhemorganizer')
     for astat in combat_track_results:
         playerarray, statvaluearray = [], []
         for user in duels.users_canduel_allchan:
-            astateval = get_database_value(bot, user, "combat_track_" + astat) or 0
+            astateval = get_user_dict(bot, duels, user, "combat_track_" + astat) or 0
             if astateval > 0:
                 statvaluearray.append(astateval)
                 playerarray.append(user)
-            reset_database_value(bot, user, "combat_track_" + astat)
+            reset_user_dict(bot, duels, user, "combat_track_" + astat)
         if playerarray != [] and statvaluearray != []:
             statvaluearray, playerarray = array_arrangesort(bot, statvaluearray, playerarray)
             statleadername = get_trigger_arg(bot, playerarray, 'last')
@@ -1099,7 +1101,7 @@ def duels_command_function_hungergames(bot, triggerargsarray, command_main, trig
         return
 
     # Basic vars
-    currenttierstart = get_database_value(bot, 'duelrecorduser', 'tier') or 0
+    currenttierstart = get_user_dict(bot, duels, 'duelrecorduser', 'tier') or 0
     dispmsgarray = []
 
     # Announce to channel the contestants
@@ -1121,13 +1123,13 @@ def duels_command_function_hungergames(bot, triggerargsarray, command_main, trig
         maindueler = get_trigger_arg(bot, hungerarray, 1)
         current_target = get_trigger_arg(bot, hungerarray, 2)
 
-        currentdeathblowcheck = get_database_value(bot, current_target, 'deathblow')
+        currentdeathblowcheck = get_user_dict(bot, duels, current_target, 'deathblow')
         if not currentdeathblowcheck:
-            currentdeathblowcheckb = get_database_value(bot, maindueler, 'deathblow')
+            currentdeathblowcheckb = get_user_dict(bot, duels, maindueler, 'deathblow')
             if not currentdeathblowcheckb:
                 duel_combat(bot, maindueler, [current_target], triggerargsarray, 'hungergames', duels)
-                hungergameloser = get_database_value(bot, 'duelrecorduser', 'hungergame_loser')
-                hungergamewinner = get_database_value(bot, 'duelrecorduser', 'hungergame_winner')
+                hungergameloser = get_user_dict(bot, duels, 'duelrecorduser', 'hungergame_loser')
+                hungergamewinner = get_user_dict(bot, duels, 'duelrecorduser', 'hungergame_winner')
                 if firsttodie == '':
                     firsttodie = hungergameloser
                 hungerarray.remove(hungergameloser)
@@ -1142,8 +1144,8 @@ def duels_command_function_hungergames(bot, triggerargsarray, command_main, trig
         random.shuffle(hungerarray)
 
     # Reset
-    reset_database_value(bot, 'duelrecorduser', 'hungergame_loser')
-    reset_database_value(bot, 'duelrecorduser', 'hungergame_winner')
+    reset_user_dict(bot, duels, 'duelrecorduser', 'hungergame_loser')
+    reset_user_dict(bot, duels, 'duelrecorduser', 'hungergame_winner')
 
     # Display
     hungerwinner = get_trigger_arg(bot, hungerarray, 1)
@@ -1177,7 +1179,7 @@ def duels_command_function_colosseum(bot, triggerargsarray, command_main,  trigg
         return
 
     # Vars
-    currenttierstart = get_database_value(bot, 'duelrecorduser', 'tier') or 0
+    currenttierstart = get_user_dict(bot, duels, 'duelrecorduser', 'tier') or 0
     dispmsgarray = []
     displaymessage = get_trigger_arg(bot, duels.users_canduel_allchan, "list")
 
@@ -1185,20 +1187,20 @@ def duels_command_function_colosseum(bot, triggerargsarray, command_main,  trigg
     osd(bot, duels.channel_current, 'say', duels.instigator + " Initiated a full channel " + command_main + " event. Good luck to " + displaymessage)
     totalplayers = len(duels.users_canduel_allchan)
     riskcoins = int(totalplayers) * 30
-    set_database_value(bot, 'duelrecorduser', 'colosseum_damage', int(riskcoins))
+    set_user_dict(bot, duels, 'duelrecorduser', 'colosseum_damage', int(riskcoins))
 
     # Individual duels to find victor
     while int(totalplayers) > 1:
         totalplayers = totalplayers - 1
         maindueler = get_trigger_arg(bot, duels.users_canduel_allchan, 1)
         current_target = get_trigger_arg(bot, duels.users_canduel_allchan, 2)
-        currentdeathblowcheck = get_database_value(bot, current_target, 'deathblow')
+        currentdeathblowcheck = get_user_dict(bot, duels, current_target, 'deathblow')
         if not currentdeathblowcheck:
-            currentdeathblowcheckb = get_database_value(bot, maindueler, 'deathblow')
+            currentdeathblowcheckb = get_user_dict(bot, duels, maindueler, 'deathblow')
             if not currentdeathblowcheckb:
                 duel_combat(bot, maindueler, [current_target], triggerargsarray, 'colosseum', duels)
-                colosseumloser = get_database_value(bot, 'duelrecorduser', 'colosseum_loser')
-                colosseumwinner = get_database_value(bot, 'duelrecorduser', 'colosseum_winner')
+                colosseumloser = get_user_dict(bot, duels, 'duelrecorduser', 'colosseum_loser')
+                colosseumwinner = get_user_dict(bot, duels, 'duelrecorduser', 'colosseum_winner')
                 duels.users_canduel_allchan.remove(colosseumloser)
             else:
                 duels.users_canduel_allchan.remove(maindueler)
@@ -1207,13 +1209,13 @@ def duels_command_function_colosseum(bot, triggerargsarray, command_main,  trigg
         random.shuffle(duels.users_canduel_allchan)
 
     # Reset
-    reset_database_value(bot, 'duelrecorduser', 'colosseum_loser')
-    reset_database_value(bot, 'duelrecorduser', 'colosseum_winner')
-    reset_database_value(bot, 'duelrecorduser', 'colosseum_damage')
+    reset_user_dict(bot, duels, 'duelrecorduser', 'colosseum_loser')
+    reset_user_dict(bot, duels, 'duelrecorduser', 'colosseum_winner')
+    reset_user_dict(bot, duels, 'duelrecorduser', 'colosseum_damage')
 
     # Announce winner and pay out
     colosseumwinner = get_trigger_arg(bot, duels.users_canduel_allchan, 1)
-    adjust_database_value(bot, colosseumwinner, 'coin', riskcoins)
+    adjust_user_dict(bot, duels, colosseumwinner, 'coin', riskcoins)
     osd(bot, duels.channel_current, 'say', "The Winner is: " + colosseumwinner + "! Total winnings: " + str(riskcoins) + " coin! Losers took " + str(riskcoins) + " damage.")
 
 
@@ -1228,26 +1230,26 @@ def duels_docs_colosseum(bot):
 
 def duels_command_function_monster(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
-    playernew = get_database_value(bot, 'duelsmonster', 'newplayer')
+    playernew = get_user_dict(bot, duels, 'duelsmonster', 'newplayer')
     if not playernew:
-        set_database_value(bot, 'duelsmonster', 'newplayer', 1)
+        set_user_dict(bot, duels, 'duelsmonster', 'newplayer', 1)
 
     # command
     monstercommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'hunt'], 1) or 'attack'
 
     if monstercommand == 'hunt':
         # Pick Monsters name
-        duelsmonstername = get_database_value(bot, 'duelsmonster', 'last_monster') or None
-        duelsmonstervarient = get_database_value(bot, 'duelsmonster', 'last_monster_varent') or None
+        duelsmonstername = get_user_dict(bot, duels, 'duelsmonster', 'last_monster') or None
+        duelsmonstervarient = get_user_dict(bot, duels, 'duelsmonster', 'last_monster_varent') or None
         if not duelsmonstername:
             # Generate Monster's stats based on room average
             duels_monster_stats_generate(bot, duels, 1)
 
             # Monster's name
             duelsmonstervarient = get_trigger_arg(bot, duelsmonstervarientarray, 'random')
-            set_database_value(bot, 'duelsmonster', 'last_monster_varent', duelsmonstervarient)
+            set_user_dict(bot, duels, 'duelsmonster', 'last_monster_varent', duelsmonstervarient)
             duelsmonstername = get_trigger_arg(bot, monstersarray, 'random')
-            set_database_value(bot, 'duelsmonster', 'last_monster', duelsmonstername)
+            set_user_dict(bot, duels, 'duelsmonster', 'last_monster', duelsmonstername)
 
         # Run a normal duel if only one opponent
         if len(duels.users_canduel_allchan) <= 1:
@@ -1259,18 +1261,18 @@ def duels_command_function_monster(bot, triggerargsarray, command_main, trigger,
         displaymessage = get_trigger_arg(bot, duels.users_canduel_allchan, "list")
         osd(bot, duels.channel_current, 'say', duels.instigator + " Initiated a full channel " + command_main + " hunt event. Good luck to " + displaymessage)
 
-        lastfoughtstart = get_database_value(bot, duels.instigator, 'lastfought')
+        lastfoughtstart = get_user_dict(bot, duels, duels.instigator, 'lastfought')
         for astat in combat_track_results:
-            reset_database_value(bot, 'duelsmonster', "combat_track_" + astat)
+            reset_user_dict(bot, duels, 'duelsmonster', "combat_track_" + astat)
         for player in duels.users_canduel_allchan:
             for astat in combat_track_results:
-                reset_database_value(bot, player, "combat_track_" + astat)
+                reset_user_dict(bot, duels, player, "combat_track_" + astat)
 
         # Instigator versus the array
         for target in duels.users_canduel_allchan:
-            currentdeathblowcheck = get_database_value(bot, target, 'deathblow')
+            currentdeathblowcheck = get_user_dict(bot, duels, target, 'deathblow')
             if not currentdeathblowcheck:
-                currentdeathblowcheckb = get_database_value(bot, 'duelsmonster', 'deathblow')
+                currentdeathblowcheckb = get_user_dict(bot, duels, 'duelsmonster', 'deathblow')
                 if not currentdeathblowcheckb:
                     duel_combat(bot, 'duelsmonster', [target], duels.command_restructure, 'assault', duels)
 
@@ -1280,40 +1282,40 @@ def duels_command_function_monster(bot, triggerargsarray, command_main, trigger,
         monsterannounce = str(duelsmonstervarient+" "+duelsmonstername)
         assaultstatsarray.append(monsterannounce + "'s Full Channel Assault results:")
         for astat in combat_track_results:
-            astateval = get_database_value(bot, 'duelsmonster', "combat_track_" + astat) or 0
+            astateval = get_user_dict(bot, duels, 'duelsmonster', "combat_track_" + astat) or 0
             if astateval:
                 astatname = astat.replace("_", " ")
                 astatname = astatname.title()
                 astatstr = str(str(astatname) + " = " + str(astateval))
                 assaultstatsarray.append(astatstr)
-                reset_database_value(bot, 'duelsmonster', "combat_track_" + astat)
+                reset_user_dict(bot, duels, 'duelsmonster', "combat_track_" + astat)
         osd(bot, duels.channel_current, 'say', assaultstatsarray)
 
         # Cleanup
         for player in duels.users_canduel_allchan:
             for astat in combat_track_results:
-                reset_database_value(bot, player, "combat_track_" + astat)
-        set_database_value(bot, 'duelsmonster', 'lastfought', lastfoughtstart)
+                reset_user_dict(bot, duels, player, "combat_track_" + astat)
+        set_user_dict(bot, duels, 'duelsmonster', 'lastfought', lastfoughtstart)
 
     if monstercommand == 'attack':
         # Pick Monsters name
-        currentmonster = get_database_value(bot, 'duelsmonster', 'last_monster') or None
+        currentmonster = get_user_dict(bot, duels, 'duelsmonster', 'last_monster') or None
         if not currentmonster:
             # Generate Monster's stats based on room average
             duels_monster_stats_generate(bot, duels, 1)
 
             # Monster's name
             duelsmonstervarient = get_trigger_arg(bot, duelsmonstervarientarray, 'random')
-            set_database_value(bot, 'duelsmonster', 'last_monster_varent', duelsmonstervarient)
+            set_user_dict(bot, duels, 'duelsmonster', 'last_monster_varent', duelsmonstervarient)
             duelsmonstername = get_trigger_arg(bot, monstersarray, 'random')
-            set_database_value(bot, 'duelsmonster', 'last_monster', duelsmonstername)
+            set_user_dict(bot, duels, 'duelsmonster', 'last_monster', duelsmonstername)
 
         # Combat
         duels_check_nick_condition(bot, 'duelsmonster', duels)
         duel_combat(bot, duels.instigator, ['duelsmonster'], triggerargsarray, 'combat', duels)
 
         # Monster does not keep stats if dead
-        currentmonster = get_database_value(bot, 'duelsmonster', 'last_monster') or None
+        currentmonster = get_user_dict(bot, duels, 'duelsmonster', 'last_monster') or None
         if not currentmonster:
             duels_monster_stats_reset(bot, duels)
 
@@ -1370,7 +1372,7 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
     roulettesubcom = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'last' or str(x).isdigit()], 1) or 'normal'
 
     if roulettesubcom == 'last':
-        roulettelastplayeractual = get_database_value(bot, 'duelrecorduser', 'roulettelastplayeractualtext') or str("I don't have a record of the last roulette.")
+        roulettelastplayeractual = get_user_dict(bot, duels, 'duelrecorduser', 'roulettelastplayeractualtext') or str("I don't have a record of the last roulette.")
         osd(bot, duels.channel_current, 'say', roulettelastplayeractual)
         duels.command_stamina_cost = 0
         return
@@ -1386,7 +1388,7 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
             return
 
     # instigator must wait until the next round
-    roulettelastshot = get_database_value(bot, 'duelrecorduser', 'roulettelastplayershot') or bot.nick
+    roulettelastshot = get_user_dict(bot, duels, 'duelrecorduser', 'roulettelastplayershot') or bot.nick
     if roulettelastshot == duels.instigator:
         if duels.channel_current in duels.duels_dev_channels or duels.admin:
             allowpass = 1
@@ -1420,20 +1422,20 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
             osd(bot, duels.instigator, 'notice', "Roulette has a small timeout.")
             duels.command_stamina_cost = 0
             return
-    set_database_value(bot, 'duelrecorduser', str('lastfullroom' + command_main), duels.now)
+    set_user_dict(bot, duels, 'duelrecorduser', str('lastfullroom' + command_main), duels.now)
 
     # Check who last pulled the trigger, or if it's a new chamber
-    roulettelastplayer = get_database_value(bot, 'duelrecorduser', 'roulettelastplayer') or bot.nick
-    roulettecount = get_database_value(bot, 'duelrecorduser', 'roulettecount') or 1
+    roulettelastplayer = get_user_dict(bot, duels, 'duelrecorduser', 'roulettelastplayer') or bot.nick
+    roulettecount = get_user_dict(bot, duels, 'duelrecorduser', 'roulettecount') or 1
 
     # Get the selected chamber from the database,, or set one
-    roulettechamber = get_database_value(bot, 'duelrecorduser', 'roulettechamber')
+    roulettechamber = get_user_dict(bot, duels, 'duelrecorduser', 'roulettechamber')
     if not roulettechamber:
         roulettechamber = randint(1, 6)
-        set_database_value(bot, 'duelrecorduser', 'roulettechamber', roulettechamber)
+        set_user_dict(bot, duels, 'duelrecorduser', 'roulettechamber', roulettechamber)
 
     # Display Text
-    instigatorcurse = get_database_value(bot, duels.instigator, 'curse') or 0
+    instigatorcurse = get_user_dict(bot, duels, duels.instigator, 'curse') or 0
     if manualpick == 1:
         osd(bot, duels.channel_current, 'say', duels.instigator + " is blindfolded while the chamber is set to " + str(roulettesubcom) + ".")
     elif instigatorcurse:
@@ -1448,15 +1450,15 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
     # Default 6 possible chambers for bullet.
     # curses
     if instigatorcurse:
-        adjust_database_value(bot, duels.instigator, 'curse', -1)
-        reset_database_value(bot, 'duelrecorduser', 'roulettespinarray')
+        adjust_user_dict(bot, duels, duels.instigator, 'curse', -1)
+        reset_user_dict(bot, duels, 'duelrecorduser', 'roulettespinarray')
         currentspin = roulettechamber
     # manual number
     elif manualpick == 1:
         currentspin = int(roulettesubcom)
     # If instigator uses multiple times in a row, decrease odds of success
     elif roulettelastplayer == duels.instigator:
-        roulettespinarray = get_database_value(bot, 'duelrecorduser', 'roulettespinarray')
+        roulettespinarray = get_user_dict(bot, duels, 'duelrecorduser', 'roulettespinarray')
         if not roulettespinarray:
             roulettespinarray = [1, 2, 3, 4, 5, 6]
         if len(roulettespinarray) > 1:
@@ -1470,14 +1472,14 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
             for j in roulettetemp:
                 if int(j) != int(rouletteremove):
                     roulettetempb.append(j)
-            set_database_value(bot, 'duelrecorduser', 'roulettespinarray', roulettetempb)
+            set_user_dict(bot, duels, 'duelrecorduser', 'roulettespinarray', roulettetempb)
             currentspin = get_trigger_arg(bot, roulettetempb, "random")
         else:
             currentspin = roulettechamber  # if only one chambers left
-            reset_database_value(bot, 'duelrecorduser', 'roulettespinarray')
+            reset_user_dict(bot, duels, 'duelrecorduser', 'roulettespinarray')
     else:
         roulettespinarray = [1, 2, 3, 4, 5, 6]
-        reset_database_value(bot, 'duelrecorduser', 'roulettespinarray')
+        reset_user_dict(bot, duels, 'duelrecorduser', 'roulettespinarray')
         currentspin = get_trigger_arg(bot, roulettespinarray, "random")
 
     # current spin is safe
@@ -1487,20 +1489,20 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
             roulettelastplayeractualtext = str(duels.instigator + " manually picked a chamber without the bullet. The Bullet was moved.")
             osd(bot, duels.channel_current, 'say', duels.instigator + " picked a chamber without the bullet. Bullet will be moved.")
             roulettechambernew = randint(1, 6)
-            set_database_value(bot, 'duelrecorduser', 'roulettechamber', roulettechambernew)
+            set_user_dict(bot, duels, 'duelrecorduser', 'roulettechamber', roulettechambernew)
         else:
             roulettelastplayeractualtext = str(duels.instigator + " pulled the trigger and was safe.")
         roulettecount = roulettecount + 1
         roulettepayout = array_compare(bot, 'roulette', duels_ingame_coin_usage, duels_ingame_coin) * roulettecount
-        currentpayout = get_database_value(bot, duels.instigator, 'roulettepayout')
-        adjust_database_value(bot, duels.instigator, 'roulettepayout', roulettepayout)
-        set_database_value(bot, 'duelrecorduser', 'roulettecount', roulettecount)
-        set_database_value(bot, 'duelrecorduser', 'roulettelastplayer', duels.instigator)
-        adjust_database_array(bot, 'duelrecorduser', [duels.instigator], 'roulettewinners', 'add')
+        currentpayout = get_user_dict(bot, duels, duels.instigator, 'roulettepayout')
+        adjust_user_dict(bot, duels, duels.instigator, 'roulettepayout', roulettepayout)
+        set_user_dict(bot, duels, 'duelrecorduser', 'roulettecount', roulettecount)
+        set_user_dict(bot, duels, 'duelrecorduser', 'roulettelastplayer', duels.instigator)
+        adjust_user_dict_array(bot, duels, 'duelrecorduser', 'roulettewinners', [duels.instigator], 'add')
 
     # instigator shoots themself in the head
     else:
-        currenttierstart = get_database_value(bot, 'duelrecorduser', 'tier') or 0
+        currenttierstart = get_user_dict(bot, duels, 'duelrecorduser', 'tier') or 0
         dispmsgarray = []
 
         if roulettecount == 1:
@@ -1526,7 +1528,7 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
         # Payouts
         biggestpayout, biggestpayoutwinner = 0, ''
         playerarray, statvaluearray = [], []
-        roulettewinners = get_database_value(bot, 'duelrecorduser', 'roulettewinners') or []
+        roulettewinners = get_user_dict(bot, duels, 'duelrecorduser', 'roulettewinners') or []
         uniquewinnersarray = []
         for x in roulettewinners:
             if x not in uniquewinnersarray and x != duels.instigator:
@@ -1535,14 +1537,14 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
         for x in uniquewinnersarray:
 
             # coin
-            roulettepayoutx = get_database_value(bot, x, 'roulettepayout')
+            roulettepayoutx = get_user_dict(bot, duels, x, 'roulettepayout')
             if roulettepayoutx > 0:
                 playerarray.append(x)
                 statvaluearray.append(roulettepayoutx)
-            adjust_database_value(bot, x, 'coin', roulettepayoutx)
+            adjust_user_dict(bot, duels, x, 'coin', roulettepayoutx)
             if roulettepayoutx > 0:
                 osd(bot, x, 'notice', "Your roulette payouts = " + str(roulettepayoutx) + " coins!")
-            reset_database_value(bot, x, 'roulettepayout')
+            reset_user_dict(bot, duels, x, 'roulettepayout')
 
         # unique winner list
         if uniquewinnersarray != []:
@@ -1558,22 +1560,22 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
             statleadernumber = get_trigger_arg(bot, statvaluearray, 'last')
             dispmsgarray.append("Biggest Payout: " + statleadername + " with " + str(statleadernumber) + " coins.")
 
-        roulettecount = get_database_value(bot, 'duelrecorduser', 'roulettecount') or 1
+        roulettecount = get_user_dict(bot, duels, 'duelrecorduser', 'roulettecount') or 1
         if roulettecount > 1:
             dispmsgarray.append("The chamber spun " + str(roulettecount) + " times. ")
         osd(bot, duels.channel_current, 'say', dispmsgarray)
 
         # instigator must wait until the next round
-        reset_database_value(bot, 'duelrecorduser', 'roulettelastplayershot')
-        set_database_value(bot, 'duelrecorduser', 'roulettelastplayershot', duels.instigator)
+        reset_user_dict(bot, duels, 'duelrecorduser', 'roulettelastplayershot')
+        set_user_dict(bot, duels, 'duelrecorduser', 'roulettelastplayershot', duels.instigator)
 
         # Reset for next run
-        reset_database_value(bot, 'duelrecorduser', 'roulettelastplayer')
-        reset_database_value(bot, 'duelrecorduser', 'roulettechamber')
-        reset_database_value(bot, 'duelrecorduser', 'roulettewinners')
-        reset_database_value(bot, 'duelrecorduser', 'roulettecount')
-        reset_database_value(bot, duels.instigator, 'roulettepayout')
-    set_database_value(bot, 'duelrecorduser', 'roulettelastplayeractualtext', roulettelastplayeractualtext)
+        reset_user_dict(bot, duels, 'duelrecorduser', 'roulettelastplayer')
+        reset_user_dict(bot, duels, 'duelrecorduser', 'roulettechamber')
+        reset_user_dict(bot, duels, 'duelrecorduser', 'roulettewinners')
+        reset_user_dict(bot, duels, 'duelrecorduser', 'roulettecount')
+        reset_user_dict(bot, duels, duels.instigator, 'roulettepayout')
+    set_user_dict(bot, duels, 'duelrecorduser', 'roulettelastplayeractualtext', roulettelastplayeractualtext)
 
 
 def duels_docs_roulette(bot):
@@ -1637,7 +1639,7 @@ def duels_docs_trebuchet(bot):
 
 def duels_command_function_deathblow(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
-    deathblowtargetarray = get_database_value(bot, duels.instigator, 'deathblowtargetarray') or []
+    deathblowtargetarray = get_user_dict(bot, duels, duels.instigator, 'deathblowtargetarray') or []
     if deathblowtargetarray == []:
         osd(bot, duels.instigator, 'notice', "You don't have a deathblow target available.")
         duels.command_stamina_cost = 0
@@ -1665,10 +1667,10 @@ def duels_command_function_deathblow(bot, triggerargsarray, command_main, trigge
             osd(bot, duels.channel_current, 'say', deathblowkilltext)
         else:
             osd(bot, duels.channel_current, 'say', duels.instigator + " had the opportunity to perform a deathblow, but was too late.")
-        adjust_database_array(bot, duels.instigator, [deathblowavail], 'deathblowtargetarray', 'del')
-        reset_database_value(bot, deathblowavail, 'deathblow')
-        reset_database_value(bot, deathblowavail, 'deathblowtargettime')
-        reset_database_value(bot, deathblowavail, 'deathblowkiller')
+        adjust_user_dict_array(bot, duels, duels.instigator, 'deathblowtargetarray', [deathblowavail], 'del')
+        reset_user_dict(bot, duels, deathblowavail, 'deathblow')
+        reset_user_dict(bot, duels, deathblowavail, 'deathblowtargettime')
+        reset_user_dict(bot, duels, deathblowavail, 'deathblowkiller')
 
 
 def duels_docs_template(bot):
@@ -1690,7 +1692,7 @@ def duels_command_function_grenade(bot, triggerargsarray, command_main, trigger,
         return
 
     # verify user has a grenade to use
-    instigatorgrenade = get_database_value(bot, duels.instigator, 'grenade') or 0
+    instigatorgrenade = get_user_dict(bot, duels, duels.instigator, 'grenade') or 0
     if instigatorgrenade <= 0:
         osd(bot, duels.instigator, 'notice', "You don't have a grenade to use!")
         duels.command_stamina_cost = 0
@@ -1721,7 +1723,7 @@ def duels_command_function_grenade(bot, triggerargsarray, command_main, trigger,
 
     # select targets that get hit, and don't
     dispmsgarray = []
-    adjust_database_value(bot, duels.instigator, 'grenade', -1)
+    adjust_user_dict(bot, duels, duels.instigator, 'grenade', -1)
     fulltarget, secondarytarget, thirdtarget = '', '', ''
     firsttarget = 0
     damagetotal = 200
@@ -1749,7 +1751,7 @@ def duels_command_function_grenade(bot, triggerargsarray, command_main, trigger,
     osd(bot, duels.channel_current, 'say', dispmsgarray)
 
     # Track usage for vendor
-    adjust_database_value(bot, 'duelsmerchant', str("vendor_track_value_grenade"), int(quantity))
+    adjust_user_dict(bot, duels, 'duelsmerchant', str("vendor_track_value_grenade"), int(quantity))
 
 
 def duels_docs_grenade(bot):
@@ -1765,8 +1767,8 @@ def duels_command_function_magic(bot, triggerargsarray, command_main, trigger, c
 
     # Instigator
     instigatormagic = duels_special_get(bot, duels.instigator, 'magic')
-    instigatorclass = get_database_value(bot, duels.instigator, 'class')
-    instigatormana = get_database_value(bot, duels.instigator, 'mana')
+    instigatorclass = get_user_dict(bot, duels, duels.instigator, 'class')
+    instigatormana = get_user_dict(bot, duels, duels.instigator, 'mana')
     if not instigatormana:
         osd(bot, duels.instigator, 'notice', "You don't have any mana.")
         duels.command_stamina_cost = 0
@@ -1820,7 +1822,7 @@ def duels_command_function_magic(bot, triggerargsarray, command_main, trigger, c
         return
 
     # Charge mana cost
-    adjust_database_value(bot, duels.instigator, 'mana', -abs(manarequired))
+    adjust_user_dict(bot, duels, duels.instigator, 'mana', -abs(manarequired))
 
     # Display
     displaymsg = []
@@ -1842,14 +1844,14 @@ def duels_command_function_magic(bot, triggerargsarray, command_main, trigger, c
 
     if magicusage == 'curse':
         actualcurseduration = int(quantity) * int(durationofeffect)
-        set_database_value(bot, targetbio.actual, 'curse', actualcurseduration)
+        set_user_dict(bot, duels, targetbio.actual, 'curse', actualcurseduration)
         displaymsg.append("This forces " + targetbio.nametext + " to lose the next " + str(actualcurseduration) + " duels")
 
     if magicusage == 'shield':
         actualshielddurationmax = int(quantity) * int(durationofeffect)
         actualshielddurationmax = actualshielddurationmax * duels.tierscaling
         actualshieldduration = randint(instigatormagic * 10 * duels.tierscaling, abs(actualshielddurationmax))
-        adjust_database_value(bot, targetbio.actual, 'shield', actualshieldduration)
+        adjust_user_dict(bot, duels, targetbio.actual, 'shield', actualshieldduration)
         displaymsg.append("This allows " + targetbio.nametext + " to take no damage for the duration of " + str(actualshieldduration) + " damage")
         damagedealt = -abs(damagedealt)
 
@@ -1863,9 +1865,9 @@ def duels_command_function_magic(bot, triggerargsarray, command_main, trigger, c
     osd(bot, duels.channel_current, 'say', displaymsg)
     if not duels.inchannel and targetbio.actual != duels.instigator:
         osd(bot, duels.instigator, 'notice', displaymsg)
-    instigatormana = get_database_value(bot, duels.instigator, 'mana')
+    instigatormana = get_user_dict(bot, duels, duels.instigator, 'mana')
     if instigatormana <= 0:
-        reset_database_value(bot, duels.instigator, 'mana')
+        reset_user_dict(bot, duels, duels.instigator, 'mana')
 
 
 def duels_docs_magic(bot):
@@ -1963,7 +1965,7 @@ def duels_command_function_character(bot, triggerargsarray, command_main, trigge
                 validarray = eval("duels_character_valid_" + char_basic)
                 char_basic_check = get_trigger_arg(bot, [x for x in duels.command_restructure if x in validarray], 1) or 0
                 if not char_basic_check:
-                    playercurrent = get_database_value(bot, targetbio.actual, char_basic) or 'none'
+                    playercurrent = get_user_dict(bot, duels, targetbio.actual, char_basic) or 'none'
                     if playercurrent not in validarray:
                         exec("random" + char_basic + " = " + "''")
                     else:
@@ -1975,7 +1977,7 @@ def duels_command_function_character(bot, triggerargsarray, command_main, trigge
 
         if playerreset:  # TODO
             for vstat in duels.stats_valid:
-                reset_database_value(bot, targetbio.actual, vstat)
+                reset_user_dict(bot, duels, targetbio.actual, vstat)
 
         char_basics_array = []
         for char_basic in duels_character_basics:
@@ -2024,9 +2026,9 @@ def duels_command_function_character(bot, triggerargsarray, command_main, trigge
             return
 
         if charcommand == 'class' and duels.channel_current not in duels.duels_dev_channels:
-            instigatorfreebie = get_database_value(bot, duels.instigator, 'class_freebie') or 0
+            instigatorfreebie = get_user_dict(bot, duels, duels.instigator, 'class_freebie') or 0
             if targetbio.actual == duels.instigator:
-                instigatorcoin = get_database_value(bot, duels.instigator, 'coin') or 0
+                instigatorcoin = get_user_dict(bot, duels, duels.instigator, 'coin') or 0
                 if instigatorcoin < array_compare(bot, 'class', duels_ingame_coin_usage, duels_ingame_coin) and instigatorfreebie:
                     osd(bot, duels.instigator, 'notice', "Changing class costs " + str(array_compare(bot, 'class', duels_ingame_coin_usage, duels_ingame_coin)) + " coin. You need more funding.")
                     duels.command_stamina_cost = 0
@@ -2045,18 +2047,18 @@ def duels_command_function_character(bot, triggerargsarray, command_main, trigge
                         duels.command_stamina_cost = 0
                         return
 
-        set_database_value(bot, targetbio.actual, charcommand, newset)
+        set_user_dict(bot, duels, targetbio.actual, charcommand, newset)
         if targetbio.actual != duels.instigator:
             osd(bot, duels.instigator, 'notice', targetbio.nametextpos + " "+charcommand+" is now set to " + newset + ".")
             osd(bot, targetbio.actual, 'notice', "Your "+charcommand+" is now set to " + newset + ".")
         else:
             osd(bot, targetbio.actual, 'notice', "Your "+charcommand+" is now set to " + newset + ".")
             if charcommand == 'class' and duels.channel_current not in duels.duels_dev_channels:
-                set_database_value(bot, targetbio.actual, 'class_timeout', duels.now)
+                set_user_dict(bot, duels, targetbio.actual, 'class_timeout', duels.now)
                 if instigatorfreebie:
-                    adjust_database_value(bot, duels.instigator, 'coin', -abs(array_compare(bot, 'class', duels_ingame_coin_usage, duels_ingame_coin)))
+                    adjust_user_dict(bot, duels, duels.instigator, 'coin', -abs(array_compare(bot, 'class', duels_ingame_coin_usage, duels_ingame_coin)))
                 else:
-                    set_database_value(bot, duels.instigator, 'class_freebie', 1)
+                    set_user_dict(bot, duels, duels.instigator, 'class_freebie', 1)
         return
 
 
@@ -2182,7 +2184,7 @@ def duels_command_function_stats(bot, triggerargsarray, command_main, trigger, c
     if statcommand == 'add' or statcommand == 'del' or statcommand == 'default':
 
         if statcommand == 'default':
-            reset_database_value(bot, targetbio.actual, 'stats_view')
+            reset_user_dict(bot, duels, targetbio.actual, 'stats_view')
             osd(bot, duels.instigator, 'notice', "Stats settings have been updated.")
             duels.command_stamina_cost = 0
             return
@@ -2198,7 +2200,7 @@ def duels_command_function_stats(bot, triggerargsarray, command_main, trigger, c
             osd(bot, duels.instigator, 'notice', "the following stats are not valid: " + str(invalidstatslist))
             duels.command_stamina_cost = 0
             return
-        adjust_database_array(bot, targetbio.actual, duels.command_restructure, 'stats_view', statcommand)
+        adjust_user_dict_array(bot, duels, targetbio.actual, 'stats_view', duels.command_restructure, statcommand)
         osd(bot, duels.instigator, 'notice', "Stats settings have been updated.")
         duels.command_stamina_cost = 0
         return
@@ -2207,7 +2209,7 @@ def duels_command_function_stats(bot, triggerargsarray, command_main, trigger, c
         customview = 0
         target_stats_view = stats_view
         if targetbio.actual == duels.instigator:
-            target_stats_view = get_database_value(bot, targetbio.actual, 'stats_view') or stats_view
+            target_stats_view = get_user_dict(bot, duels, targetbio.actual, 'stats_view') or stats_view
             if target_stats_view != stats_view:
                 customview = 1
         duels_stats_view(bot, duels, target_stats_view, targetbio, customview, command_main.lower())
@@ -2257,9 +2259,9 @@ def duels_command_function_stats(bot, triggerargsarray, command_main, trigger, c
                 newvalue = newvalue
             if statset == 'all':
                 for x in duels.stats_valid:
-                    set_database_value(bot, player, x, newvalue)
+                    set_user_dict(bot, duels, player, x, newvalue)
             else:
-                set_database_value(bot, player, statset, newvalue)
+                set_user_dict(bot, duels, player, statset, newvalue)
         osd(bot, duels.instigator, 'notice', "Possibly done Adjusting "+str(statset)+" stat(s) for "+str(targetbio.actual)+" to " + str(newvalue))
 
 
@@ -2433,7 +2435,7 @@ def duels_command_function_loot(bot, triggerargsarray, command_main, trigger, co
             return
 
         # The quantity the player is applyint to this transaction
-        gethowmanylootitem = get_database_value(bot, duels.instigator, lootitem) or 0
+        gethowmanylootitem = get_user_dict(bot, duels, duels.instigator, lootitem) or 0
         quantity = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'all' or str(x).isdigit()], 1) or 1
         if quantity == 'all':
             quantity = gethowmanylootitem
@@ -2476,7 +2478,7 @@ def duels_command_function_loot(bot, triggerargsarray, command_main, trigger, co
             # Health Maximum and status
             maxbodyparthealth = array_compare(bot, bodypartselect, duels_bodyparts, duels_bodyparts_health)
             maxbodyparthealth = maxbodyparthealth * duels.tierscaling
-            currentbodyparthealth = get_database_value(bot, targetbio.actual, bodypartselect)
+            currentbodyparthealth = get_user_dict(bot, duels, targetbio.actual, bodypartselect)
 
             # If already at max health. don't use
             if currentbodyparthealth >= maxbodyparthealth:
@@ -2486,7 +2488,7 @@ def duels_command_function_loot(bot, triggerargsarray, command_main, trigger, co
 
             quantity = int(quantity)
 
-            adjust_database_value(bot, targetbio.actual, 'stimpack', -abs(quantity))
+            adjust_user_dict(bot, duels, targetbio.actual, 'stimpack', -abs(quantity))
 
             potionworth = array_compare(bot, 'stimpack', duels_loot_items, duels_loot_worth)
             potionmaths = int(quantity) * potionworth
@@ -2516,7 +2518,7 @@ def duels_command_function_loot(bot, triggerargsarray, command_main, trigger, co
         quantity = int(quantity)
 
         # charge the cost
-        adjust_database_value(bot, duels.instigator, lootitem, -abs(quantity))
+        adjust_user_dict(bot, duels, duels.instigator, lootitem, -abs(quantity))
 
         # Empty settings
         mainlootusemessage, uselootarray, extramsg = [], [], []
@@ -2684,10 +2686,10 @@ def duels_command_function_opt(bot, triggerargsarray, command_main, trigger, com
             else:
                 if directionchange == 'on':
                     osd(bot, duels.duels_enabled_channels, 'say', duels.instigator + " enabled duels for everyone!")
-                    adjust_database_array(bot, 'duelrecorduser', duels.users_all_allchan, 'users_opted_allchan', 'add')
+                    adjust_user_dict_array(bot, duels, 'duelrecorduser', 'users_opted_allchan', duels.users_all_allchan, 'add')
                 else:
                     osd(bot, duels.duels_enabled_channels, 'say', duels.instigator + " disabled duels for everyone!")
-                    reset_database_value(bot, 'duelrecorduser', 'users_opted_allchan')
+                    reset_user_dict(bot, duels, 'duelrecorduser', 'users_opted_allchan')
             duels.command_stamina_cost = 0
             return
         if directionchange == 'on':
@@ -2758,10 +2760,10 @@ def duels_command_function_opt(bot, triggerargsarray, command_main, trigger, com
 
     # make the adjustment
     if directionchange == 'on':
-        adjust_database_array(bot, 'duelrecorduser', [targetbio.actual], 'users_opted_allchan', 'add')
-        set_database_value(bot, targetbio.actual, 'timeout_opttimetime', duels.now)
+        adjust_user_dict_array(bot, duels, 'duelrecorduser', 'users_opted_allchan', [targetbio.actual], 'add')
+        set_user_dict(bot, duels, targetbio.actual, 'timeout_opttimetime', duels.now)
     else:
-        adjust_database_array(bot, 'duelrecorduser', [targetbio.actual], 'users_opted_allchan', 'del')
+        adjust_user_dict_array(bot, duels, 'duelrecorduser', 'users_opted_allchan', [targetbio.actual], 'del')
     if targetbio.actual == duels.instigator:
         osd(bot, duels.instigator, 'notice', "Duels should now be " + directionchange + " for you.")
     elif targetbio.actual != duels.instigator and duels.admin:
@@ -2939,7 +2941,7 @@ def duels_command_function_title(bot, triggerargsarray, command_main, trigger, c
         return
 
     if titletoset == 'remove':
-        reset_database_value(bot, targetbio.actual, 'title')
+        reset_user_dict(bot, duels, targetbio.actual, 'title')
         if targetbio.actual != duels.instigator:
             osd(bot, duels.instigator, 'notice', targetbio.nametextpos+" title has been removed.")
         else:
@@ -2948,7 +2950,7 @@ def duels_command_function_title(bot, triggerargsarray, command_main, trigger, c
         return
 
     if targetbio.actual != duels.instigator:
-        instigatorcoin = get_database_value(bot, duels.instigator, 'coin') or 0
+        instigatorcoin = get_user_dict(bot, duels, duels.instigator, 'coin') or 0
         if instigatorcoin < array_compare(bot, 'title', duels_ingame_coin_usage, duels_ingame_coin):
             osd(bot, duels.instigator, 'notice', "Changing your title costs " + str(array_compare(bot, 'title', duels_ingame_coin_usage, duels_ingame_coin)) + " coin. You need more funding.")
             duels.command_stamina_cost = 0
@@ -2957,9 +2959,9 @@ def duels_command_function_title(bot, triggerargsarray, command_main, trigger, c
             osd(bot, duels.instigator, 'notice', "Purchased titles can be no longer than 10 characters.")
             duels.command_stamina_cost = 0
             return
-        adjust_database_value(bot, duels.instigator, 'coin', -abs(array_compare(bot, 'title', duels_ingame_coin_usage, duels_ingame_coin)))
+        adjust_user_dict(bot, duels, duels.instigator, 'coin', -abs(array_compare(bot, 'title', duels_ingame_coin_usage, duels_ingame_coin)))
 
-    set_database_value(bot, targetbio.actual, 'title', titletoset)
+    set_user_dict(bot, duels, targetbio.actual, 'title', titletoset)
     if targetbio.actual != duels.instigator:
         osd(bot, duels.instigator, 'notice', targetbio.nametextpos+" title is now " + titletoset + ".")
     else:
@@ -3003,7 +3005,7 @@ def duels_command_function_weaponslocker(bot, triggerargsarray, command_main, tr
     else:
         targetbio = instigatorbio
 
-    weaponslist = get_database_value(bot, targetbio.actual, 'weaponslocker_complete') or []
+    weaponslist = get_user_dict(bot, duels, targetbio.actual, 'weaponslocker_complete') or []
 
     if adjustmentdirection == 'total':
         osd(bot, duels.channel_current, 'say', targetbio.nametext + ' has ' + str(len(weaponslist)) + " weapons in their locker. They Can be viewed in privmsg by running .duel weaponslocker inv .")
@@ -3025,7 +3027,7 @@ def duels_command_function_weaponslocker(bot, triggerargsarray, command_main, tr
         return
 
     if adjustmentdirection == 'reset':
-        reset_database_value(bot, targetbio.actual, 'weaponslocker_complete')
+        reset_user_dict(bot, duels, targetbio.actual, 'weaponslocker_complete')
         osd(bot, duels.instigator, 'notice', "Locker Reset.")
         duels.command_stamina_cost = 0
         return
@@ -3063,7 +3065,7 @@ def duels_command_function_weaponslocker(bot, triggerargsarray, command_main, tr
     else:
         weaponlockerstatus = 'no longer'
 
-    adjust_database_array(bot, targetbio.actual, [weaponchange], 'weaponslocker_complete', adjustmentdirection)
+    adjust_user_dict_array(bot, duels, targetbio.actual, 'weaponslocker_complete', [weaponchange], adjustmentdirection)
     osd(bot, duels.instigator, 'notice', weaponchange + " is " + weaponlockerstatus + " in your weapons locker.")
 
 
@@ -3121,7 +3123,7 @@ def duels_command_function_forge(bot, triggerargsarray, command_main, trigger, c
 
     if subcommand == 'buy':
         if typearmor != 'all':
-            getarmor = get_database_value(bot, targetbio.actual, typearmor) or 0
+            getarmor = get_user_dict(bot, duels, targetbio.actual, typearmor) or 0
             if getarmor and getarmor > 0:
                 osd(bot, duels.channel_current, 'say', "It looks like you already have a " + typearmor + ".")
                 duels.command_stamina_cost = 0
@@ -3131,7 +3133,7 @@ def duels_command_function_forge(bot, triggerargsarray, command_main, trigger, c
         else:
             armorcommandarray = []
             for armor in stats_armor:
-                getarmor = get_database_value(bot, target, armor) or 0
+                getarmor = get_user_dict(bot, duels, target, armor) or 0
                 if not getarmor or getarmor <= 0:
                     armorcommandarray.append(armor)
             costinvolved = armor_cost * len(armorcommandarray)
@@ -3147,23 +3149,23 @@ def duels_command_function_forge(bot, triggerargsarray, command_main, trigger, c
                     osd(bot, duels.channel_current, 'say', "Insufficient Funds.")
                     duels.command_stamina_cost = 0
                     return
-                adjust_database_value(bot, targetbio.actual, 'coin', -abs(costinvolved))
+                adjust_user_dict(bot, duels, targetbio.actual, 'coin', -abs(costinvolved))
         osd(bot, duels.channel_current, 'say', targetbio.nametext + " bought " + typearmor + " for " + str(costinvolved) + " coins.")
         for armorscom in armorcommandarray:
-            set_database_value(bot, targetbio.actual, armorscom, armor_durability)
+            set_user_dict(bot, duels, targetbio.actual, armorscom, armor_durability)
         duels.command_stamina_cost = 0
         return
 
     elif subcommand == 'sell':
         if typearmor != 'all':
-            getarmor = get_database_value(bot, targetbio.actual, typearmor) or 0
+            getarmor = get_user_dict(bot, duels, targetbio.actual, typearmor) or 0
             if not getarmor:
                 osd(bot, duels.channel_current, 'say', "You don't have a " + typearmor + " to sell.")
                 duels.command_stamina_cost = 0
                 return
             if getarmor < 0:
                 osd(bot, duels.channel_current, 'say', "Your armor is too damaged to sell.")
-                reset_database_value(bot, targetbio.actual, typearmor)
+                reset_user_dict(bot, duels, targetbio.actual, typearmor)
                 duels.command_stamina_cost = 0
                 return
             armorcommandarray = [typearmor]
@@ -3172,7 +3174,7 @@ def duels_command_function_forge(bot, triggerargsarray, command_main, trigger, c
             armorcommandarray = []
             durabilityremaininga = 0
             for armor in stats_armor:
-                getarmor = get_database_value(bot, targetbio.actual, armor) or 0
+                getarmor = get_user_dict(bot, duels, targetbio.actual, armor) or 0
                 if getarmor and getarmor > 0:
                     armorcommandarray.append(armor)
                     durabilityremaininga = getarmor + durabilityremaininga
@@ -3188,15 +3190,15 @@ def duels_command_function_forge(bot, triggerargsarray, command_main, trigger, c
         sellingamount = int(sellingamount)
         osd(bot, duels.channel_current, 'say', "Selling " + typearmor + " armor earned you " + str(sellingamount) + " coins.")
         if targetbio.actual != duels.instigator:
-            adjust_database_value(bot, targetbio.actual, 'coin', sellingamount)
+            adjust_user_dict(bot, duels, targetbio.actual, 'coin', sellingamount)
         for armorscom in armorcommandarray:
-            reset_database_value(bot, targetbio.actual, armorscom)
+            reset_user_dict(bot, duels, targetbio.actual, armorscom)
         duels.command_stamina_cost = 0
         return
 
     elif subcommand == 'repair':
         if typearmor != 'all':
-            getarmor = get_database_value(bot, targetbio.actual, typearmor) or 0
+            getarmor = get_user_dict(bot, duels, targetbio.actual, typearmor) or 0
             if not getarmor:
                 osd(bot, duels.channel_current, 'say', "You don't have a " + typearmor + " to repair.")
                 duels.command_stamina_cost = 0
@@ -3213,7 +3215,7 @@ def duels_command_function_forge(bot, triggerargsarray, command_main, trigger, c
             armorcommandarray = []  # TODO repair all is broken
             durabilityremaininga = 0
             for armor in stats_armor:
-                getarmor = get_database_value(bot, targetbio.actual, armor) or 0
+                getarmor = get_user_dict(bot, duels, targetbio.actual, armor) or 0
                 if getarmor and getarmor > 0:
                     durabilitycompare = armor_durability
                     if targetbio.Class == 'blacksmith':
@@ -3240,12 +3242,12 @@ def duels_command_function_forge(bot, triggerargsarray, command_main, trigger, c
                 osd(bot, duels.channel_current, 'say', "Insufficient Funds.")
                 duels.command_stamina_cost = 0
                 return
-            adjust_database_value(bot, targetbio.actual, 'coin', -abs(costinvolved))
+            adjust_user_dict(bot, duels, targetbio.actual, 'coin', -abs(costinvolved))
             osd(bot, duels.channel_current, 'say', "Repairing " + typearmor + " armor for " + str(costinvolved)+" coins.")
         else:
             osd(bot, duels.channel_current, 'say', "Repairing " + typearmor + " armor.")
         for armorscom in armorcommandarray:
-            set_database_value(bot, targetbio.actual, armorscom, armor_durability)
+            set_user_dict(bot, duels, targetbio.actual, armorscom, armor_durability)
         duels.command_stamina_cost = 0
         return
 
@@ -3319,7 +3321,7 @@ def duels_command_function_merchant(bot, triggerargsarray, command_main, trigger
         return
 
     # How many of that item
-    gethowmanylootitem = get_database_value(bot, targetbio.actual, lootitem) or 0
+    gethowmanylootitem = get_user_dict(bot, duels, targetbio.actual, lootitem) or 0
     if not gethowmanylootitem and lootcommand != 'buy':
         osd(bot, duels.instigator, 'notice', "You do not have any " + lootitem + "!")
         duels.command_stamina_cost = 0
@@ -3337,7 +3339,7 @@ def duels_command_function_merchant(bot, triggerargsarray, command_main, trigger
                 lootitem = loots
         if quantity == 1:
             quantity = 2
-    lootitemvalue = get_database_value(bot, 'duelsmerchant', str("vendor_track_value_"+lootitem)) or 1
+    lootitemvalue = get_user_dict(bot, duels, 'duelsmerchant', str("vendor_track_value_"+lootitem)) or 1
 
     # Block for if the quantity above is greater than the players inventory
     if int(quantity) > int(gethowmanylootitem) and lootcommand != 'buy':
@@ -3367,10 +3369,10 @@ def duels_command_function_merchant(bot, triggerargsarray, command_main, trigger
             return
 
         # Apply cost, adjust inventory, and display accordingly
-        adjust_database_value(bot, targetbio.actual, 'coin', -abs(coinrequired))
-        adjust_database_value(bot, targetbio.actual, lootitem, quantity)
-        adjust_database_value(bot, 'duelsmerchant', lootitem, -abs(quantity))
-        adjust_database_value(bot, 'duelsmerchant', str("vendor_track_value_"+lootitem), int(quantity))
+        adjust_user_dict(bot, duels, targetbio.actual, 'coin', -abs(coinrequired))
+        adjust_user_dict(bot, duels, targetbio.actual, lootitem, quantity)
+        adjust_user_dict(bot, duels, 'duelsmerchant', lootitem, -abs(quantity))
+        adjust_user_dict(bot, duels, 'duelsmerchant', str("vendor_track_value_"+lootitem), int(quantity))
         osd(bot, duels.channel_current, 'say', targetbio.nametext + " bought " + str(quantity) + " "+lootitem + "s for " + str(coinrequired) + " coins.")
         osd(bot, duels.channel_current, 'say', 'The Merchant says "Thank you, come again"')
 
@@ -3392,10 +3394,10 @@ def duels_command_function_merchant(bot, triggerargsarray, command_main, trigger
             return
 
         # Apply payment, adjust inventory, and display accordingly
-        adjust_database_value(bot, targetbio.actual, 'coin', reward)
-        adjust_database_value(bot, targetbio.actual, lootitem, -abs(quantity))
-        adjust_database_value(bot, 'duelsmerchant', lootitem, quantity)
-        adjust_database_value(bot, 'duelsmerchant', str("vendor_track_value_"+lootitem), -abs(quantity))
+        adjust_user_dict(bot, duels, targetbio.actual, 'coin', reward)
+        adjust_user_dict(bot, duels, targetbio.actual, lootitem, -abs(quantity))
+        adjust_user_dict(bot, duels, 'duelsmerchant', lootitem, quantity)
+        adjust_user_dict(bot, duels, 'duelsmerchant', str("vendor_track_value_"+lootitem), -abs(quantity))
         osd(bot, duels.channel_current, 'say', targetbio.actual + " sold " + str(quantity) + " " + lootitem + "s for " + str(reward) + " coins.")
         osd(bot, duels.channel_current, 'say', 'The Merchant says "Thank you, come again"')
 
@@ -3450,7 +3452,7 @@ def duels_command_function_locker(bot, triggerargsarray, command_main, trigger, 
         # Process quantities of items in inventory
         dispmsgarray = []
         for x in duels_loot_view:
-            gethowmany = get_database_value(bot, targetbio.actual, str(x+"_locker"))
+            gethowmany = get_user_dict(bot, duels, targetbio.actual, str(x+"_locker"))
             if gethowmany:
                 xname = x.title()
                 if gethowmany == 1:
@@ -3487,26 +3489,26 @@ def duels_command_function_locker(bot, triggerargsarray, command_main, trigger, 
     if lootitem == 'everything':
         if lootcommand == 'store':
             for x in duels_loot_view:
-                gethowmanylootitem = get_database_value(bot, duels.instigator, x) or 0
+                gethowmanylootitem = get_user_dict(bot, duels, duels.instigator, x) or 0
                 if gethowmanylootitem:
-                    adjust_database_value(bot, duels.instigator, x, -abs(gethowmanylootitem))
-                    adjust_database_value(bot, duels.instigator, x+"_locker", gethowmanylootitem)
+                    adjust_user_dict(bot, duels, duels.instigator, x, -abs(gethowmanylootitem))
+                    adjust_user_dict(bot, duels, duels.instigator, x+"_locker", gethowmanylootitem)
             osd(bot, duels.channel_current, 'say', duels.instigator + " stores all of their loot in their locker.")
         if lootcommand == 'take':
             for x in duels_loot_view:
-                gethowmanylootitem = get_database_value(bot, duels.instigator, x+"_locker") or 0
+                gethowmanylootitem = get_user_dict(bot, duels, duels.instigator, x+"_locker") or 0
                 if gethowmanylootitem:
-                    adjust_database_value(bot, duels.instigator, x, gethowmanylootitem)
-                    adjust_database_value(bot, duels.instigator, x+"_locker", -abs(gethowmanylootitem))
+                    adjust_user_dict(bot, duels, duels.instigator, x, gethowmanylootitem)
+                    adjust_user_dict(bot, duels, duels.instigator, x+"_locker", -abs(gethowmanylootitem))
             osd(bot, duels.channel_current, 'say', duels.instigator + " takes all their loot from their locker.")
         duels.command_stamina_cost = 0
         return
 
     # The quantity the player is applyint to this transaction
     if lootcommand == 'store':
-        gethowmanylootitem = get_database_value(bot, duels.instigator, lootitem) or 0
+        gethowmanylootitem = get_user_dict(bot, duels, duels.instigator, lootitem) or 0
     if lootcommand == 'take':
-        gethowmanylootitem = get_database_value(bot, duels.instigator, lootitem+"_locker") or 0
+        gethowmanylootitem = get_user_dict(bot, duels, duels.instigator, lootitem+"_locker") or 0
 
     quantity = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'all' or str(x).isdigit()], 1) or 1
     if quantity == 'all':
@@ -3541,12 +3543,12 @@ def duels_command_function_locker(bot, triggerargsarray, command_main, trigger, 
     quantity = int(quantity)
 
     if lootcommand == 'store':
-        adjust_database_value(bot, duels.instigator, lootitem, -abs(quantity))
-        adjust_database_value(bot, duels.instigator, lootitem+"_locker", quantity)
+        adjust_user_dict(bot, duels, duels.instigator, lootitem, -abs(quantity))
+        adjust_user_dict(bot, duels, duels.instigator, lootitem+"_locker", quantity)
         osd(bot, duels.channel_current, 'say', duels.instigator + " stores " + str(quantity) + " " + lootitem + " in their locker.")
     if lootcommand == 'take':
-        adjust_database_value(bot, duels.instigator, lootitem, quantity)
-        adjust_database_value(bot, duels.instigator, lootitem+"_locker", -abs(quantity))
+        adjust_user_dict(bot, duels, duels.instigator, lootitem, quantity)
+        adjust_user_dict(bot, duels, duels.instigator, lootitem+"_locker", -abs(quantity))
         osd(bot, duels.channel_current, 'say', duels.instigator + " takes " + str(quantity) + " " + lootitem + " from their locker.")
 
 
@@ -3613,7 +3615,7 @@ def duels_command_function_craft(bot, triggerargsarray, command_main, trigger, c
         recipe = []
         for part, number in zip(recipe_required, recipe_quantity):
             quantityneeded = int(number) * quantity
-            gethowmanypart = get_database_value(bot, duels.instigator, part) or 0
+            gethowmanypart = get_user_dict(bot, duels, duels.instigator, part) or 0
             if int(gethowmanypart) < quantityneeded:
                 recipe.append(part)
         if recipe != []:
@@ -3622,8 +3624,8 @@ def duels_command_function_craft(bot, triggerargsarray, command_main, trigger, c
             return
         for part, number in zip(recipe_required, recipe_quantity):
             quantityneeded = int(number) * quantity
-            adjust_database_value(bot, duels.instigator, part, -abs(quantityneeded))
-        adjust_database_value(bot, duels.instigator, lootitem, quantity)
+            adjust_user_dict(bot, duels, duels.instigator, part, -abs(quantityneeded))
+        adjust_user_dict(bot, duels, duels.instigator, lootitem, quantity)
         osd(bot, duels.channel_current, 'say', duels.instigator + " has successfully crafted "+str(quantity)+" " + lootitem + "(s)!")
         duels.command_stamina_cost = 0
         return
@@ -3692,7 +3694,7 @@ def duels_command_function_tavern(bot, triggerargsarray, command_main, trigger, 
         osd(bot, duels.instigator, 'notice', "You do not have enough coin for this action.")
         duels.command_stamina_cost = 0
         return
-    adjust_database_value(bot, targetbio.actual, 'coin', -abs(coinrequired))
+    adjust_user_dict(bot, duels, targetbio.actual, 'coin', -abs(coinrequired))
 
     mainlootusemessage = []
     if quantity > 1:
@@ -3828,7 +3830,7 @@ def duels_command_function_tier(bot, triggerargsarray, command_main, trigger, co
 
         playerarray, statvaluearray = [], []
         for user in duels.users_current_allchan:
-            statamount = get_database_value(bot, user, 'xp')
+            statamount = get_user_dict(bot, duels, user, 'xp')
             if statamount > 0:
                 playerarray.append(user)
                 statvaluearray.append(statamount)
@@ -3858,7 +3860,7 @@ def duels_command_function_tier(bot, triggerargsarray, command_main, trigger, co
             osd(bot, duels.instigator, 'notice', validtargetmsg)
             duels.command_stamina_cost = 0
             return
-        targettier = get_database_value(bot, command, 'tier') or 0
+        targettier = get_user_dict(bot, duels, command, 'tier') or 0
         dispmsgarray.append(command + "'s current tier is " + str(targettier) + ". ")
 
     # display the info
@@ -3972,7 +3974,7 @@ def duels_command_function_leaderboard(bot, triggerargsarray, command_main, trig
             statvaluearray = []
             for u in duels.users_current_allchan_opted:
                 if x != 'winlossratio' and x != 'health':
-                    statamount = get_database_value(bot, u, x)
+                    statamount = get_user_dict(bot, duels, u, x)
                 else:
                     scriptdef = str('duels_get_' + x + '(bot,u)')
                     statamount = eval(scriptdef)
@@ -3984,8 +3986,8 @@ def duels_command_function_leaderboard(bot, triggerargsarray, command_main, trig
                 if x == 'health':
                     statleadername = get_trigger_arg(bot, playerarray, 1)
                     statleadernumber = get_trigger_arg(bot, statvaluearray, 1)
-                    leaderclass = get_database_value(bot, statleadername, 'class') or 'unknown'
-                    leaderrace = get_database_value(bot, statleadername, 'race') or 'unknown'
+                    leaderclass = get_user_dict(bot, duels, statleadername, 'class') or 'unknown'
+                    leaderrace = get_user_dict(bot, duels, statleadername, 'race') or 'unknown'
                     if leaderclass == 'vampire':
                         statleadernumber = int(statleadernumber)
                         statleadernumber = -abs(statleadernumber)
@@ -4007,7 +4009,7 @@ def duels_command_function_leaderboard(bot, triggerargsarray, command_main, trig
         if len(duels.users_current_allchan_opted) >= int(subcommand):
             for u in duels.users_current_allchan_opted:
                 if stat.lower() != 'winlossratio' and stat.lower() != 'health':
-                    statamount = get_database_value(bot, u, stat.lower())
+                    statamount = get_user_dict(bot, duels, u, stat.lower())
                 else:
                     scriptdef = str('duels_get_' + stat.lower() + '(bot,u)')
                     statamount = eval(scriptdef)
@@ -4023,7 +4025,7 @@ def duels_command_function_leaderboard(bot, triggerargsarray, command_main, trig
                 playeratrankno = get_trigger_arg(bot, playerarray, numberstat)
                 currentranking = array_compare(bot, playeratrankno, playerarray, statvaluearray)
                 if stat == 'health':
-                    playerclass = get_database_value(bot, playeratrankno, 'class') or 'unknown'
+                    playerclass = get_user_dict(bot, duels, playeratrankno, 'class') or 'unknown'
                     if playerclass == 'vampire':
                         currentranking = int(currentranking)
                         currentranking = -abs(currentranking)
@@ -4053,7 +4055,7 @@ def duels_command_function_leaderboard(bot, triggerargsarray, command_main, trig
             statvaluearray = []
             for u in duels.users_current_allchan_opted:
                 if x != 'winlossratio' and x != 'health':
-                    statamount = get_database_value(bot, u, x)
+                    statamount = get_user_dict(bot, duels, u, x)
                 else:
                     scriptdef = str('duels_get_' + x + '(bot,u)')
                     statamount = eval(scriptdef)
@@ -4073,7 +4075,7 @@ def duels_command_function_leaderboard(bot, triggerargsarray, command_main, trig
                         targetnumber = playernumber
                         continue
                 if x == 'health':
-                    targetclass = get_database_value(bot, target, 'class') or 'unknown'
+                    targetclass = get_user_dict(bot, duels, target, 'class') or 'unknown'
                     if targetclass == 'vampire':
                         currentranking = int(currentranking)
                         currentranking = -abs(currentranking)
@@ -4093,7 +4095,7 @@ def duels_command_function_leaderboard(bot, triggerargsarray, command_main, trig
         playerarray, statvaluearray = [], []
         for u in duels.users_current_allchan_opted:
             if stat.lower() != 'winlossratio' and stat.lower() != 'health':
-                statamount = get_database_value(bot, u, stat.lower())
+                statamount = get_user_dict(bot, duels, u, stat.lower())
             else:
                 scriptdef = str('duels_get_' + stat.lower() + '(bot,u)')
                 statamount = eval(scriptdef)
@@ -4109,8 +4111,8 @@ def duels_command_function_leaderboard(bot, triggerargsarray, command_main, trig
                 statleadername = get_trigger_arg(bot, playerarray, 'last')
                 statleadernumber = get_trigger_arg(bot, statvaluearray, 'last')
             if stat.lower() == 'health':
-                leaderclass = get_database_value(bot, statleadername, 'class') or 'unknown'
-                leaderrace = get_database_value(bot, statleadername, 'race') or 'unknown'
+                leaderclass = get_user_dict(bot, duels, statleadername, 'class') or 'unknown'
+                leaderrace = get_user_dict(bot, duels, statleadername, 'race') or 'unknown'
                 if leaderclass == 'vampire':
                     statleadernumber = int(statleadernumber)
                     statleadernumber = -abs(statleadernumber)
@@ -4160,23 +4162,23 @@ def duels_command_function_bounty(bot, triggerargsarray, command_main, trigger, 
 
     if bountytype == 'bug':
         osd(bot, duels.channel_current, 'say', target + ' is awarded ' + str(amount) + " coin for finding a bug in duels.")
-        adjust_database_value(bot, target, 'coin', amount)
+        adjust_user_dict(bot, duels, target, 'coin', amount)
         duels.command_stamina_cost = 0
         return
 
-    instigatorcoin = get_database_value(bot, duels.instigator, 'coin') or 0
+    instigatorcoin = get_user_dict(bot, duels, duels.instigator, 'coin') or 0
     if int(instigatorcoin) < int(amount):
         osd(bot, duels.instigator, 'notice', "Insufficient Funds.")
         duels.command_stamina_cost = 0
         return
 
-    adjust_database_value(bot, duels.instigator, 'coin', -abs(amount))
-    bountyontarget = get_database_value(bot, target, 'bounty') or 0
+    adjust_user_dict(bot, duels, duels.instigator, 'coin', -abs(amount))
+    bountyontarget = get_user_dict(bot, duels, target, 'bounty') or 0
     if not bountyontarget:
         osd(bot, duels.channel_current, 'say', duels.instigator + " places a bounty of " + str(amount) + " on " + target + ".")
     else:
         osd(bot, duels.channel_current, 'say', duels.instigator + " adds " + str(amount) + " to the bounty on " + target + ".")
-    adjust_database_value(bot, target, 'bounty', amount)
+    adjust_user_dict(bot, duels, target, 'bounty', amount)
 
 
 def duels_docs_bounty(bot):
@@ -4229,14 +4231,14 @@ def duels_command_function_game(bot, triggerargsarray, command_main, trigger, co
             osd(bot, duels.instigator, 'notice', "Duels is already on in " + channeltarget + ".")
             duels.command_stamina_cost = 0
             return
-        adjust_database_array(bot, 'duelrecorduser', [channeltarget], 'gameenabled', 'add')
+        adjust_user_dict_array(bot, duels, 'duelrecorduser', 'gameenabled', [channeltarget], 'add')
         osd(bot, channeltarget, 'say', "Duels has been enabled in " + channeltarget + "!")
     elif command == 'off':
         if channeltarget.lower() not in [x.lower() for x in duels.duels_enabled_channels]:
             osd(bot, duels.instigator, 'notice', "Duels is already off in " + channeltarget + ".")
             duels.command_stamina_cost = 0
             return
-        adjust_database_array(bot, 'duelrecorduser', [channeltarget], 'gameenabled', 'del')
+        adjust_user_dict_array(bot, duels, 'duelrecorduser', 'gameenabled', [channeltarget], 'del')
         osd(bot, channeltarget, 'say', "Duels has been disabled in " + channeltarget + "!")
     else:
         osd(bot, duels.instigator, 'notice', "Invalid command.")
@@ -4287,14 +4289,14 @@ def duels_command_function_devmode(bot, triggerargsarray, command_main, trigger,
             osd(bot, duels.instigator, 'notice', "Duels devmode is already on in " + channeltarget + ".")
             duels.command_stamina_cost = 0
             return
-        adjust_database_array(bot, 'duelrecorduser', [channeltarget], 'devenabled', 'add')
+        adjust_user_dict_array(bot, duels, 'duelrecorduser', 'devenabled', [channeltarget], 'add')
         osd(bot, channeltarget, 'say', "Duels devmode has been enabled in " + channeltarget + "!")
     elif command == 'off':
         if channeltarget.lower() not in [x.lower() for x in duels.duels_dev_channels]:
             osd(bot, duels.instigator, 'notice', "Duels devmode is already off in " + channeltarget + ".")
             duels.command_stamina_cost = 0
             return
-        adjust_database_array(bot, 'duelrecorduser', [channeltarget], 'devenabled', 'del')
+        adjust_user_dict_array(bot, duels, 'duelrecorduser', 'devenabled', [channeltarget], 'add')
         osd(bot, channeltarget, 'say', "Duels devmode has been disabled in " + channeltarget + "!")
     else:
         osd(bot, duels.instigator, 'notice', "Invalid command.")
@@ -4327,11 +4329,11 @@ def duels_command_function_admin(bot, triggerargsarray, command_main, trigger, c
         if target == 'channel':
             target = 'duelrecorduser'
         if command == 'view':
-            viewedtier = get_database_value(bot, target, 'tier')
+            viewedtier = get_user_dict(bot, duels, target, 'tier')
             osd(bot, duels.instigator, 'notice', target + " is at tier " + str(viewedtier) + ".")
         elif command == 'reset':
             osd(bot, duels.instigator, 'notice', target + "'s tier has been reset.")
-            reset_database_value(bot, target, 'tier')
+            reset_user_dict(bot, duels, target, 'tier')
         elif command == 'set':
             newsetting = get_trigger_arg(bot, triggerargsarray, 5)
             if not newsetting or not newsetting.isdigit():
@@ -4339,7 +4341,7 @@ def duels_command_function_admin(bot, triggerargsarray, command_main, trigger, c
                 duels.command_stamina_cost = 0
                 return
             osd(bot, duels.instigator, 'notice', target + "'s tier has been set to " + str(newsetting) + ".")
-            set_database_value(bot, target, 'tier', int(newsetting))
+            set_user_dict(bot, duels, target, 'tier', int(newsetting))
         else:
             osd(bot, duels.instigator, 'notice', "This looks to be an invalid command.")
 
@@ -4350,30 +4352,30 @@ def duels_command_function_admin(bot, triggerargsarray, command_main, trigger, c
             duels.command_stamina_cost = 0
             return
         osd(bot, duels.instigator, 'notice', "Roulette should now be reset.")
-        reset_database_value(bot, 'duelrecorduser', 'roulettelastplayer')
-        reset_database_value(bot, 'duelrecorduser', 'roulettechamber')
-        reset_database_value(bot, 'duelrecorduser', 'roulettewinners')
-        reset_database_value(bot, 'duelrecorduser', 'roulettecount')
-        reset_database_value(bot, 'duelrecorduser', 'roulettespinarray')
+        reset_user_dict(bot, duels, 'duelrecorduser', 'roulettelastplayer')
+        reset_user_dict(bot, duels, 'duelrecorduser', 'roulettechamber')
+        reset_user_dict(bot, duels, 'duelrecorduser', 'roulettewinners')
+        reset_user_dict(bot, duels, 'duelrecorduser', 'roulettecount')
+        reset_user_dict(bot, duels, 'duelrecorduser', 'roulettespinarray')
         for user in duels.users_all_allchan:
-            reset_database_value(bot, user, 'roulettepayout')
+            reset_user_dict(bot, duels, user, 'roulettepayout')
 
     elif subcommand == 'channel':
         settingchange = get_trigger_arg(bot, triggerargsarray, 3)
         if not settingchange:
             osd(bot, duels.instigator, 'notice', "What channel setting do you want to change?")
         elif settingchange == 'statreset':
-            set_database_value(bot, 'duelrecorduser', 'chanstatsreset', duels.now)
+            set_user_dict(bot, duels, 'duelrecorduser', 'chanstatsreset', duels.now)
         elif settingchange == 'lastassault':
-            reset_database_value(bot, 'duelrecorduser', 'lastfullroomassultinstigator')
+            reset_user_dict(bot, duels, 'duelrecorduser', 'lastfullroomassultinstigator')
             osd(bot, duels.instigator, 'notice', "Last Assault Instigator removed.")
-            reset_database_value(bot, 'duelrecorduser', 'lastfullroomassult')
+            reset_user_dict(bot, duels, 'duelrecorduser', 'lastfullroomassult')
         elif settingchange == 'lastroman':
-            reset_database_value(bot, 'duelrecorduser', 'lastfullroomcolosseuminstigator')
+            reset_user_dict(bot, duels, 'duelrecorduser', 'lastfullroomcolosseuminstigator')
             osd(bot, duels.instigator, 'notice', "Last Colosseum Instigator removed.")
-            reset_database_value(bot, 'duelrecorduser', 'lastfullroomcolosseum')
+            reset_user_dict(bot, duels, 'duelrecorduser', 'lastfullroomcolosseum')
         elif settingchange == 'lastinstigator':
-            reset_database_value(bot, 'duelrecorduser', 'lastinstigator')
+            reset_user_dict(bot, duels, 'duelrecorduser', 'lastinstigator')
             osd(bot, duels.instigator, 'notice', "Last Fought Instigator removed.")
         elif settingchange == 'halfhoursim':
             osd(bot, duels.instigator, 'notice', "Simulating the half hour automated events.")
@@ -4383,8 +4385,8 @@ def duels_command_function_admin(bot, triggerargsarray, command_main, trigger, c
 
     elif subcommand == 'deathblow':
         newsetting = get_trigger_arg(bot, triggerargsarray, 3).lower()
-        set_database_value(bot, duels.instigator, 'deathblowtarget', newsetting)
-        set_database_value(bot, duels.instigator, 'deathblowtargettime', duels.now)
+        set_user_dict(bot, duels, duels.instigator, 'deathblowtarget', newsetting)
+        set_user_dict(bot, duels, duels.instigator, 'deathblowtargettime', duels.now)
 
     else:
         osd(bot, duels.instigator, 'notice', "An admin command has not been written for the " + subcommand + " command.")
@@ -4441,7 +4443,7 @@ def duels_command_function_hotkey(bot, triggerargsarray, command_main, trigger, 
     hotkeysetting = get_trigger_arg(bot, [x for x in duels.command_restructure if x in hotkeyvalid], 1) or 'view'
 
     if hotkeysetting == 'list':
-        hotkeyslist = get_database_value(bot, targetbio.actual, 'hotkey_complete') or []
+        hotkeyslist = get_user_dict(bot, duels, targetbio.actual, 'hotkey_complete') or []
         if hotkeyslist == []:
             osd(bot, duels.instigator, 'notice', "looks like you have no hotkeys.")
             duels.command_stamina_cost = 0
@@ -4455,7 +4457,7 @@ def duels_command_function_hotkey(bot, triggerargsarray, command_main, trigger, 
         osd(bot, duels.instigator, 'notice', "What number would you like to view/modify?")
         duels.command_stamina_cost = 0
         return
-    number_command = get_database_value(bot, duels.instigator, 'hotkey_'+str(numberused)) or 0
+    number_command = get_user_dict(bot, duels, duels.instigator, 'hotkey_'+str(numberused)) or 0
 
     if hotkeysetting != 'update':
         if not number_command:
@@ -4469,8 +4471,8 @@ def duels_command_function_hotkey(bot, triggerargsarray, command_main, trigger, 
         return
 
     if hotkeysetting == 'reset':
-        reset_database_value(bot, duels.instigator, 'hotkey_'+str(numberused))
-        adjust_database_array(bot, targetbio.actual, [numberused], 'hotkey_complete', 'del')
+        reset_user_dict(bot, duels, duels.instigator, 'hotkey_'+str(numberused))
+        adjust_user_dict_array(bot, duels, targetbio.actual, 'hotkey_complete', [numberused], 'del')
         osd(bot, duels.channel_current, 'say', "Your "+str(numberused)+" command has been reset")
         duels.command_stamina_cost = 0
         return
@@ -4497,8 +4499,8 @@ def duels_command_function_hotkey(bot, triggerargsarray, command_main, trigger, 
             duels.command_stamina_cost = 0
             return
 
-        set_database_value(bot, duels.instigator, 'hotkey_'+str(numberused), newcommandhot)
-        adjust_database_array(bot, targetbio.actual, [numberused], 'hotkey_complete', 'add')
+        set_user_dict(bot, duels, duels.instigator, 'hotkey_'+str(numberused), newcommandhot)
+        adjust_user_dict_array(bot, duels, targetbio.actual, 'hotkey_complete', [numberused], 'add')
         osd(bot, duels.channel_current, 'say', "Your "+str(numberused)+" command has been set to '" + newcommandhot+"'")
         duels.command_stamina_cost = 0
         return
@@ -4516,15 +4518,15 @@ def duels_docs_hotkey(bot):
 def duels_command_function_konami(bot, duels):
     konami_note_to_players = "DO NOT tell others about this command. This is meant to be found by players that read the code. Effort has been made to conceal it."
     konami_note_to_players_b = "DO NOT run in channel,,, run in a private message to the bot. DON'T be THAT person that spoils the secret."
-    konami = get_database_value(bot, duels.instigator, 'konami')
+    konami = get_user_dict(bot, duels, duels.instigator, 'konami')
     if not konami:
         konamiset = 600
         osd(bot, duels.instigator, 'notice', "you have found the cheatcode easter egg!!! For this, you gain " + str(konamiset) + " health restoration!!! DO NOT tell others about this command.")
-        adjust_database_value(bot, duels.instigator, 'health', konamiset)
+        adjust_user_dict(bot, duels, duels.instigator, 'health', konamiset)
         splitdamage = int(konamiset) / len(duels_bodyparts)
         for part in duels_bodyparts:
-            adjust_database_value(bot, duels.instigator, part, splitdamage)
-        set_database_value(bot, duels.instigator, 'konami', 1)
+            adjust_user_dict(bot, duels, duels.instigator, part, splitdamage)
+        set_user_dict(bot, duels, duels.instigator, 'konami', 1)
     else:
         osd(bot, duels.instigator, 'notice', "you can only cheat once.")
 
@@ -4642,7 +4644,7 @@ def duels_command_function_usage(bot, triggerargsarray, command_main, trigger, c
         targetname = "The channel"
 
     # Usage Counter
-    totaluses = get_database_value(bot, target, 'usage_'+subcommand)
+    totaluses = get_user_dict(bot, duels, target, 'usage_'+subcommand)
 
     # Display
     if subcommand == 'total':
@@ -4679,45 +4681,47 @@ def duels_chanceevents(bot):
     duels.commands_alt = duels_valid_commands_alternative(bot)
     duels.stats_valid = duels_valid_stats(bot)
 
-    duels.duels_enabled_channels = get_database_value(bot, 'duelrecorduser', 'gameenabled') or []
+    duels.duels_enabled_channels = get_user_dict(bot, duels, 'duelrecorduser', 'gameenabled') or []
 
     # User lists
     duels.instigator = 'duelrecorduser'
     duels = duels_user_lists(bot, duels)
 
-    duels.duels_enabled_channels = get_database_value(bot, 'duelrecorduser', 'gameenabled') or []
+    duels.duels_enabled_channels = get_user_dict(bot, duels, 'duelrecorduser', 'gameenabled') or []
     runtheevent = 1
 
-    chance_event_next_type = get_database_value(bot, 'duelrecorduser', "chance_event_next_type") or 0
+    chance_event_next_type = get_user_dict(bot, duels, 'duelrecorduser', "chance_event_next_type") or 0
     if not chance_event_next_type:
         runtheevent = 0
 
     chance_event_last_timesince = duels_time_since(bot, 'duelrecorduser', "chance_event_last_time") or 0
-    chance_event_next_timeout = get_database_value(bot, 'duelrecorduser', "chance_event_next_timeout") or 0
+    chance_event_next_timeout = get_user_dict(bot, duels, 'duelrecorduser', "chance_event_next_timeout") or 0
     if chance_event_last_timesince <= chance_event_next_timeout and runtheevent > 0:
         return
 
     if runtheevent:
-        current_chance_event_location = get_database_value(bot, 'duelrecorduser', "chance_event_next_location") or 'arena'
-        current_chance_event_type = get_database_value(bot, 'duelrecorduser', "chance_event_next_type") or 'sandstorm'
+        current_chance_event_location = get_user_dict(bot, duels, 'duelrecorduser', "chance_event_next_location") or 'arena'
+        current_chance_event_type = get_user_dict(bot, duels, 'duelrecorduser', "chance_event_next_type") or 'sandstorm'
         chance_event_run(bot, duels, current_chance_event_type, current_chance_event_location)
 
     # Set next run
 
     # set time to now
-    set_database_value(bot, 'duelrecorduser', "chance_event_last_time", duels.now)
+    set_user_dict(bot, duels, 'duelrecorduser', "chance_event_last_time", duels.now)
 
     # how long until next event
     chance_event_next_timeout = randint(1200, 7200)
-    set_database_value(bot, 'duelrecorduser', "chance_event_next_timeout", chance_event_next_timeout)
+    set_user_dict(bot, duels, 'duelrecorduser', "chance_event_next_timeout", chance_event_next_timeout)
 
     # next location to effect
     chance_event_next_location = get_trigger_arg(bot, duels_commands_locations, 'random')
-    set_database_value(bot, 'duelrecorduser', "chance_event_next_location", chance_event_next_location)
+    set_user_dict(bot, duels, 'duelrecorduser', "chance_event_next_location", chance_event_next_location)
 
     # next event type
     chance_event_next_type = get_trigger_arg(bot, duels_chance_events_types, 'random')
-    set_database_value(bot, 'duelrecorduser', "chance_event_next_type", chance_event_next_type)
+    set_user_dict(bot, duels, 'duelrecorduser', "chance_event_next_type", chance_event_next_type)
+
+    save_user_dicts(bot, duels)
 
 
 def chance_event_run(bot, duels, eventtype, eventlocation):
@@ -4770,7 +4774,7 @@ def duels_halfhourtimer(bot):
 
         duels = class_create('main')
 
-        duels.duels_enabled_channels = get_database_value(bot, 'duelrecorduser', 'gameenabled') or []
+        duels.duels_enabled_channels = get_user_dict(bot, duels, 'duelrecorduser', 'gameenabled') or []
 
         duels.instigator = bot.nick
         duels.commands_valid = duels_valid_commands(bot)
@@ -4782,7 +4786,7 @@ def duels_halfhourtimer(bot):
         duels = duels_user_lists(bot, duels)
 
         now = time.time()
-        set_database_value(bot, 'duelrecorduser', "halfhour_last_time", now)
+        set_user_dict(bot, duels, 'duelrecorduser', "halfhour_last_time", now)
 
         # Who gets to win a mysterypotion?
         randomuarray = []
@@ -4796,12 +4800,12 @@ def duels_halfhourtimer(bot):
             lastping = duels_time_since(bot, u, 'lastping') or 0
             if array_compare(bot, 'auto-opt', duels_timeouts, duels_timeouts_duration) < lastcommandusedtime and lastping < array_compare(bot, 'auto-opt', duels_timeouts, duels_timeouts_duration):
                 logoutarray.append(u)
-                reset_database_value(bot, u, 'lastping')
+                reset_user_dict(bot, duels, u, 'lastping')
             else:
-                set_database_value(bot, u, 'lastping', now)
+                set_user_dict(bot, duels, u, 'lastping', now)
 
         # Log Out Users
-        duels.duels_enabled_channels = get_database_value(bot, 'duelrecorduser', 'gameenabled') or []
+        duels.duels_enabled_channels = get_user_dict(bot, duels, 'duelrecorduser', 'gameenabled') or []
         if logoutarray != []:
             dispmsgarray = []
             logoutusers = get_trigger_arg(bot, logoutarray, 'list')
@@ -4810,26 +4814,28 @@ def duels_halfhourtimer(bot):
             else:
                 dispmsgarray.append(logoutusers + " has been logged out of duels for inactivity!")
             osd(bot, duels.duels_enabled_channels, 'say', dispmsgarray)
-            adjust_database_array(bot, 'duelrecorduser', logoutarray, 'users_opted_allchan', 'del')
+            adjust_user_dict_array(bot, duels, 'duelrecorduser', 'users_opted_allchan', logoutarray, 'del')
 
         # Random winner select
-        lasttimedlootwinner = get_database_value(bot, 'duelrecorduser', 'lasttimedlootwinner') or bot.nick
-        recentwinnersarray = get_database_value(bot, 'duelrecorduser', 'lasttimedlootwinners') or []
+        lasttimedlootwinner = get_user_dict(bot, duels, 'duelrecorduser', 'lasttimedlootwinner') or bot.nick
+        recentwinnersarray = get_user_dict(bot, duels, 'duelrecorduser', 'lasttimedlootwinners') or []
         valid_winners = []
         for u in duels.users_current_allchan_opted:
             if u not in recentwinnersarray and u != lasttimedlootwinner:
                 valid_winners.append(u)
         if valid_winners == []:
-            reset_database_value(bot, 'duelrecorduser', 'lasttimedlootwinners')
+            reset_user_dict(bot, duels, 'duelrecorduser', 'lasttimedlootwinners')
             for u in duels.users_current_allchan_opted:
                 if u != lasttimedlootwinner:
                     valid_winners.append(u)
         if valid_winners != []:
             lootwinner = get_trigger_arg(bot, valid_winners, 'random')
-            adjust_database_value(bot, lootwinner, 'mysterypotion_locker', 1)
-            adjust_database_array(bot, 'duelrecorduser', [lootwinner], 'lasttimedlootwinners', 'add')
-            set_database_value(bot, 'duelrecorduser', 'lasttimedlootwinner', lootwinner)
+            adjust_user_dict(bot, duels, lootwinner, 'mysterypotion_locker', 1)
+            adjust_user_dict_array(bot, duels, 'duelrecorduser', 'lasttimedlootwinners', [lootwinner], 'add')
+            set_user_dict(bot, duels, 'duelrecorduser', 'lasttimedlootwinner', lootwinner)
             osd(bot, lootwinner, 'notice', "You have been awarded a mysterypotion!")
+
+        save_user_dicts(bot, duels)
 
 
 """
@@ -4849,13 +4855,14 @@ channel enter/exit
 #    duels.instigator = trigger.nick
 #    duels.commands_valid = duels_valid_commands(bot)
 #    duels.commands_alt = duels_valid_commands_alternative(bot)
-#    duels.duels_enabled_channels = get_database_value(bot, 'duelrecorduser', 'gameenabled') or []
-#    duels.duels_dev_channels = get_database_value(bot, 'duelrecorduser', 'devenabled') or []
+#    duels.duels_enabled_channels = get_user_dict(bot, duels, 'duelrecorduser', 'gameenabled') or []
+#    duels.duels_dev_channels = get_user_dict(bot, duels, 'duelrecorduser', 'devenabled') or []
 #    duels = duels_user_lists(bot, duels)
 #    if duels.instigator in duels.users_opted:
 #        duels.instigator_location = duels_get_location(bot,duels,duels.instigator)
 #        if duels.instigator_location == 'arena':
 #            osd(bot, duels.duels_enabled_channels, 'say', duels.instigator + " has entered the arena!")
+#    save_user_dicts(bot, duels)
 
 # @event('QUIT','PART')
 # @rule('.*')
@@ -4870,14 +4877,15 @@ channel enter/exit
 #    duels.instigator = trigger.nick
 #    duels.commands_valid = duels_valid_commands(bot)
 #    duels.commands_alt = duels_valid_commands_alternative(bot)
-#    duels.duels_enabled_channels = get_database_value(bot, 'duelrecorduser', 'gameenabled') or []
-#    duels.duels_dev_channels = get_database_value(bot, 'duelrecorduser', 'devenabled') or []
+#    duels.duels_enabled_channels = get_user_dict(bot, duels, 'duelrecorduser', 'gameenabled') or []
+#    duels.duels_dev_channels = get_user_dict(bot, duels, 'duelrecorduser', 'devenabled') or []
 #    duels = duels_user_lists(bot, duels)
 #    if duels.instigator in duels.users_opted:
 #        duels.instigator_location = duels_get_location(bot,duels,duels.instigator)
 #        if duels.instigator_location == 'arena':
 #            cowardterm = get_trigger_arg(bot, cowardarray, 'random')
 #            osd(bot, duels.duels_enabled_channels, 'say', duels.instigator + " has left the arena! " + cowardterm)
+#    save_user_dicts(bot, duels)
 
 
 """
@@ -5008,7 +5016,7 @@ def duels_valid_bot_channels(bot):
 def duels_user_lists(bot, duels):
 
     duels.users_current_allchan = []
-    duels.users_opted = get_database_value(bot, 'duelrecorduser', 'users_opted_allchan') or []
+    duels.users_opted = get_user_dict(bot, duels, 'duelrecorduser', 'users_opted_allchan') or []
     duels.users_current_allchan_opted = []
     duels.users_canduel_allchan = []
     duels.botowners = []
@@ -5039,9 +5047,9 @@ def duels_user_lists(bot, duels):
 
         # All users the bot has seen
         if users_current_channel != []:
-            adjust_database_array(bot, 'duelrecorduser', duels.users_current_allchan, 'users_all_'+current_channel, 'add')
-            adjust_database_array(bot, 'duelrecorduser', duels.users_current_allchan, 'users_all_allchan', 'add')
-        users_all_current_channel = get_database_value(bot, 'duelrecorduser', 'users_all_'+current_channel) or []
+            adjust_user_dict_array(bot, duels, 'duelrecorduser', 'users_all_'+current_channel, duels.users_current_allchan, 'add')
+            adjust_user_dict_array(bot, duels, 'duelrecorduser', 'users_all_allchan', duels.users_current_allchan, 'add')
+        users_all_current_channel = get_user_dict(bot, duels, 'duelrecorduser', 'users_all_'+current_channel) or []
 
         # Opt-in
         exec("duels.users_opted_current_" + current_channel + " = []")
@@ -5058,7 +5066,7 @@ def duels_user_lists(bot, duels):
             if validtarget not in users_all_current_channel:
                 users_all_current_channel.append(validtarget)
         exec("duels.users_all_current_" + current_channel + " = " + str(users_all_current_channel))
-        duels.users_all_allchan = get_database_value(bot, 'duelrecorduser', 'users_all_allchan') or []
+        duels.users_all_allchan = get_user_dict(bot, duels, 'duelrecorduser', 'users_all_allchan') or []
         for validtarget in othervalidtargets:
             if validtarget not in duels.users_all_allchan:
                 duels.users_all_allchan.append(validtarget)
@@ -5082,7 +5090,7 @@ def duels_user_lists(bot, duels):
         for user in users_opted_current_channel:
             locationunknown.append(user)
         for location in duels_commands_locations:
-            currentlocationusers = get_database_value(bot, 'duelrecorduser', location+"_users") or []
+            currentlocationusers = get_user_dict(bot, duels, 'duelrecorduser', location+"_users") or []
             current_location_list = eval("duels.users_current_allchan_" + location)
             for user in currentlocationusers:
                 if user in locationunknown:
@@ -5092,7 +5100,7 @@ def duels_user_lists(bot, duels):
         if locationunknown != []:
             for user in locationunknown:
                 duels.users_current_allchan_town.append(user)
-            adjust_database_array(bot, 'duelrecorduser', locationunknown, "town_users", 'add')
+            adjust_user_dict_array(bot, duels, 'duelrecorduser', "town_users", locationunknown, 'add')
 
         for location in duels_commands_locations:
             current_location_list = eval("duels.users_current_allchan_" + location)
@@ -5140,7 +5148,7 @@ def duels_user_lists(bot, duels):
 def duels_opening_monologue(bot, duels, user, opening_monologue, tierset, char_basics_array):
 
     # opt in
-    adjust_database_array(bot, 'duelrecorduser', [user], 'users_opted_allchan', 'add')
+    adjust_user_dict_array(bot, duels, 'duelrecorduser', 'users_opted_allchan', [user], 'add')
 
     # spawn in town
     duels_location_move(bot, duels, user, 'town')
@@ -5149,14 +5157,14 @@ def duels_opening_monologue(bot, duels, user, opening_monologue, tierset, char_b
     if tierset:
         tierarray = []
         for player in duels.users_current_allchan_opted:
-            playertier = get_database_value(bot, player, 'tier')
+            playertier = get_user_dict(bot, duels, player, 'tier')
             tierarray.append(playertier)
         if tierarray != []:
             playertierarrayaverage = mean(tierarray)
             playertierarrayaverage = int(playertierarrayaverage)
         else:
             playertierarrayaverage = 0
-        set_database_value(bot, user, 'tier', playertierarrayaverage)
+        set_user_dict(bot, duels, user, 'tier', playertierarrayaverage)
 
     # random Gender/Class/Race
     for char_basic in duels_character_basics:
@@ -5167,14 +5175,14 @@ def duels_opening_monologue(bot, duels, user, opening_monologue, tierset, char_b
                 currentrandom = get_trigger_arg(bot, currentrandomarray, 'random')
                 exec("random" + char_basic + " = " + "'"+currentrandom+"'")
                 randomset = eval("random"+char_basic)
-                set_database_value(bot, user, char_basic, randomset)
+                set_user_dict(bot, duels, user, char_basic, randomset)
             else:
-                currentrandom = get_database_value(bot, user, char_basic)
+                currentrandom = get_user_dict(bot, duels, user, char_basic)
                 exec("random" + char_basic + " = " + "'"+currentrandom+"'")
         else:
             exec("random" + char_basic + " = " + "'"+currentarraysetting+"'")
             randomset = eval("random"+char_basic)
-            set_database_value(bot, user, char_basic, randomset)
+            set_user_dict(bot, duels, user, char_basic, randomset)
 
     # Opening Remarks
     dispmsgarray = []
@@ -5203,10 +5211,10 @@ def duels_channel_lists(bot, trigger, duels):
     duels.valid_channel_list = duels_valid_bot_channels(bot)
 
     # Game Enabled
-    duels.duels_enabled_channels = get_database_value(bot, 'duelrecorduser', 'gameenabled') or []
+    duels.duels_enabled_channels = get_user_dict(bot, duels, 'duelrecorduser', 'gameenabled') or []
 
     # Development mode
-    duels.duels_dev_channels = get_database_value(bot, 'duelrecorduser', 'devenabled') or []
+    duels.duels_dev_channels = get_user_dict(bot, duels, 'duelrecorduser', 'devenabled') or []
     duels.dev_bypass_checks = 0
     if duels.channel_current.lower() in [x.lower() for x in duels.duels_dev_channels]:
         duels.dev_bypass_checks = 1
@@ -5241,15 +5249,15 @@ def duels_check_instigator(bot, trigger, command_main, duels, instigatorbio):
                     dispmsgarray = []
                     dispmsgarray.append(duels.instigator + " has entered the arena!")
                     osd(bot, duels.duels_enabled_channels, 'say', dispmsgarray)
-                adjust_database_array(bot, 'duelrecorduser', [duels.instigator], 'users_opted_allchan', 'add')
+                adjust_user_dict_array(bot, duels, 'duelrecorduser', 'users_opted_allchan', [duels.instigator], 'add')
             checkpass = 1
             return checkpass
 
-    deathblow = get_database_value(bot, duels.instigator, 'deathblow')
+    deathblow = get_user_dict(bot, duels, duels.instigator, 'deathblow')
     if deathblow:
         deathblowtargettime = duels_time_since(bot, duels.instigator, 'deathblowtargettime') or 0
         if deathblowtargettime <= 120:
-            deathblowkiller = get_database_value(bot, duels.instigator, 'deathblowkiller') or 'unknown'
+            deathblowkiller = get_user_dict(bot, duels, duels.instigator, 'deathblowkiller') or 'unknown'
             osd(bot, duels.instigator, 'notice', "you can't run duels for " + str(duels_hours_minutes_seconds((120 - deathblowtargettime))) + " due to a possible deathblow from " + deathblowkiller + ".")
             return checkpass
 
@@ -5317,23 +5325,23 @@ def duel_combat_playerbios(bot, playerone, playertwo, typeofduel, duels):
         if player == 'monster' or player == 'duelsmonster':
             player == 'duelsmonster'
             playerbio.actual = 'duelsmonster'
-            duelsmonstername = get_database_value(bot, 'duelsmonster', 'last_monster')
+            duelsmonstername = get_user_dict(bot, duels, 'duelsmonster', 'last_monster')
         else:
             playerbio.actual = nick_actual(bot, player)
 
         # Title
-        playerbio.nicktitle = get_database_value(bot, player, 'title')
+        playerbio.nicktitle = get_user_dict(bot, duels, player, 'title')
 
         # Starting pepper
         playerbio.pepperstart = duels_tier_nick_to_pepper(bot, player)
 
-        playerbio.lastfoughtstart = get_database_value(bot, player, 'lastfought')
+        playerbio.lastfoughtstart = get_user_dict(bot, duels, player, 'lastfought')
 
-        playerbio.shield_start = get_database_value(bot, player, 'shield') or 0
-        playerbio.curse_start = get_database_value(bot, player, 'curse') or 0
+        playerbio.shield_start = get_user_dict(bot, duels, player, 'shield') or 0
+        playerbio.curse_start = get_user_dict(bot, duels, player, 'curse') or 0
 
-        playerbio.loss_streak_start = get_database_value(bot, playerbio.actual, 'streak_loss_current') or 0
-        playerbio.win_streak_start = get_database_value(bot, playerbio.actual, 'streak_win_current') or 0
+        playerbio.loss_streak_start = get_user_dict(bot, duels, playerbio.actual, 'streak_loss_current') or 0
+        playerbio.win_streak_start = get_user_dict(bot, duels, playerbio.actual, 'streak_win_current') or 0
 
         if player == 'duelsmonster':
             playerbio.Class = 'monster'
@@ -5342,19 +5350,19 @@ def duel_combat_playerbios(bot, playerone, playertwo, typeofduel, duels):
             playerbio.Class = 'bot'
             playerbio.race = 'bot'
         else:
-            playerbio.Class = get_database_value(bot, player, 'class') or 'unknown'
-            playerbio.race = get_database_value(bot, player, 'race') or 'unknown'
+            playerbio.Class = get_user_dict(bot, duels, player, 'class') or 'unknown'
+            playerbio.race = get_user_dict(bot, duels, player, 'race') or 'unknown'
 
         playerbio.special = duels_special_combination(bot, playerbio.actual)
         playerbio.strength, playerbio.perception, playerbio.endurance, playerbio.charisma, playerbio.intelligence, playerbio.agility, playerbio.luck, playerbio.magic = duels_special_humanize(bot, playerbio.special)
 
-        playerbio.tier = get_database_value(bot, player, 'tier')
+        playerbio.tier = get_user_dict(bot, duels, player, 'tier')
 
-        playerbio.weaponslist = get_database_value(bot, player, 'weaponslocker_complete') or []
+        playerbio.weaponslist = get_user_dict(bot, duels, player, 'weaponslocker_complete') or []
 
         # How to announce the player
         if player == 'duelsmonster':
-            duelsmonstervarient = get_database_value(bot, 'duelsmonster', 'last_monster_varent')
+            duelsmonstervarient = get_user_dict(bot, duels, 'duelsmonster', 'last_monster_varent')
             playerbio.announce = str(duelsmonstervarient+" "+duelsmonstername)
         elif selectedplayer == 2 and playertwo == playerone:
             playerbio.announce = "themself"
@@ -5381,13 +5389,13 @@ def duel_combat_playerbios(bot, playerone, playertwo, typeofduel, duels):
         playerbio.curse = playerbio.curse_start
 
         # coin
-        playerbio.coin = get_database_value(bot, player, 'coin') or 0
+        playerbio.coin = get_user_dict(bot, duels, player, 'coin') or 0
 
         # mana
-        playerbio.mana = get_database_value(bot, player, 'mana') or 0
+        playerbio.mana = get_user_dict(bot, duels, player, 'mana') or 0
 
         # bounty
-        playerbio.bounty = get_database_value(bot, player, 'bounty') or 0
+        playerbio.bounty = get_user_dict(bot, duels, player, 'bounty') or 0
 
         if selectedplayer == 1:
             playerbio_one = playerbio
@@ -5413,20 +5421,20 @@ def duel_target_playerbio(bot, duels, player):
     if player == 'monster':
         player == 'duelsmonster'
         playerbio.actual = 'duelsmonster'
-        duelsmonstername = get_database_value(bot, 'duelsmonster', 'last_monster')
+        duelsmonstername = get_user_dict(bot, duels, 'duelsmonster', 'last_monster')
         if not duelsmonstername:
             # Generate Monster's stats based on room average
             duels_monster_stats_generate(bot, duels, 1)
             # Monster's name
             duelsmonstervarient = get_trigger_arg(bot, duelsmonstervarientarray, 'random')
-            set_database_value(bot, 'duelsmonster', 'last_monster_varent', duelsmonstervarient)
+            set_user_dict(bot, duels, 'duelsmonster', 'last_monster_varent', duelsmonstervarient)
             duelsmonstername = get_trigger_arg(bot, monstersarray, 'random')
-            set_database_value(bot, 'duelsmonster', 'last_monster', duelsmonstername)
+            set_user_dict(bot, duels, 'duelsmonster', 'last_monster', duelsmonstername)
     else:
         playerbio.actual = nick_actual(bot, player)
 
     # Title
-    playerbio.nicktitle = get_database_value(bot, player, 'title') or ''
+    playerbio.nicktitle = get_user_dict(bot, duels, player, 'title') or ''
 
     # Pretty Text Names when needed
     if playerbio.actual == 'duelsmonster':
@@ -5446,8 +5454,8 @@ def duel_target_playerbio(bot, duels, player):
     playerbio.pepper = playerbio.pepperstart
 
     # Magic attributes
-    playerbio.shield_start = get_database_value(bot, player, 'shield') or 0
-    playerbio.curse_start = get_database_value(bot, player, 'curse') or 0
+    playerbio.shield_start = get_user_dict(bot, duels, player, 'shield') or 0
+    playerbio.curse_start = get_user_dict(bot, duels, player, 'curse') or 0
     playerbio.shield = playerbio.shield_start
     playerbio.curse = playerbio.curse_start
 
@@ -5458,27 +5466,27 @@ def duel_target_playerbio(bot, duels, player):
         playerbio.Class = 'bot'
         playerbio.race = 'bot'
     else:
-        playerbio.Class = get_database_value(bot, player, 'class') or 'unknown'
-        playerbio.race = get_database_value(bot, player, 'race') or 'unknown'
-    playerbio.gender = get_database_value(bot, player, 'gender') or 'unknown'
+        playerbio.Class = get_user_dict(bot, duels, player, 'class') or 'unknown'
+        playerbio.race = get_user_dict(bot, duels, player, 'race') or 'unknown'
+    playerbio.gender = get_user_dict(bot, duels, player, 'gender') or 'unknown'
 
     # pronouns for self # TODO
 
     # coin
-    playerbio.coin = get_database_value(bot, player, 'coin') or 0
+    playerbio.coin = get_user_dict(bot, duels, player, 'coin') or 0
 
     # mana
-    playerbio.mana = get_database_value(bot, player, 'mana') or 0
+    playerbio.mana = get_user_dict(bot, duels, player, 'mana') or 0
 
     # bounty
-    playerbio.bounty = get_database_value(bot, player, 'bounty') or 0
+    playerbio.bounty = get_user_dict(bot, duels, player, 'bounty') or 0
 
     # SPECIAL+M
     playerbio.special = duels_special_combination(bot, playerbio.actual)
     playerbio.strength, playerbio.perception, playerbio.endurance, playerbio.charisma, playerbio.intelligence, playerbio.agility, playerbio.luck, playerbio.magic = duels_special_humanize(bot, playerbio.special)
 
     # Tier
-    playerbio.tier = get_database_value(bot, player, 'tier')
+    playerbio.tier = get_user_dict(bot, duels, player, 'tier')
 
     # Fancy Name
     playerbio.announce = duels_nick_names(bot, playerbio, duels)
@@ -5497,14 +5505,14 @@ Stat Checks
 # Bot no stats
 def duels_refresh_bot(bot, duels):
     for x in duels.stats_valid:
-        set_database_value(bot, bot.nick, x, None)
+        set_user_dict(bot, duels, bot.nick, x, None)
 
 
 # Check stamina required for a command
 def duels_stamina_check(bot, nick, command, duels):
     staminapass = 0
 
-    stamina = get_database_value(bot, nick, 'stamina') or 0
+    stamina = get_user_dict(bot, duels, nick, 'stamina') or 0
     if command in duels_commands_stamina_required:
         commandstaminacost = array_compare(bot, command, duels_commands_stamina_required, duels_commands_stamina_cost)
     else:
@@ -5533,7 +5541,7 @@ def duels_stamina_charge(bot, nick, command):
         commandstaminacost = 0
 
     if commandstaminacost > 0:
-        adjust_database_value(bot, nick, 'stamina', -abs(commandstaminacost))
+        adjust_user_dict(bot, duels, nick, 'stamina', -abs(commandstaminacost))
 
 
 # Verify nick condition
@@ -5556,7 +5564,7 @@ def duels_check_nick_condition(bot, nick, duels):
     # Verify succesful character setup
     setup_check_missing = []
     for setup_check in duels_character_basics:
-        stat_there = get_database_value(bot, nick, setup_check)
+        stat_there = get_user_dict(bot, duels, nick, setup_check)
         if not stat_there:
             setup_check_missing.append(stat_there)
 
@@ -5565,49 +5573,49 @@ def duels_check_nick_condition(bot, nick, duels):
         osd(bot, nick, 'notice', "you seem to be missing your "+str(missing_settings)+" setting(s). Please talk to " + str(duels_bot_owner) + " to get this fixed.")
 
     # New Player?
-    playernew = get_database_value(bot, nick, 'newplayer')
+    playernew = get_user_dict(bot, duels, nick, 'newplayer')
     if not playernew:
 
         # new player max health
         for part in duels_bodyparts:
             maxhealthpart = array_compare(bot, part, duels_bodyparts, duels_bodyparts_health)
             currenthealthtier = duels.tierscaling * int(maxhealthpart)
-            set_database_value(bot, nick, part, currenthealthtier)
+            set_user_dict(bot, duels, nick, part, currenthealthtier)
 
         # New Player max stamina
-        set_database_value(bot, nick, 'stamina', staminamax)
+        set_user_dict(bot, duels, nick, 'stamina', staminamax)
 
         # no longer a newbie
-        set_database_value(bot, nick, 'newplayer', 1)
+        set_user_dict(bot, duels, nick, 'newplayer', 1)
         return
 
     # Deathblow chance missed
-    deathblow = get_database_value(bot, nick, 'deathblow')
+    deathblow = get_user_dict(bot, duels, nick, 'deathblow')
     if deathblow:
         deathblowtargettime = duels_time_since(bot, nick, 'deathblowtargettime') or 0
         if deathblowtargettime > 120:
-            deathblowkiller = get_database_value(bot, nick, 'deathblowkiller') or 'unknown'
+            deathblowkiller = get_user_dict(bot, duels, nick, 'deathblowkiller') or 'unknown'
             osd(bot, nick, 'notice', "it looks like you were almost killed by "+deathblowkiller+", but the deathblow command was not issued in time. Your health has been restored! You have been moved to town.")
             duels_location_move(bot, duels, nick, 'town')
             for part in duels_bodyparts:
                 maxhealthpart = array_compare(bot, part, duels_bodyparts, duels_bodyparts_health)
                 currenthealthtier = duels.tierscaling * int(maxhealthpart)
-                set_database_value(bot, nick, part, currenthealthtier)
-            reset_database_value(bot, nick, 'deathblow')
-            reset_database_value(bot, nick, 'deathblowtargettime')
-            reset_database_value(bot, nick, 'deathblowkiller')
+                set_user_dict(bot, duels, nick, part, currenthealthtier)
+            reset_user_dict(bot, duels, nick, 'deathblow')
+            reset_user_dict(bot, duels, nick, 'deathblowtargettime')
+            reset_user_dict(bot, duels, nick, 'deathblowkiller')
 
     # Nick base
-    nickclass = get_database_value(bot, nick, 'class') or 'unknown'
-    nickrace = get_database_value(bot, nick, 'race') or 'unknown'
+    nickclass = get_user_dict(bot, duels, nick, 'class') or 'unknown'
+    nickrace = get_user_dict(bot, duels, nick, 'race') or 'unknown'
 
     # Check health
     simulatedrespawn = 0
-    set_database_value(bot, nick, 'nick_regen_last', duels.now)
+    set_user_dict(bot, duels, nick, 'nick_regen_last', duels.now)
     for part in duels_bodyparts:
 
         # current health of part
-        parthealth = get_database_value(bot, nick, part) or 0
+        parthealth = get_user_dict(bot, duels, nick, part) or 0
 
         # find the maximum allowed health for part
         maxhealthpart = array_compare(bot, part, duels_bodyparts, duels_bodyparts_health)
@@ -5624,94 +5632,94 @@ def duels_check_nick_condition(bot, nick, duels):
         # verify part not negative
         if part != 'head' and part != 'torso' and not simulatedrespawn:
             if parthealth < 0:
-                reset_database_value(bot, nick, part)
+                reset_user_dict(bot, duels, nick, part)
 
         # Health Regen
         if parthealth < currenthealthtier and not simulatedrespawn:
             combinedhealth = parthealth + health_to_regen
             if combinedhealth < currenthealthtier:
-                adjust_database_value(bot, nick, part, health_to_regen)
+                adjust_user_dict(bot, duels, nick, part, health_to_regen)
             else:
-                set_database_value(bot, nick, part, currenthealthtier)
+                set_user_dict(bot, duels, nick, part, currenthealthtier)
 
         # Verify part not over max
         if parthealth > currenthealthtier and not simulatedrespawn:
-            set_database_value(bot, nick, part, currenthealthtier)
+            set_user_dict(bot, duels, nick, part, currenthealthtier)
 
     if simulatedrespawn:
         # fresh health
         for part in duels_bodyparts:
             maxhealthpart = array_compare(bot, part, duels_bodyparts, duels_bodyparts_health)
             currenthealthtier = duels.tierscaling * int(maxhealthpart)
-            set_database_value(bot, nick, part, currenthealthtier)
+            set_user_dict(bot, duels, nick, part, currenthealthtier)
         # fresh stamina
-        set_database_value(bot, nick, 'stamina', staminamax)
+        set_user_dict(bot, duels, nick, 'stamina', staminamax)
         # no mana
-        reset_database_value(bot, nick, 'mana')
+        reset_user_dict(bot, duels, nick, 'mana')
         # no loot
         for loot in stats_loot:
-            reset_database_value(bot, nick, loot)
+            reset_user_dict(bot, duels, nick, loot)
         # respawn the user
         osd(bot, nick, 'notice', "it looks like duels missed one of your deaths and your health went negative. You have been respawned with full health, but you lost all of your items. Please let " + duels_bot_owner + " know what killed you, for improvement of the game.")
-        adjust_database_value(bot, nick, 'respawns', 1)
+        adjust_user_dict(bot, duels, nick, 'respawns', 1)
         return
 
     # check for negative mana
-    mana = get_database_value(bot, nick, 'mana')
+    mana = get_user_dict(bot, duels, nick, 'mana')
     if int(mana) < 0:
-        reset_database_value(bot, nick, 'mana')
+        reset_user_dict(bot, duels, nick, 'mana')
 
     # mages regen mana
     if nickclass == 'mage':
-        mana = get_database_value(bot, nick, 'mana')
+        mana = get_user_dict(bot, duels, nick, 'mana')
         combinedmana = mana + mana_to_regen
         if combinedmana <= halfhour_regen_mage_mana_max:
-            adjust_database_value(bot, nick, 'mana', halfhour_regen_mage_mana)
+            adjust_user_dict(bot, duels, nick, 'mana', halfhour_regen_mage_mana)
 
     # check stamina not negative and not above max, regen 30 per half hour
-    stamina = get_database_value(bot, nick, 'stamina')
+    stamina = get_user_dict(bot, duels, nick, 'stamina')
     if nickrace == 'centaur':
         stamina_to_regen = stamina_to_regen * 2
     if int(stamina) < 0:
-        reset_database_value(bot, nick, 'stamina')
+        reset_user_dict(bot, duels, nick, 'stamina')
     if int(stamina) > staminamax:
-        set_database_value(bot, nick, 'stamina', staminamax)
+        set_user_dict(bot, duels, nick, 'stamina', staminamax)
     combinedstamina = stamina + stamina_to_regen
     if combinedstamina <= staminamax:
-        adjust_database_value(bot, nick, 'stamina', stamina_to_regen)
+        adjust_user_dict(bot, duels, nick, 'stamina', stamina_to_regen)
 
     # Check armor is positive
     for armor in stats_armor:
-        armorstat = get_database_value(bot, nick, armor) or 0
+        armorstat = get_user_dict(bot, duels, nick, armor) or 0
         if armorstat < 0:
-            reset_database_value(bot, nick, armor)
+            reset_user_dict(bot, duels, nick, armor)
 
     # Check for negative loot
     for loot in stats_loot:
-        lootstat = get_database_value(bot, nick, loot) or 0
+        lootstat = get_user_dict(bot, duels, nick, loot) or 0
         if lootstat < 0:
-            reset_database_value(bot, nick, loot)
+            reset_user_dict(bot, duels, nick, loot)
 
     # Check bounty
-    bounty = get_database_value(bot, nick, 'bounty')
+    bounty = get_user_dict(bot, duels, nick, 'bounty')
     if bounty < 0:
-        reset_database_value(bot, nick, 'bounty')
+        reset_user_dict(bot, duels, nick, 'bounty')
 
     # Check coin
-    coin = get_database_value(bot, nick, 'coin')
+    coin = get_user_dict(bot, duels, nick, 'coin')
     if coin < 0:
-        reset_database_value(bot, nick, 'coin')
+        reset_user_dict(bot, duels, nick, 'coin')
 
     # check SPECIAL modifiers
     for effect in duels_special_full:
-        geteffects = get_database_value(bot, nick, effect+"_effect") or 0
+        geteffects = get_user_dict(bot, duels, nick, effect+"_effect") or 0
         if geteffects:
             geteffectstime = duels_time_since(bot, nick, effect+"_effect_time") or 0
-            geteffectsduration = get_database_value(bot, nick, effect+"_effect_duration") or 0
+            geteffectsduration = get_user_dict(bot, duels, nick, effect+"_effect_duration") or 0
             if geteffectstime > geteffectsduration:
-                reset_database_value(bot, nick, effect+"_effect")
-                reset_database_value(bot, nick, effect+"_effect_time")
-                reset_database_value(bot, nick, effect+"_effect_duration")
+                reset_user_dict(bot, duels, nick, effect+"_effect")
+                reset_user_dict(bot, duels, nick, effect+"_effect_time")
+                reset_user_dict(bot, duels, nick, effect+"_effect_duration")
 
     return
 
@@ -5719,8 +5727,8 @@ def duels_check_nick_condition(bot, nick, duels):
 # combine class and race for SPECIAL
 def duels_special_combination(bot, nick):
 
-    nickclass = get_database_value(bot, nick, 'class') or 0
-    nickrace = get_database_value(bot, nick, 'race') or 0
+    nickclass = get_user_dict(bot, duels, nick, 'class') or 0
+    nickrace = get_user_dict(bot, duels, nick, 'race') or 0
 
     if not nickclass:
         classstats = [0, 0, 0, 0, 0, 0, 0, 0]
@@ -5738,14 +5746,14 @@ def duels_special_combination(bot, nick):
         mathed = classstat + racestat
 
         # check SPECIAL modifiers
-        geteffects = get_database_value(bot, nick, statname+"_effect") or 0
+        geteffects = get_user_dict(bot, duels, nick, statname+"_effect") or 0
         if geteffects:
             geteffectstime = duels_time_since(bot, nick, statname+"_effect_time") or 0
-            geteffectsduration = get_database_value(bot, nick, statname+"_effect_duration") or 0
+            geteffectsduration = get_user_dict(bot, duels, nick, statname+"_effect_duration") or 0
             if geteffectstime > geteffectsduration:
-                reset_database_value(bot, nick, statname+"_effect")
-                reset_database_value(bot, nick, statname+"_effect_time")
-                reset_database_value(bot, nick, statname+"_effect_duration")
+                reset_user_dict(bot, duels, nick, statname+"_effect")
+                reset_user_dict(bot, duels, nick, statname+"_effect_time")
+                reset_user_dict(bot, duels, nick, statname+"_effect_duration")
             else:
                 mathed = mathed + geteffects
 
@@ -5772,8 +5780,8 @@ def duels_special_humanize(bot, statsarray):
 def duels_special_get(bot, nick, typewanted):
 
     # Nick base
-    nickclass = get_database_value(bot, nick, 'class') or 'unknown'
-    nickrace = get_database_value(bot, nick, 'race') or 'unknown'
+    nickclass = get_user_dict(bot, duels, nick, 'class') or 'unknown'
+    nickrace = get_user_dict(bot, duels, nick, 'race') or 'unknown'
 
     # combined
     combinedstats = duels_special_combination(bot, nick)
@@ -5804,7 +5812,7 @@ def duels_death_handling(bot, duels, inflicter, inflictee):
 
     # Reset mana
     if inflictee.mana:
-        reset_database_value(bot, inflictee.actual, 'mana')
+        reset_user_dict(bot, duels, inflictee.actual, 'mana')
         if inflictee.actual != 'duelsmonster':
             textarray.append(inflictee.nametext + " loses all mana.")
 
@@ -5815,12 +5823,12 @@ def duels_death_handling(bot, duels, inflicter, inflictee):
             healthtoset = maxhealthpart
         else:
             healthtoset = duels.tierscaling * int(maxhealthpart)
-        set_database_value(bot, inflictee.actual, part, healthtoset)
+        set_user_dict(bot, duels, inflictee.actual, part, healthtoset)
 
     # update kills/deaths
     if inflicter.actual != inflictee.actual:
-        adjust_database_value(bot, inflicter.actual, 'kills', 1)
-    adjust_database_value(bot, inflictee.actual, 'respawns', 1)
+        adjust_user_dict(bot, duels, inflicter.actual, 'kills', 1)
+    adjust_user_dict(bot, duels, inflictee.actual, 'respawns', 1)
 
     # bounty
     if inflictee.actual != 'duelsmonster':
@@ -5829,28 +5837,28 @@ def duels_death_handling(bot, duels, inflicter, inflictee):
                 textarray.append(inflictee.nametext + " wastes the bounty of " + str(inflictee.bounty) + " coin.")
             else:
                 textarray.append(inflicter.nametext + " wins a bounty of " + str(inflictee.bounty) + " that was placed on " + inflictee.nametext + ".")
-                adjust_database_value(bot, inflicter.actual, 'coin', inflictee.bounty)
-            reset_database_value(bot, inflictee.actual, 'bounty')
+                adjust_user_dict(bot, duels, inflicter.actual, 'coin', inflictee.bounty)
+            reset_user_dict(bot, duels, inflictee.actual, 'bounty')
 
     # Stamina
     if inflicter.actual == inflictee.actual:
-        set_database_value(bot, inflictee.actual, 'stamina', 12)
+        set_user_dict(bot, duels, inflictee.actual, 'stamina', 12)
     else:
         if inflictee.actual != 'duelsmonster':
-            set_database_value(bot, inflictee.actual, 'stamina', staminamax)
+            set_user_dict(bot, duels, inflictee.actual, 'stamina', staminamax)
 
     lootedarray = []
     if inflictee.Class != 'ranger' or inflictee.actual == inflicter.actual:
         for x in duels_loot_view:
-            gethowmany = get_database_value(bot, inflictee.actual, x)
+            gethowmany = get_user_dict(bot, duels, inflictee.actual, x)
             if gethowmany:
                 if gethowmany > 1:
                     lootedarray.append(str(str(gethowmany) + " "+x + "s"))
                 else:
                     lootedarray.append(x)
                 if inflicter.actual != inflictee.actual:
-                    adjust_database_value(bot, inflicter.actual, x, gethowmany)
-                reset_database_value(bot, inflictee.actual, x)
+                    adjust_user_dict(bot, duels, inflicter.actual, x, gethowmany)
+                reset_user_dict(bot, duels, inflictee.actual, x)
         if inflicter.actual == inflictee.actual:
             if lootedarray != []:
                 textarray.append(inflictee.nametext + " loses all loot.")
@@ -5861,10 +5869,10 @@ def duels_death_handling(bot, duels, inflicter, inflictee):
     else:
         textarray.append(inflictee.nametextpos + " status as a ranger prevented the loss of loot, and is now stored in their locker in town.")
         for x in duels_loot_view:
-            gethowmany = get_database_value(bot, inflictee.actual, x)
+            gethowmany = get_user_dict(bot, duels, inflictee.actual, x)
             if gethowmany:
-                adjust_database_value(bot, inflictee.actual, x, -abs(gethowmany))
-                adjust_database_value(bot, inflictee.actual, x+"_locker", gethowmany)
+                adjust_user_dict(bot, duels, inflictee.actual, x, -abs(gethowmany))
+                adjust_user_dict(bot, duels, inflictee.actual, x+"_locker", gethowmany)
 
     if inflictee.actual == 'duelsmonster':
         textarray.append("Who's the real monster?")
@@ -5876,7 +5884,7 @@ def duels_death_handling(bot, duels, inflicter, inflictee):
 def duels_get_health(bot, nick):
     totalhealth = 0
     for x in duels_bodyparts:
-        gethowmany = get_database_value(bot, nick, x)
+        gethowmany = get_user_dict(bot, duels, nick, x)
         if gethowmany:
             totalhealth = totalhealth + gethowmany
     return totalhealth
@@ -5886,7 +5894,7 @@ def duels_get_health(bot, nick):
 def duels_nick_bodyparts_remaining(bot, nick):
     currentbodypartsarray = []
     for x in duels_bodyparts:
-        gethowmany = get_database_value(bot, nick, x)
+        gethowmany = get_user_dict(bot, duels, nick, x)
         if gethowmany:
             currentbodypartsarray.append(x)
     return currentbodypartsarray
@@ -5909,11 +5917,11 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
         else:
             for bodypart in duels_bodyparts:
                 if effectamount > 0:
-                    inflicteebodyparthealth = get_database_value(bot, inflictee.actual, bodypart)
+                    inflicteebodyparthealth = get_user_dict(bot, duels, inflictee.actual, bodypart)
                     if inflicteebodyparthealth > 0:
                         bodypartinflictarray.append(bodypart)
                 else:
-                    totalhealth = get_database_value(bot, inflictee.actual, bodypart)
+                    totalhealth = get_user_dict(bot, duels, inflictee.actual, bodypart)
                     gethowmanymax = array_compare(bot, bodypart, duels_bodyparts, duels_bodyparts_health)
                     gethowmanymax = gethowmanymax * duels.tierscaling
                     totalhealthmax = int(gethowmanymax)
@@ -5926,18 +5934,18 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
             return dispmsgarray
 
     if effect in duels_special_full:
-        geteffects = get_database_value(bot, inflictee.actual, effect+"_effect") or 0
+        geteffects = get_user_dict(bot, duels, inflictee.actual, effect+"_effect") or 0
         if geteffects and situation != 'tavern':
             geteffectstime = duels_time_since(bot, inflictee.actual, effect+"_effect_time") or 0
-            geteffectsduration = get_database_value(bot, inflictee.actual, effect+"_effect_duration") or 0
+            geteffectsduration = get_user_dict(bot, duels, inflictee.actual, effect+"_effect_duration") or 0
             if geteffectstime <= geteffectsduration:
                 dispmsgarray.append(inflictee.nametextpos + " "+effect+" is unaffected due to an existing condition")
                 return dispmsgarray
-            reset_database_value(bot, inflictee.actual, effect+"_effect")
-            reset_database_value(bot, inflictee.actual, effect+"_effect_time")
-            reset_database_value(bot, inflictee.actual, effect+"_effect_duration")
-        adjust_database_value(bot, inflictee.actual, effect+"_effect", effectamount)
-        set_database_value(bot, inflictee.actual, effect+"_effect_time", duels.now)
+            reset_user_dict(bot, duels, inflictee.actual, effect+"_effect")
+            reset_user_dict(bot, duels, inflictee.actual, effect+"_effect_time")
+            reset_user_dict(bot, duels, inflictee.actual, effect+"_effect_duration")
+        adjust_user_dict(bot, duels, inflictee.actual, effect+"_effect", effectamount)
+        set_user_dict(bot, duels, inflictee.actual, effect+"_effect_time", duels.now)
         if situation == 'chance_event':
             durationtime = bodypartselection
         elif situation == 'tavern':
@@ -5948,7 +5956,7 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
                 durationtime = 0
             else:
                 durationtime = randint(antiagility * 10, 1800)
-        set_database_value(bot, inflictee.actual, effect+"_effect_duration", durationtime)
+        set_user_dict(bot, duels, inflictee.actual, effect+"_effect_duration", durationtime)
         if effectamount > 0:
             effectamounttext = str("+"+str(effectamount))
         else:
@@ -5958,26 +5966,26 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
 
     if effect == 'timepotion':
         dispmsgarray.append("Removal of Timeouts.")
-        reset_database_value(bot, inflictee.actual, 'lastfought')
-        channellastinstigator = get_database_value(bot, 'duelrecorduser', 'lastinstigator') or bot.nick
+        reset_user_dict(bot, duels, inflictee.actual, 'lastfought')
+        channellastinstigator = get_user_dict(bot, duels, 'duelrecorduser', 'lastinstigator') or bot.nick
         if channellastinstigator == inflictee.actual:
-            reset_database_value(bot, 'duelrecorduser', 'lastinstigator')
+            reset_user_dict(bot, duels, 'duelrecorduser', 'lastinstigator')
         for k in duels_loot_timepotion_targetarray:
-            targetequalcheck = get_database_value(bot, bot.nick, k) or bot.nick
+            targetequalcheck = get_user_dict(bot, duels, bot.nick, k) or bot.nick
             if targetequalcheck == inflictee.actual:
-                reset_database_value(bot, bot.nick, k)
+                reset_user_dict(bot, duels, bot.nick, k)
         for j in duels_loot_timepotion_timeoutarray:
-            reset_database_value(bot, inflictee.actual, j)
+            reset_user_dict(bot, duels, inflictee.actual, j)
         return dispmsgarray
 
     if effect == 'stamina':
         dispmsgarray.append("Restoration of " + str(effectamount) + " stamina.")
-        adjust_database_value(bot, inflictee.actual, 'stamina', effectamount)
+        adjust_user_dict(bot, duels, inflictee.actual, 'stamina', effectamount)
         return dispmsgarray
 
     if effect == 'mana':
         dispmsgarray.append("Restoration of " + str(effectamount) + " mana.")
-        adjust_database_value(bot, inflictee.actual, 'mana', effectamount)
+        adjust_user_dict(bot, duels, inflictee.actual, 'mana', effectamount)
         return dispmsgarray
 
     if effect in ['damage', 'healing', 'health']:
@@ -5996,7 +6004,7 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
                 currentsplitdamage = int(splitdamage)
 
                 # current health of part
-                parthealth = get_database_value(bot, inflictee.actual, bodypart) or 0
+                parthealth = get_user_dict(bot, duels, inflictee.actual, bodypart) or 0
 
                 # find the maximum allowed health for part
                 maxhealthpart = array_compare(bot, bodypart, duels_bodyparts, duels_bodyparts_health)
@@ -6008,14 +6016,14 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
                 if parthealth < currenthealthtier:
                     combinedhealth = parthealth + currentsplitdamage
                     if combinedhealth < currenthealthtier:
-                        adjust_database_value(bot, inflictee.actual, bodypart, currentsplitdamage)
+                        adjust_user_dict(bot, duels, inflictee.actual, bodypart, currentsplitdamage)
                     else:
-                        set_database_value(bot, inflictee.actual, bodypart, currenthealthtier)
+                        set_user_dict(bot, duels, inflictee.actual, bodypart, currenthealthtier)
             if len(bodypartinflictarray) > 1:
                 totalhealth = 0
                 totalhealthmax = 0
                 for x in duels_bodyparts:
-                    gethowmany = get_database_value(bot, inflictee.actual, x)
+                    gethowmany = get_user_dict(bot, duels, inflictee.actual, x)
                     totalhealth = totalhealth + gethowmany
                     gethowmanymax = array_compare(bot, x, duels_bodyparts, duels_bodyparts_health)
                     gethowmanymax = gethowmanymax * duels.tierscaling
@@ -6027,7 +6035,7 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
                     dispmsgarray.append(inflictee.nametext + " gains " + str(effectamount) + " health, bringing them to full health")
             else:
                 singlebodypart = get_trigger_arg(bot, bodypartinflictarray, 1)
-                totalhealth = get_database_value(bot, inflictee.actual, singlebodypart)
+                totalhealth = get_user_dict(bot, duels, inflictee.actual, singlebodypart)
                 gethowmanymax = array_compare(bot, singlebodypart, duels_bodyparts, duels_bodyparts_health)
                 gethowmanymax = gethowmanymax * duels.tierscaling
                 totalhealthmax = int(gethowmanymax)
@@ -6067,13 +6075,13 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
                 if inflictee.shield:
                     damagemath = int(inflictee.shield) - effectamount
                     if int(damagemath) > 0:
-                        adjust_database_value(bot, inflictee.actual, 'shield', -abs(effectamount))
+                        adjust_user_dict(bot, duels, inflictee.actual, 'shield', -abs(effectamount))
                         effectamount = 0
                         absorbed = 'all'
                     else:
                         absorbed = damagemath + effectamount
                         effectamount = abs(damagemath)
-                        reset_database_value(bot, inflictee.actual, 'shield')
+                        reset_user_dict(bot, duels, inflictee.actual, 'shield')
                     dispmsgarray.append(inflictee.nametext + " magic shield absorbs " + str(absorbed) + " of the "+effect+".")
                     if effectamount <= 0:
                         return dispmsgarray
@@ -6108,21 +6116,21 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
                         # Armor
                         if currentsplitdamage > 0 and situation != 'magic' and situation != 'loot':
                             armortype = array_compare(bot, bodypart, duels_bodyparts, stats_armor)
-                            armorinflictee = get_database_value(bot, inflictee.actual, armortype) or 0
+                            armorinflictee = get_user_dict(bot, duels, inflictee.actual, armortype) or 0
                             if armorinflictee:
                                 armorname = armortype.replace("_", " ")
-                                adjust_database_value(bot, inflictee.actual, armortype, -1)
+                                adjust_user_dict(bot, duels, inflictee.actual, armortype, -1)
                                 damagepercent = randint(1, armor_relief_percentage) / 100
                                 damagereduced = splitdamage * damagepercent
                                 damagereduced = int(damagereduced)
                                 currentsplitdamage = currentsplitdamage - damagereduced
                                 if int(damagereduced) > 0:
-                                    armorinflictee = get_database_value(bot, inflictee.actual, armortype) or 0
+                                    armorinflictee = get_user_dict(bot, duels, inflictee.actual, armortype) or 0
                                     if currentsplitdamage <= 0:
                                         damagereduced = "all"
                                     damagetext = str(inflictee.nametextpos + " " + armorname + " alleviated " + str(damagereduced) + " of the damage")
                                     if armorinflictee <= 0:
-                                        reset_database_value(bot, inflictee.actual, armortype)
+                                        reset_user_dict(bot, duels, inflictee.actual, armortype)
                                         damagetext = str(damagetext + ", causing the armor to break!")
                                     elif armorinflictee <= 5:
                                         damagetext = str(damagetext + ", causing the armor to be in need of repair!")
@@ -6139,40 +6147,40 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
                                 lootdamagetaken = lootdamagetaken + currentsplitdamage
                             else:
                                 dispmsgarray.append(inflictee.nametext + " takes " + str(currentsplitdamage) + " "+effect+" to the " + bodypartname)
-                            adjust_database_value(bot, inflictee.actual, bodypart, -abs(currentsplitdamage))
+                            adjust_user_dict(bot, duels, inflictee.actual, bodypart, -abs(currentsplitdamage))
 
                         if currentsplitdamage > 0:
                             if situation in duels_commands_events:
-                                adjust_database_value(bot, inflicter.actual, 'combat_track_damage_dealt', currentsplitdamage)
-                                adjust_database_value(bot, inflictee.actual, 'combat_track_damage_taken', currentsplitdamage)
+                                adjust_user_dict(bot, duels, inflicter.actual, 'combat_track_damage_dealt', currentsplitdamage)
+                                adjust_user_dict(bot, duels, inflictee.actual, 'combat_track_damage_taken', currentsplitdamage)
 
                         finishthem = 0
                         if bodypart == 'head' or bodypart == 'torso':
-                            inflicteecritical = get_database_value(bot, inflictee.actual, bodypart)
+                            inflicteecritical = get_user_dict(bot, duels, inflictee.actual, bodypart)
                             if inflicteecritical <= 0:
                                 if inflictee.actual == 'duelsmonster' or inflicter.actual == 'duelsmonster' or inflicter.actual == bot.nick or inflicter.actual == inflictee.actual:
                                     killtextarray = duels_death_handling(bot, duels, inflicter, inflictee)
                                     for j in killtextarray:
                                         dispmsgarray.append(j)
-                                    reset_database_value(bot, 'duelsmonster', 'last_monster')
+                                    reset_user_dict(bot, duels, 'duelsmonster', 'last_monster')
                                 else:
                                     finishthem = 1
                                 if situation in duels_commands_events:
                                     if inflicter.actual != inflictee.actual:
-                                        adjust_database_value(bot, inflicter.actual, 'combat_track_kills', 1)
-                                    adjust_database_value(bot, inflictee.actual, 'combat_track_deaths', 1)
+                                        adjust_user_dict(bot, duels, inflicter.actual, 'combat_track_kills', 1)
+                                    adjust_user_dict(bot, duels, inflictee.actual, 'combat_track_deaths', 1)
                                 inflicteedeath = 1
 
                         if duels_get_health(bot, inflictee.actual) < deathblow_amount or finishthem:
                             if inflicter.actual != inflictee.actual and inflicter.actual != 'duelsmonster' and inflictee.actual != 'duelsmonster':
-                                currentdeathblowcheck = get_database_value(bot, inflictee.actual, 'deathblow')
+                                currentdeathblowcheck = get_user_dict(bot, duels, inflictee.actual, 'deathblow')
                                 if not currentdeathblowcheck:
-                                    adjust_database_array(bot, inflicter.actual, [inflictee.actual], 'deathblowtargetarray', 'add')
-                                    set_database_value(bot, inflictee.actual, 'deathblow', 1)
-                                    set_database_value(bot, inflictee.actual, 'deathblowkiller', inflicter.actual)
-                                    set_database_value(bot, 'duelrecorduser', 'deathblowkiller', inflicter.actual)
-                                    adjust_database_array(bot, 'duelrecorduser', [inflicter.actual], 'deathblowmessagepeoplearray', 'add')
-                                    adjust_database_array(bot, inflicter.actual, [inflictee.actual], 'deathblowtargetsnew', 'add')
+                                    adjust_user_dict_array(bot, duels, inflicter.actual, 'deathblowtargetarray', [inflictee.actual], 'add')
+                                    set_user_dict(bot, duels, inflictee.actual, 'deathblow', 1)
+                                    set_user_dict(bot, duels, inflictee.actual, 'deathblowkiller', inflicter.actual)
+                                    set_user_dict(bot, duels, 'duelrecorduser', 'deathblowkiller', inflicter.actual)
+                                    adjust_user_dict_array(bot, duels, 'duelrecorduser', 'deathblowmessagepeoplearray', [inflicter.actual], 'add')
+                                    adjust_user_dict_array(bot, duels, inflicter.actual, 'deathblowtargetsnew', [inflictee.actual], 'add')
                             else:
                                 killtextarray = duels_death_handling(bot, duels, inflicter, inflictee)
                                 for j in killtextarray:
@@ -6187,7 +6195,7 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
 
                 crippledarray = []
                 for bodypart in bodypartinflictarray:
-                    playercurrenthealthbody = get_database_value(bot, inflictee.actual, bodypart)
+                    playercurrenthealthbody = get_user_dict(bot, duels, inflictee.actual, bodypart)
                     if playercurrenthealthbody <= 0:
                         crippledarray.append(bodypart)
                 if crippledarray != []:
@@ -6221,24 +6229,24 @@ def duels_stats_view(bot, duels, target_stats_view, targetbio, customview, actua
             if gethowmany >= eval(x):
                 gethowmany = 0
         elif x in stats_armor:
-            gethowmany = get_database_value(bot, targetbio.actual, x)
+            gethowmany = get_user_dict(bot, duels, targetbio.actual, x)
             if not gethowmany:
                 gethowmany = 'stockarmor'
         elif x in stats_character:
             gethowmany = eval("targetbio."+x)
-            geteffects = get_database_value(bot, targetbio.actual, x+"_effect") or 0
+            geteffects = get_user_dict(bot, duels, targetbio.actual, x+"_effect") or 0
             if geteffects:
                 if geteffects > 0:
                     geteffectstext = str("+"+str(geteffects))
                 else:
                     geteffectstext = str(geteffects)
                 geteffectstime = duels_time_since(bot, targetbio.actual, x+"_effect_time") or 0
-                geteffectsduration = get_database_value(bot, targetbio.actual, x+"_effect_duration") or 0
+                geteffectsduration = get_user_dict(bot, duels, targetbio.actual, x+"_effect_duration") or 0
                 if geteffectstime <= geteffectsduration:
                     gethowmany = gethowmany - geteffects
                     gethowmany = str(str(gethowmany) + "[" + str(geteffectstext) + "]")
         else:
-            gethowmany = get_database_value(bot, targetbio.actual, x)
+            gethowmany = get_user_dict(bot, duels, targetbio.actual, x)
 
         # display those amounts
         if gethowmany:
@@ -6249,10 +6257,10 @@ def duels_stats_view(bot, duels, target_stats_view, targetbio, customview, actua
             if x == 'streak_type_current':
                 statname = 'statsviewignoreme'
                 if gethowmany == 'win':
-                    streak_count = get_database_value(bot, targetbio.actual, 'streak_win_current') or 0
+                    streak_count = get_user_dict(bot, duels, targetbio.actual, 'streak_win_current') or 0
                     typeofstreak = 'winning'
                 elif gethowmany == 'loss':
-                    streak_count = get_database_value(bot, targetbio.actual, 'streak_loss_current') or 0
+                    streak_count = get_user_dict(bot, duels, targetbio.actual, 'streak_loss_current') or 0
                     typeofstreak = 'losing'
                 else:
                     streak_count = 0
@@ -6313,7 +6321,7 @@ def duels_stats_view(bot, duels, target_stats_view, targetbio, customview, actua
 
     # Display begginning
     dispmsgarrayb = []
-    target_stats_view = get_database_value(bot, targetbio.actual, 'stats_view')
+    target_stats_view = get_user_dict(bot, duels, targetbio.actual, 'stats_view')
     if dispmsgarray != []:
         if not customview and actualstatsview == 'stats':
             dispmsgarrayb.append("("+targetbio.pepper.title() + ") " + targetbio.nametextpos + " " + actualstatsview.title() + ":")
@@ -6382,7 +6390,7 @@ def duels_tier_nick_to_pepper(bot, nick):
     if nick == bot.nick:
         pepper = 'Dragon Breath Chilli'
         return pepper
-    xp = get_database_value(bot, nick, 'xp') or 0
+    xp = get_user_dict(bot, duels, nick, 'xp') or 0
     if not xp:
         pepper = 'n00b'
         return pepper
@@ -6390,26 +6398,26 @@ def duels_tier_nick_to_pepper(bot, nick):
     pepper = duels_tier_number_to_pepper(bot, xptier)
     # advance respawn tier
     tiernumber = duels_tier_number_to_pepper_index(bot, pepper)
-    currenttier = get_database_value(bot, 'duelrecorduser', 'tier') or 0
+    currenttier = get_user_dict(bot, duels, 'duelrecorduser', 'tier') or 0
     if tiernumber > currenttier:
-        set_database_value(bot, 'duelrecorduser', 'tier', tiernumber)
-    nicktier = get_database_value(bot, nick, 'tier')
+        set_user_dict(bot, duels, 'duelrecorduser', 'tier', tiernumber)
+    nicktier = get_user_dict(bot, duels, nick, 'tier')
     if tiernumber != nicktier:
-        set_database_value(bot, nick, 'tier', tiernumber)
+        set_user_dict(bot, duels, nick, 'tier', tiernumber)
     pepper = pepper.title()
     return pepper
 
 
 # current tier to ratio
 def duels_tier_current_to_ratio(bot):
-    currenttier = get_database_value(bot, 'duelrecorduser', 'tier') or 1
+    currenttier = get_user_dict(bot, duels, 'duelrecorduser', 'tier') or 1
     tierratio = get_trigger_arg(bot, duels_commands_tier_ratio, currenttier) or 1
     return tierratio
 
 
 def duels_druid_current_array(bot, target):
     druidanimals = []
-    targettier = get_database_value(bot, target, 'tier') or 0
+    targettier = get_user_dict(bot, duels, target, 'tier') or 0
     for i in range(0, targettier + 1):
         tiercheck = eval("duels_druid_creatures_"+str(i))
         for x in tiercheck:
@@ -6460,12 +6468,12 @@ def duels_location_move(bot, duels, user, newlocation):
         current_location_list = eval("duels.users_current_allchan_" + location)
         if user in current_location_list:
             current_location_list.remove(user)
-            adjust_database_array(bot, 'duelrecorduser', user, location+"_users", 'del')
+            adjust_user_dict_array(bot, duels, 'duelrecorduser', location+"_users", user, 'del')
     for location in duels_commands_locations:
         current_location_list = eval("duels.users_current_allchan_" + location)
         if location == newlocation:
             current_location_list.append(user)
-            adjust_database_array(bot, 'duelrecorduser', user, location+"_users", 'add')
+            adjust_user_dict_array(bot, duels, 'duelrecorduser', location+"_users", user, 'add')
 
 
 def duels_get_location(bot, duels, user):
@@ -6499,15 +6507,17 @@ def duels_merchant_restock(bot):
 
             # Refill shelf if half full or less
             if merchquant <= shelfhalf or merchquant == 0:
-                set_database_value(bot, 'duelsmerchant', lootitem, duels_merchant_inv_max)
+                set_user_dict(bot, duels, 'duelsmerchant', lootitem, duels_merchant_inv_max)
 
             # supply and demand, usage increases value, if inventory is high
             if merchquant >= duels_merchant_inv_max:
-                adjust_database_value(bot, 'duelsmerchant', str("vendor_track_value_"+lootitem), -1)
+                adjust_user_dict(bot, duels, 'duelsmerchant', str("vendor_track_value_"+lootitem), -1)
             elif merchquant > shelfhalf and merchquant < duels_merchant_inv_max:
-                adjust_database_value(bot, 'duelsmerchant', str("vendor_track_value_"+lootitem), 1)
+                adjust_user_dict(bot, duels, 'duelsmerchant', str("vendor_track_value_"+lootitem), 1)
             elif merchquant <= shelfhalf:
-                adjust_database_value(bot, 'duelsmerchant', str("vendor_track_value_"+lootitem), 2)
+                adjust_user_dict(bot, duels, 'duelsmerchant', str("vendor_track_value_"+lootitem), 2)
+
+    save_user_dicts(bot, duels)
 
 
 # How much inventory does the merchant have?
@@ -6516,15 +6526,15 @@ def duels_merchant_inventory(bot):
     merchinv = class_create('merchant')
 
     # New Vendor?
-    merchantinitialinv = get_database_value(bot, 'duelsmerchant', 'newvendor')
+    merchantinitialinv = get_user_dict(bot, duels, 'duelsmerchant', 'newvendor')
     if not merchantinitialinv:
         for x in duels_loot_items:
             current_loot_cost = array_compare(bot, x, duels_loot_items, duels_loot_cost)
             if current_loot_cost != 'no':
-                set_database_value(bot, 'duelsmerchant', x, duels_merchant_inv_max)
+                set_user_dict(bot, duels, 'duelsmerchant', x, duels_merchant_inv_max)
                 currentvalue = str("merchinv."+x+"="+str(duels_merchant_inv_max))
                 exec(currentvalue)
-                current_loot_value = get_database_value(bot, 'duelsmerchant', str("vendor_track_value_"+x))
+                current_loot_value = get_user_dict(bot, duels, 'duelsmerchant', str("vendor_track_value_"+x))
                 current_loot_value = current_loot_value / 100
                 current_loot_value = current_loot_value * current_loot_cost
                 current_loot_cost = current_loot_cost + current_loot_value
@@ -6532,20 +6542,20 @@ def duels_merchant_inventory(bot):
                     current_loot_cost = 10
                 current_loot_cost = str("merchinv."+x+"_cost="+str(current_loot_cost))
                 exec(current_loot_cost)
-        set_database_value(bot, 'duelsmerchant', 'newvendor', 1)
+        set_user_dict(bot, duels, 'duelsmerchant', 'newvendor', 1)
         return merchinv
 
     # Normal vendor
     for x in duels_loot_items:
         current_loot_cost = array_compare(bot, x, duels_loot_items, duels_loot_cost)
         if current_loot_cost != 'no':
-            gethowmany = get_database_value(bot, 'duelsmerchant', x)
+            gethowmany = get_user_dict(bot, duels, 'duelsmerchant', x)
             if not gethowmany:
-                set_database_value(bot, 'duelsmerchant', x, duels_merchant_inv_max)
+                set_user_dict(bot, duels, 'duelsmerchant', x, duels_merchant_inv_max)
                 gethowmany = duels_merchant_inv_max
             currentvalue = str("merchinv."+x+"="+str(gethowmany))
             exec(currentvalue)
-            current_loot_value = get_database_value(bot, 'duelsmerchant', str("vendor_track_value_"+x))
+            current_loot_value = get_user_dict(bot, duels, 'duelsmerchant', str("vendor_track_value_"+x))
             current_loot_value = current_loot_value / 100
             current_loot_value = current_loot_value * current_loot_cost
             current_loot_cost = current_loot_cost + current_loot_value
@@ -6570,11 +6580,11 @@ def duels_criteria(bot, player_two, duels, verbose):
     validtarget, validtargetmsg = 1, []
 
     # pending deathblow
-    deathblow = get_database_value(bot, targetbio.actual, 'deathblow')
+    deathblow = get_user_dict(bot, duels, targetbio.actual, 'deathblow')
     if deathblow:
         deathblowtargettime = duels_time_since(bot, targetbio.actual, 'deathblowtargettime') or 0
         if deathblowtargettime <= 120:
-            deathblowkiller = get_database_value(bot, targetbio.actual, 'deathblowkiller') or 'unknown'
+            deathblowkiller = get_user_dict(bot, duels, targetbio.actual, 'deathblowkiller') or 'unknown'
             validtargetmsg.append(targetbio.nametext + " can't run duels for " + str(duels_hours_minutes_seconds((120 - deathblowtargettime))) + " due to a potential deathblow from " + deathblowkiller + ".")
             validtarget = 0
 
@@ -6630,7 +6640,7 @@ def duels_target_check(bot, target, duels, instigatorbio):
         validtarget = 0
 
     if target.lower() == 'monster' or target.lower() == 'duelsmonster':
-        currentmonster = get_database_value(bot, 'duelsmonster', 'last_monster') or None
+        currentmonster = get_user_dict(bot, duels, 'duelsmonster', 'last_monster') or None
         if not currentmonster:
             validtargetmsg.append("There doesn't appear to be a current monster!")
             return validtarget, validtargetmsg
@@ -6664,11 +6674,11 @@ def duels_target_check(bot, target, duels, instigatorbio):
         validtarget = 0
         validtargetmsg.append(target + " is either not here, or not a valid nick to target.")
 
-    deathblow = get_database_value(bot, target, 'deathblow')
+    deathblow = get_user_dict(bot, duels, target, 'deathblow')
     if deathblow:
         deathblowtargettime = duels_time_since(bot, target, 'deathblowtargettime') or 0
         if deathblowtargettime <= 120:
-            deathblowkiller = get_database_value(bot, target, 'deathblowkiller') or 'unknown'
+            deathblowkiller = get_user_dict(bot, duels, target, 'deathblowkiller') or 'unknown'
             validtargetmsg.append(target + " can't run duels for " + str(duels_hours_minutes_seconds((120 - deathblowtargettime))) + " due to a potential deathblow from " + deathblowkiller + ".")
             validtarget = 0
 
@@ -6706,7 +6716,7 @@ def duels_events_check(bot, command_main, duels):
 
     timeouteval = array_compare(bot, command_main.lower(), duels_timeouts, duels_timeouts_duration)
     getlastusage = duels_time_since(bot, 'duelrecorduser', str('lastfullroom' + command_main)) or timeouteval
-    getlastinstigator = get_database_value(bot, 'duelrecorduser', str('lastfullroom' + command_main + 'instigator')) or bot.nick
+    getlastinstigator = get_user_dict(bot, duels, 'duelrecorduser', str('lastfullroom' + command_main + 'instigator')) or bot.nick
 
     if getlastusage < timeouteval and duels.channel_current not in duels.duels_dev_channels and not duels.admin:
         validtargetmsg.append("Full channel " + command_main + " event can't be used for "+str(duels_hours_minutes_seconds((timeouteval - getlastusage)))+".")
@@ -6850,7 +6860,7 @@ def duels_nick_magic_attributes(bot, playerbio, duels):
 def duels_nick_armor(bot, playerbio, duels):
     nickname = ''
     for x in stats_armor:
-        gethowmany = get_database_value(bot, playerbio.actual, x)
+        gethowmany = get_user_dict(bot, duels, playerbio.actual, x)
         if gethowmany:
             nickname = "{Armored}"
     return nickname
@@ -6880,8 +6890,8 @@ def duels_combat_selectwinner(bot, competitors, duels, playerbio_maindueler, pla
         return winner
 
     # Dev_win
-    maindueler_dev = get_database_value(bot, playerbio_maindueler.actual, 'dev_win')
-    target_dev = get_database_value(bot, playerbio_target.actual, 'dev_win')
+    maindueler_dev = get_user_dict(bot, duels, playerbio_maindueler.actual, 'dev_win')
+    target_dev = get_user_dict(bot, duels, playerbio_target.actual, 'dev_win')
     if maindueler_dev or target_dev:
         if maindueler_dev and not target_dev:
             winner = playerbio_maindueler.actual
@@ -6924,7 +6934,7 @@ def duels_combat_selectwinner(bot, competitors, duels, playerbio_maindueler, pla
     for x in statcheckarray:
         for u in competitors:
             if x != 'health':
-                value = get_database_value(bot, u, x) or 0
+                value = get_user_dict(bot, duels, u, x) or 0
             elif x == 'health':
                 value = duels_get_health(bot, u)
             else:
@@ -6961,10 +6971,10 @@ def duels_combat_selectwinner(bot, competitors, duels, playerbio_maindueler, pla
     # curse check
     if playerbio_maindueler.curse_start:
         playerbio_maindueler.winnerselection = 0
-        adjust_database_value(bot, playerbio_maindueler.actual, 'curse', -1)
+        adjust_user_dict(bot, duels, playerbio_maindueler.actual, 'curse', -1)
     if playerbio_target.curse_start:
         playerbio_target.winnerselection = 0
-        adjust_database_value(bot, playerbio_target.actual, 'curse', -1)
+        adjust_user_dict(bot, duels, playerbio_target.actual, 'curse', -1)
 
     # who wins
     if playerbio_maindueler.winnerselection == playerbio_target.winnerselection:
@@ -7039,10 +7049,10 @@ def duels_bodypart_select(bot, nick):
 
 # Magic attributes
 def duels_magic_attributes_text(bot, playerbio_winner, playerbio_loser):
-    playerbio_winner.shield_now = get_database_value(bot, playerbio_winner.actual, 'shield') or 0
-    playerbio_winner.curse_now = get_database_value(bot, playerbio_winner.actual, 'curse') or 0
-    playerbio_loser.shield_now = get_database_value(bot, playerbio_loser.actual, 'shield') or 0
-    playerbio_loser.curse_now = get_database_value(bot, playerbio_loser.actual, 'curse') or 0
+    playerbio_winner.shield_now = get_user_dict(bot, duels, playerbio_winner.actual, 'shield') or 0
+    playerbio_winner.curse_now = get_user_dict(bot, duels, playerbio_winner.actual, 'curse') or 0
+    playerbio_loser.shield_now = get_user_dict(bot, duels, playerbio_loser.actual, 'shield') or 0
+    playerbio_loser.curse_now = get_user_dict(bot, duels, playerbio_loser.actual, 'curse') or 0
     magicattributesarray = ['shield', 'curse']
     nickarray = ['playerbio_winner', 'playerbio_loser']
     attributetext = []
@@ -7123,7 +7133,7 @@ def duels_use_loot_item(bot, duels, nickusing, target, lootitem, quantity, extra
         loottimepotion = 1
 
     # Track usage for vendor
-    adjust_database_value(bot, 'duelsmerchant', str("vendor_track_value_"+lootitem), int(quantity))
+    adjust_user_dict(bot, duels, 'duelsmerchant', str("vendor_track_value_"+lootitem), int(quantity))
 
     for x in loot_use_effects:
         currentvalue = str("lootusing."+x+"=""lootusing."+x+" + "+"loot"+x)
@@ -7141,7 +7151,7 @@ Weaponslocker
 def duels_weaponslocker_channel(bot):
     allchanweaponsarray = []
     for u in bot.users:
-        weaponslist = get_database_value(bot, u, 'weaponslocker_complete') or ['fist']
+        weaponslist = get_user_dict(bot, duels, u, 'weaponslocker_complete') or ['fist']
         for x in weaponslist:
             allchanweaponsarray.append(x)
     weapon = get_trigger_arg(bot, allchanweaponsarray, 'random')
@@ -7150,23 +7160,23 @@ def duels_weaponslocker_channel(bot):
 
 def duels_weaponslocker_nick_selection(bot, nick):
     weaponslistselect = []
-    weaponslist = get_database_value(bot, nick, 'weaponslocker_complete') or []
-    lastusedweaponarry = get_database_value(bot, nick, 'weaponslocker_lastweaponusedarray') or []
-    lastusedweapon = get_database_value(bot, nick, 'weaponslocker_lastweaponused') or 'fist'
+    weaponslist = get_user_dict(bot, duels, nick, 'weaponslocker_complete') or []
+    lastusedweaponarry = get_user_dict(bot, duels, nick, 'weaponslocker_lastweaponusedarray') or []
+    lastusedweapon = get_user_dict(bot, duels, nick, 'weaponslocker_lastweaponused') or 'fist'
     howmanyweapons = get_database_array_total(bot, nick, 'weaponslocker_complete') or 0
     if not howmanyweapons > 1:
-        reset_database_value(bot, nick, 'weaponslocker_lastweaponused')
+        reset_user_dict(bot, duels, nick, 'weaponslocker_lastweaponused')
     for x in weaponslist:
         if len(x) > weapon_name_length:
-            adjust_database_array(bot, nick, [x], 'weaponslocker_complete', 'del')
+            adjust_user_dict_array(bot, duels, nick, 'weaponslocker_complete', [x], 'del')
         if x not in lastusedweaponarry and x != lastusedweapon and len(x) <= weapon_name_length:
             weaponslistselect.append(x)
     if weaponslistselect == [] and weaponslist != []:
-        reset_database_value(bot, nick, 'weaponslocker_lastweaponusedarray')
+        reset_user_dict(bot, duels, nick, 'weaponslocker_lastweaponusedarray')
         return duels_weaponslocker_nick_selection(bot, nick)
     weapon = get_trigger_arg(bot, weaponslistselect, 'random') or 'fist'
-    adjust_database_array(bot, nick, [weapon], 'weaponslocker_lastweaponusedarray', 'add')
-    set_database_value(bot, nick, 'weaponslocker_lastweaponused', weapon)
+    adjust_user_dict_array(bot, duels, nick, 'weaponslocker_lastweaponusedarray', [weapon], 'add')
+    set_user_dict(bot, duels, nick, 'weaponslocker_lastweaponused', weapon)
     return weapon
 
 
@@ -7204,7 +7214,7 @@ def duels_monster_stats_generate(bot, duels, scale):
         if x not in monsterstatignore and x not in stats_armor:
             currentstatarray = []
             for player in duels.users_current_allchan_opted:
-                playernumber = get_database_value(bot, player, x)
+                playernumber = get_user_dict(bot, duels, player, x)
                 if str(playernumber).isdigit():
                     currentstatarray.append(playernumber)
             if currentstatarray != []:
@@ -7214,12 +7224,12 @@ def duels_monster_stats_generate(bot, duels, scale):
                 playerstatarrayaverage = 0
             if playerstatarrayaverage > 0:
                 scaledstat = int(playerstatarrayaverage * scale)
-                set_database_value(bot, 'duelsmonster', x, scaledstat)
+                set_user_dict(bot, duels, 'duelsmonster', x, scaledstat)
 
 
 def duels_monster_stats_reset(bot, duels):
     for x in duels.stats_valid:
-        set_database_value(bot, 'duelsmonster', x, None)
+        set_user_dict(bot, duels, 'duelsmonster', x, None)
 
 
 """
@@ -7230,7 +7240,7 @@ Time
 # compare timestamps
 def duels_time_since(bot, nick, databasekey):
     now = time.time()
-    last = get_database_value(bot, nick, databasekey)
+    last = get_user_dict(bot, duels, nick, databasekey)
     return abs(now - int(last))
 
 
@@ -7262,9 +7272,9 @@ ScoreCard
 
 # compare wins/losses
 def duels_get_winlossratio(bot, target):
-    wins = get_database_value(bot, target, 'wins')
+    wins = get_user_dict(bot, duels, target, 'wins')
     wins = int(wins)
-    losses = get_database_value(bot, target, 'losses')
+    losses = get_user_dict(bot, duels, target, 'losses')
     losses = int(losses)
     if not losses:
         if not wins:
@@ -7292,32 +7302,32 @@ def duels_set_current_streaks(bot, nick, winlose):
         oppositestreaktype = 'streak_win_current'
 
     # Update Current streak
-    adjust_database_value(bot, nick, currentstreaktype, 1)
-    set_database_value(bot, nick, 'streak_type_current', winlose)
+    adjust_user_dict(bot, duels, nick, currentstreaktype, 1)
+    set_user_dict(bot, duels, nick, 'streak_type_current', winlose)
 
     # Update Best Streak
-    beststreak = get_database_value(bot, nick, beststreaktype) or 0
-    currentstreak = get_database_value(bot, nick, currentstreaktype) or 0
+    beststreak = get_user_dict(bot, duels, nick, beststreaktype) or 0
+    currentstreak = get_user_dict(bot, duels, nick, currentstreaktype) or 0
     if int(currentstreak) > int(beststreak):
-        set_database_value(bot, nick, beststreaktype, int(currentstreak))
+        set_user_dict(bot, duels, nick, beststreaktype, int(currentstreak))
 
     # Clear current opposite streak
-    reset_database_value(bot, nick, oppositestreaktype)
+    reset_user_dict(bot, duels, nick, oppositestreaktype)
 
 
 def duels_get_current_streaks(bot, winner, loser):
-    winner_loss_streak = get_database_value(bot, winner, 'streak_loss_current') or 0
-    loser_win_streak = get_database_value(bot, loser, 'streak_win_current') or 0
+    winner_loss_streak = get_user_dict(bot, duels, winner, 'streak_loss_current') or 0
+    loser_win_streak = get_user_dict(bot, duels, loser, 'streak_win_current') or 0
     return winner_loss_streak, loser_win_streak
 
 
 def duels_get_streaktext(bot, playerbio_winner, playerbio_loser):
     streaktext = []
 
-    playerbio_winner.win_streak_end = get_database_value(bot, playerbio_winner.actual, 'streak_win_current') or 0
-    playerbio_winner.loss_streak_end = get_database_value(bot, playerbio_winner.actual, 'streak_loss_current') or 0
-    playerbio_loser.win_streak_end = get_database_value(bot, playerbio_loser.actual, 'streak_win_current') or 0
-    playerbio_loser.loss_streak_end = get_database_value(bot, playerbio_loser.actual, 'streak_loss_current') or 0
+    playerbio_winner.win_streak_end = get_user_dict(bot, duels, playerbio_winner.actual, 'streak_win_current') or 0
+    playerbio_winner.loss_streak_end = get_user_dict(bot, duels, playerbio_winner.actual, 'streak_loss_current') or 0
+    playerbio_loser.win_streak_end = get_user_dict(bot, duels, playerbio_loser.actual, 'streak_win_current') or 0
+    playerbio_loser.loss_streak_end = get_user_dict(bot, duels, playerbio_loser.actual, 'streak_loss_current') or 0
 
     if playerbio_winner.loss_streak_start > 1:
         streaktext.append(playerbio_winner.nametext + " recovers from a streak of " + str(playerbio_winner.loss_streak_start) + " losses")
@@ -7344,24 +7354,24 @@ def duels_endgame(bot, duels):
     # duelrecorduser records
     chanrecordsarray = ['gameenabled', 'devenabled', 'users_all_allchan', 'users_opted_allchan', 'tier', 'lastinstigator', 'specevent', 'roulettelastplayershot', 'roulettelastplayer', 'roulettecount', 'roulettechamber', 'roulettespinarray', 'roulettewinners', 'lasttimedlootwinner']
     for record in chanrecordsarray:
-        reset_database_value(bot, 'duelrecorduser', record)
+        reset_user_dict(bot, duels, 'duelrecorduser', record)
     for event in duels_commands_events:
-        reset_database_value(bot, 'duelrecorduser', "lastfullroom" + event)
+        reset_user_dict(bot, duels, 'duelrecorduser', "lastfullroom" + event)
     for x in duels.stats_valid:
-        reset_database_value(bot, 'duelrecorduser', x)
-    set_database_value(bot, 'duelrecorduser', 'chanstatsreset', now)
+        reset_user_dict(bot, duels, 'duelrecorduser', x)
+    set_user_dict(bot, duels, 'duelrecorduser', 'chanstatsreset', now)
 
     # duelsmonster records
     for astat in combat_track_results:
-        reset_database_value(bot, 'duelsmonster', "combat_track_" + astat)
+        reset_user_dict(bot, duels, 'duelsmonster', "combat_track_" + astat)
     duels_monster_stats_reset(bot, duels)
 
     # Players records
     for player in duels.users_all_allchan:
         for astat in combat_track_results:
-            reset_database_value(bot, player, "combat_track_" + astat)
+            reset_user_dict(bot, duels, player, "combat_track_" + astat)
         for x in duels.stats_valid:
-            reset_database_value(bot, player, x)
+            reset_user_dict(bot, duels, player, x)
 
 
 """
@@ -7649,7 +7659,7 @@ def reset_database_value(bot, nick, databasekey):
 def adjust_database_value(bot, nick, databasekey, value):
     oldvalue = get_database_value(bot, nick, databasekey) or 0
     databasecolumn = str('duels_' + databasekey)
-    bot.db.set_nick_value(nick, databasecolumn, int(oldvalue) + int(value))
+    bot.db.set_nick_value(nick, databasecolumn, float(oldvalue) + float(value))
 
 
 # array stored in database length
@@ -7684,6 +7694,97 @@ def adjust_database_array(bot, nick, entries, databasekey, adjustmentdirection):
         reset_database_value(bot, nick, databasekey)
     else:
         set_database_value(bot, nick, databasekey, adjustarray)
+
+
+# Database Users
+def get_user_dict(bot, duels, nick, dictkey):
+
+    # check that db list is there
+    if not hasattr(duels, 'userdb'):
+        duels.userdb = class_create('userdblist')
+    if not hasattr(duels.userdb, 'list'):
+        duels.userdb.list = []
+
+    returnvalue = 0
+
+    # check if nick has been pulled from db already
+    if nick not in duels.userdb.list:
+        duels.userdb.list.append(nick)
+        nickdict = get_database_value(bot, nick, duels.default) or dict()
+        createuserdict = str("duels.userdb." + nick + " = nickdict")
+        exec(createuserdict)
+    else:
+        if not hasattr(duels.userdb, nick):
+            nickdict = dict()
+        else:
+            nickdict = eval('duels.userdb.' + nick)
+
+    if dictkey in nickdict.keys():
+        returnvalue = nickdict[dictkey]
+    else:
+        nickdict[dictkey] = 0
+        returnvalue = 0
+
+    return returnvalue
+
+
+# set a value
+def set_user_dict(bot, duels, nick, dictkey, value):
+    currentvalue = get_user_dict(bot, duels, nick, dictkey)
+    nickdict = eval('duels.userdb.' + nick)
+    nickdict[dictkey] = value
+
+
+# reset a value
+def reset_user_dict(bot, duels, nick, dictkey):
+    currentvalue = get_user_dict(bot, duels, nick, dictkey)
+    nickdict = eval('duels.userdb.' + nick)
+    if dictkey in nickdict:
+        del nickdict[dictkey]
+
+
+# add or subtract from current value
+def adjust_user_dict(bot, duels, nick, dictkey, value):
+    oldvalue = get_user_dict(bot, duels, nick, dictkey)
+    if not str(oldvalue).isdigit():
+        oldvalue = 0
+    nickdict = eval('duels.userdb.' + nick)
+    nickdict[dictkey] = oldvalue + valueS
+
+
+# Save all database users in list
+def save_user_dicts(bot, duels):
+
+    # check that db list is there
+    if not hasattr(duels, 'userdb'):
+        duels.userdb = class_create('userdblist')
+    if not hasattr(duels.userdb, 'list'):
+        duels.userdb.list = []
+
+    for nick in duels.userdb.list:
+        if not hasattr(duels.userdb, nick):
+            nickdict = dict()
+        else:
+            nickdict = eval('duels.userdb.' + nick)
+        set_database_value(bot, nick, duels.default, nickdict)
+
+
+# add or subtract from current value
+def adjust_user_dict_array(bot, duels, nick, dictkey, entries, adjustmentdirection):
+    if not isinstance(entries, list):
+        entries = [entries]
+    oldvalue = get_user_dict(bot, duels, nick, dictkey)
+    nickdict = eval('duels.userdb.' + nick)
+    if not isinstance(oldvalue, list):
+        oldvalue = []
+    for x in entries:
+        if adjustmentdirection == 'add':
+            if x not in oldvalue:
+                oldvalue.append(x)
+        elif adjustmentdirection == 'del':
+            if x in oldvalue:
+                oldvalue.remove(x)
+    nickdict[dictkey] = oldvalue
 
 
 """

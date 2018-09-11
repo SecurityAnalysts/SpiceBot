@@ -1364,13 +1364,14 @@ Array/List/String Manipulation
 """
 
 
-"""
-Array/List/String Manipulation
-"""
+# Legacy
+def get_trigger_arg(bot, inputs, outputtask, output_type='default'):
+    return spicemanip(bot, inputs, outputtask, output_type)
+    # return get_trigger_arg_old(bot, inputs, outputtask)
 
 
 # Hub
-def spicemanip(bot, inputs, outputtask):
+def spicemanip(bot, inputs, outputtask, output_type='default'):
 
     mainoutputtask, suboutputtask = None, None
 
@@ -1378,10 +1379,7 @@ def spicemanip(bot, inputs, outputtask):
     if not inputs:
         inputs = []
     if not isinstance(inputs, list):
-        if ' ' in inputs:
-            inputs = inputs.split(' ')
-        else:
-            inputs = [inputs]
+        inputs = list(inputs.split(" "))
 
     # Create return
     if outputtask == 'create':
@@ -1417,11 +1415,34 @@ def spicemanip(bot, inputs, outputtask):
         for r in (("!", ""), ("+", ""), ("-", ""), ("<", ""), (">", "")):
             mainoutputtask = mainoutputtask.replace(*r)
 
-    try:
-        returnvalue = eval('spicemanip_' + outputtask + '(bot, inputs, outputtask, mainoutputtask, suboutputtask)')
-    except NameError:
-        returnvalue = ''
+    if outputtask == 'string':
+        returnvalue = inputs
+    else:
+        try:
+            returnvalue = eval('spicemanip_' + outputtask + '(bot, inputs, outputtask, mainoutputtask, suboutputtask)')
+        except NameError:
+            returnvalue = ''
 
+    # default return if not specified
+    if output_type == 'default':
+        if outputtask in [
+                            'string', 'number', 'rangebetween', 'exclude', 'random',
+                            'incrange_plus', 'incrange_minus', 'excrange_plus', 'excrange_minus'
+                            ]:
+            output_type = 'string'
+        elif outputtask in ['count']:
+            output_type = 'dict'
+
+    # verify output is correct
+    if output_type == 'string':
+        if not isinstance(returnvalue, str) and not isinstance(returnvalue, basestring):
+            try:
+                returnvalue = str(' '.join(returnvalue))
+            except TypeError:
+                returnvalue = str(returnvalue)
+    elif output_type in ['list', 'array']:
+        if not isinstance(returnvalue, list):
+            returnvalue = list(returnvalue.split(" "))
     return returnvalue
 
 
@@ -1568,8 +1589,8 @@ def spicemanip_number(bot, inputs, outputtask, mainoutputtask, suboutputtask):
         return ''
     elif len(inputs) == 1:
         return inputs[0]
-    elif int(mainoutputtask) >= len(inputs):
-        return inputs[len(inputs) - 1]
+    elif int(mainoutputtask) > len(inputs) or int(mainoutputtask) < 0:
+        return ''
     else:
         return inputs[int(mainoutputtask) - 1]
 
@@ -1592,10 +1613,13 @@ def spicemanip_rangebetween(bot, inputs, outputtask, mainoutputtask, suboutputta
         return spicemanip_number(bot, inputs, outputtask, mainoutputtask, suboutputtask)
     if suboutputtask < mainoutputtask:
         mainoutputtask, suboutputtask = suboutputtask, mainoutputtask
+    if mainoutputtask < 0:
+        mainoutputtask = 1
+    if suboutputtask > len(inputs):
+        suboutputtask = len(inputs)
     newlist = []
-    for i in range(0, len(inputs)):
-        if i >= mainoutputtask and i <= suboutputtask:
-            newlist.append(str(inputs[i]))
+    for i in range(mainoutputtask, suboutputtask + 1):
+        newlist.append(str(spicemanip_number(bot, inputs, outputtask, i, suboutputtask)))
     if newlist == []:
         return ''
     return ' '.join(newlist)
@@ -1605,14 +1629,14 @@ def spicemanip_rangebetween(bot, inputs, outputtask, mainoutputtask, suboutputta
 def spicemanip_incrange_plus(bot, inputs, outputtask, mainoutputtask, suboutputtask):
     if inputs == []:
         return ''
-    return spicemanip_rangebetween(bot, inputs, outputtask, int(mainoutputtask) - 1, len(inputs))
+    return spicemanip_rangebetween(bot, inputs, outputtask, int(mainoutputtask), len(inputs))
 
 
 # Reverse Range includes index number
 def spicemanip_incrange_minus(bot, inputs, outputtask, mainoutputtask, suboutputtask):
     if inputs == []:
         return ''
-    return spicemanip_rangebetween(bot, inputs, outputtask, 0, int(mainoutputtask) - 1)
+    return spicemanip_rangebetween(bot, inputs, outputtask, 1, int(mainoutputtask))
 
 
 # Forward Range excludes index number
@@ -1626,11 +1650,11 @@ def spicemanip_excrange_plus(bot, inputs, outputtask, mainoutputtask, suboutputt
 def spicemanip_excrange_minus(bot, inputs, outputtask, mainoutputtask, suboutputtask):
     if inputs == []:
         return ''
-    return spicemanip_rangebetween(bot, inputs, outputtask, 0, int(mainoutputtask) - 2)
+    return spicemanip_rangebetween(bot, inputs, outputtask, 1, int(mainoutputtask) - 1)
 
 
 # Hub
-def get_trigger_arg(bot, inputs, outputtask):
+def get_trigger_arg_old(bot, inputs, outputtask):
     # Create
     if outputtask == 'create':
         return create_array(bot, inputs)

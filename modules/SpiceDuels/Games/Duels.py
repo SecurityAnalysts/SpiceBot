@@ -415,7 +415,7 @@ def subcommands(bot, trigger, triggerargsarray, command_full, command_main, duel
     valid_location_commands = duels_location_valid_commands(bot, duels, duels.instigator)
     if command_main.lower() not in valid_location_commands:
         command_location = duels_location_search(bot, duels, command_main.lower())
-        staminarequiredtomove = array_compare(bot, 'location', duels_commands_stamina_required, duels_commands_stamina_cost)
+        staminarequiredtomove = spicemanip(bot, ['location', duels_commands_stamina_required, duels_commands_stamina_cost], 'index')
         combinedstamina = int(duels.command_stamina_cost) + int(staminarequiredtomove)
         if int(combinedstamina) > int(stamina) and not duels.admin and duels.channel_current not in duels.duels_dev_channels:
             osd(bot, duels.instigator, 'notice', "You do not have enough stamina to move from the "+instigatorbio.location+" area to the "+command_location+" area AND perform this action.")
@@ -462,8 +462,8 @@ def subcommands(bot, trigger, triggerargsarray, command_full, command_main, duel
         speceventtotal = get_database_value(bot, 'duelrecorduser', 'specevent') or 0
         if speceventtotal >= 49:
             set_database_value(bot, 'duelrecorduser', 'specevent', 1)
-            osd(bot, duels.channel_current, 'say', duels.instigator + " triggered the special event! Winnings are "+str(array_compare(bot, 'specialevent', duels_ingame_coin_usage, duels_ingame_coin))+" Coins!")
-            adjust_database_value(bot, duels.instigator, 'coin', array_compare(bot, 'specialevent', duels_ingame_coin_usage, duels_ingame_coin))
+            osd(bot, duels.channel_current, 'say', duels.instigator + " triggered the special event! Winnings are "+str(spicemanip(bot, ['specialevent', duels_ingame_coin_usage, duels_ingame_coin], 'index'))+" Coins!")
+            adjust_database_value(bot, duels.instigator, 'coin', spicemanip(bot, ['specialevent', duels_ingame_coin_usage, duels_ingame_coin], 'index'))
         else:
             adjust_database_value(bot, 'duelrecorduser', 'specevent', 1)
 
@@ -767,8 +767,8 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
         # Random Bonus
         if typeofduel == 'random':
             if playerbio_winner.actual != bot.nick and playerbio_winner.actual != playerbio_loser.actual:
-                adjust_database_value(bot, playerbio_winner.actual, 'coin', array_compare(bot, 'random', duels_ingame_coin_usage, duels_ingame_coin))
-                combattextarraycomplete.append(playerbio_winner.nametext + " won the random attack payout of " + str(array_compare(bot, 'random', duels_ingame_coin_usage, duels_ingame_coin)) + " coin!")
+                adjust_database_value(bot, playerbio_winner.actual, 'coin', spicemanip(bot, ['random', duels_ingame_coin_usage, duels_ingame_coin], 'index'))
+                combattextarraycomplete.append(playerbio_winner.nametext + " won the random attack payout of " + str(spicemanip(bot, ['random', duels_ingame_coin_usage, duels_ingame_coin], 'index')) + " coin!")
 
         # Update last fought
         if playerbio_maindueler.actual != playerbio_target.actual and typeofduel in duels_commands_events:
@@ -937,7 +937,7 @@ def duels_command_function_assault(bot, triggerargsarray, command_main, trigger,
         if len(duels.users_canduel_allchan) == 1:
             osd(bot, duels.channel_current, 'say', duels.instigator + " Initiated a full channel " + command_main + " event, but only had one opponent.")
             duel_combat(bot, duels.instigator, duels.users_canduel_allchan, duels.command_restructure, 'target', duels)
-            duels.command_stamina_cost = array_compare(bot, 'combat', duels_commands_stamina_required, duels_commands_stamina_cost)
+            duels.command_stamina_cost = spicemanip(bot, ['combat', duels_commands_stamina_required, duels_commands_stamina_cost], 'index')
         else:
             osd(bot, duels.channel_current, 'say', duels.instigator + " Initiated a full channel " + command_main + " event, but had no targets.")
             duels.command_stamina_cost = 0
@@ -1003,7 +1003,7 @@ def duels_command_function_mayhem(bot, triggerargsarray, command_main, trigger, 
         if len(duels.users_canduel_allchan) == 1:
             osd(bot, duels.channel_current, 'say', duels.instigator + " Initiated a full channel " + command_main + " event, but only had one opponent.")
             duel_combat(bot, duels.instigator, duels.users_canduel_allchan, duels.command_restructure, 'target', duels)
-            duels.command_stamina_cost = array_compare(bot, 'combat', duels_commands_stamina_required, duels_commands_stamina_cost)
+            duels.command_stamina_cost = spicemanip(bot, ['combat', duels_commands_stamina_required, duels_commands_stamina_cost], 'index')
         else:
             osd(bot, duels.channel_current, 'say', duels.instigator + " Initiated a full channel " + command_main + " event, but had no targets.")
             duels.command_stamina_cost = 0
@@ -1161,7 +1161,7 @@ def duels_command_function_colosseum(bot, triggerargsarray, command_main,  trigg
         if len(duels.users_canduel_allchan) == 1:
             osd(bot, duels.channel_current, 'say', duels.instigator + " Initiated a full channel " + command_main + " event, but only had one opponent.")
             duel_combat(bot, duels.instigator, duels.users_canduel_allchan, duels.command_restructure, 'target', duels)
-            duels.command_stamina_cost = array_compare(bot, 'combat', duels_commands_stamina_required, duels_commands_stamina_cost)
+            duels.command_stamina_cost = spicemanip(bot, ['combat', duels_commands_stamina_required, duels_commands_stamina_cost], 'index')
         else:
             osd(bot, duels.channel_current, 'say', duels.instigator + " Initiated a full channel " + command_main + " event, but had no targets.")
             duels.command_stamina_cost = 0
@@ -1243,7 +1243,7 @@ def duels_command_function_monster(bot, triggerargsarray, command_main, trigger,
         # Run a normal duel if only one opponent
         if len(duels.users_canduel_allchan) <= 1:
             duel_combat(bot, duels.instigator, ['duelsmonster'], triggerargsarray, 'combat', duels)
-            duels.command_stamina_cost = array_compare(bot, 'combat', duels_commands_stamina_required, duels_commands_stamina_cost)
+            duels.command_stamina_cost = spicemanip(bot, ['combat', duels_commands_stamina_required, duels_commands_stamina_cost], 'index')
             return
 
         # Announce to channel the contestants
@@ -1389,8 +1389,8 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
             return
 
     # Instigator must wait a day after death
-    getlastdeath = duels_time_since(bot, duels.instigator, 'roulettedeath') or array_compare(bot, 'rouelette_death', duels_timeouts, duels_timeouts_duration)
-    if getlastdeath < array_compare(bot, 'rouelette_death', duels_timeouts, duels_timeouts_duration):
+    getlastdeath = duels_time_since(bot, duels.instigator, 'roulettedeath') or spicemanip(bot, ['rouelette_death', duels_timeouts, duels_timeouts_duration], 'index')
+    if getlastdeath < spicemanip(bot, ['rouelette_death', duels_timeouts, duels_timeouts_duration], 'index'):
         if duels.channel_current in duels.duels_dev_channels or duels.admin:
             allowpass = 1
         elif not duels.inchannel and len(duels.duels_dev_channels) > 0:
@@ -1401,8 +1401,8 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
             return
 
     # Small timeout
-    getlastusage = duels_time_since(bot, 'duelrecorduser', str('lastfullroom' + command_main)) or array_compare(bot, 'roulette', duels_timeouts, duels_timeouts_duration)
-    if getlastusage < array_compare(bot, 'roulette', duels_timeouts, duels_timeouts_duration):
+    getlastusage = duels_time_since(bot, 'duelrecorduser', str('lastfullroom' + command_main)) or spicemanip(bot, ['roulette', duels_timeouts, duels_timeouts_duration], 'index')
+    if getlastusage < spicemanip(bot, ['roulette', duels_timeouts, duels_timeouts_duration], 'index'):
         if duels.channel_current in duels.duels_dev_channels or duels.admin:
             allowpass = 1
         elif not duels.inchannel and len(duels.duels_dev_channels) > 0:
@@ -1482,7 +1482,7 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
         else:
             roulettelastplayeractualtext = str(duels.instigator + " pulled the trigger and was safe.")
         roulettecount = roulettecount + 1
-        roulettepayout = array_compare(bot, 'roulette', duels_ingame_coin_usage, duels_ingame_coin) * roulettecount
+        roulettepayout = spicemanip(bot, ['roulette', duels_ingame_coin_usage, duels_ingame_coin], 'index') * roulettecount
         currentpayout = get_database_value(bot, duels.instigator, 'roulettepayout')
         adjust_database_value(bot, duels.instigator, 'roulettepayout', roulettepayout)
         set_database_value(bot, 'duelrecorduser', 'roulettecount', roulettecount)
@@ -1801,7 +1801,7 @@ def duels_command_function_magic(bot, triggerargsarray, command_main, trigger, c
     quantity = spicemanip(bot, [x for x in duels.command_restructure if str(x).isdigit()], 1) or 1
 
     # How much mana is required
-    manarequired = array_compare(bot, magicusage, duels_magic_types, duels_magic_required)
+    manarequired = spicemanip(bot, [magicusage, duels_magic_types, duels_magic_required], 'index')
     manarequired = int(manarequired) * int(quantity)
 
     if int(manarequired) > int(instigatormana):
@@ -1821,7 +1821,7 @@ def duels_command_function_magic(bot, triggerargsarray, command_main, trigger, c
         displaymsg.append(duels.instigator + " uses magic " + magicusage + " on " + targetbio.nametext + ".")
 
     # instigatormagic
-    damagedealtmax = array_compare(bot, magicusage, duels_magic_types, duels_magic_damage)
+    damagedealtmax = spicemanip(bot, [magicusage, duels_magic_types, duels_magic_damage], 'index')
     damagedealtmax = damagedealtmax * duels.tierscaling
     if instigatormagic * 10 > 100:
         damage = abs(damagedealtmax)
@@ -1829,7 +1829,7 @@ def duels_command_function_magic(bot, triggerargsarray, command_main, trigger, c
         damage = randint(instigatormagic * 10, abs(damagedealtmax))
     damagedealt = int(damage) * int(quantity)
 
-    durationofeffect = array_compare(bot, magicusage, duels_magic_types, duels_magic_duration)
+    durationofeffect = spicemanip(bot, [magicusage, duels_magic_types, duels_magic_duration], 'index')
 
     if magicusage == 'curse':
         actualcurseduration = int(quantity) * int(durationofeffect)
@@ -2018,21 +2018,21 @@ def duels_command_function_character(bot, triggerargsarray, command_main, trigge
             instigatorfreebie = get_database_value(bot, duels.instigator, 'class_freebie') or 0
             if targetbio.actual == duels.instigator:
                 instigatorcoin = get_database_value(bot, duels.instigator, 'coin') or 0
-                if instigatorcoin < array_compare(bot, 'class', duels_ingame_coin_usage, duels_ingame_coin) and instigatorfreebie:
-                    osd(bot, duels.instigator, 'notice', "Changing class costs " + str(array_compare(bot, 'class', duels_ingame_coin_usage, duels_ingame_coin)) + " coin. You need more funding.")
+                if instigatorcoin < spicemanip(bot, ['class', duels_ingame_coin_usage, duels_ingame_coin], 'index') and instigatorfreebie:
+                    osd(bot, duels.instigator, 'notice', "Changing class costs " + str(spicemanip(bot, ['class', duels_ingame_coin_usage, duels_ingame_coin], 'index')) + " coin. You need more funding.")
                     duels.command_stamina_cost = 0
                     return
 
             if targetbio.actual == duels.instigator and duels.channel_current not in duels.duels_dev_channels:
                 classtime = duels_time_since(bot, duels.instigator, 'class_timeout')
-                if classtime < array_compare(bot, 'class', duels_timeouts, duels_timeouts_duration):
+                if classtime < spicemanip(bot, ['class', duels_timeouts, duels_timeouts_duration], 'index'):
                     if duels.channel_current in duels.duels_dev_channels or duels.admin:
                         allowpass = 1
                     elif not duels.inchannel and len(duels_dev_channels) > 0:
                         allowpass = 1
                     else:
                         instigatorclasstime = duels_time_since(bot, duels.instigator, 'class_timeout')
-                        osd(bot, duels.instigator, 'notice', "You may not change your class more than once per " + str(duels_hours_minutes_seconds((array_compare(bot, 'class', duels_timeouts, duels_timeouts_duration) - 1))) + ". Please wait "+str(duels_hours_minutes_seconds((array_compare(bot, 'class', duels_timeouts, duels_timeouts_duration) - instigatorclasstime)))+" to change.")
+                        osd(bot, duels.instigator, 'notice', "You may not change your class more than once per " + str(duels_hours_minutes_seconds((spicemanip(bot, ['class', duels_timeouts, duels_timeouts_duration], 'index') - 1))) + ". Please wait "+str(duels_hours_minutes_seconds((spicemanip(bot, ['class', duels_timeouts, duels_timeouts_duration], 'index') - instigatorclasstime)))+" to change.")
                         duels.command_stamina_cost = 0
                         return
 
@@ -2045,7 +2045,7 @@ def duels_command_function_character(bot, triggerargsarray, command_main, trigge
             if charcommand == 'class' and duels.channel_current not in duels.duels_dev_channels:
                 set_database_value(bot, targetbio.actual, 'class_timeout', duels.now)
                 if instigatorfreebie:
-                    adjust_database_value(bot, duels.instigator, 'coin', -abs(array_compare(bot, 'class', duels_ingame_coin_usage, duels_ingame_coin)))
+                    adjust_database_value(bot, duels.instigator, 'coin', -abs(spicemanip(bot, ['class', duels_ingame_coin_usage, duels_ingame_coin], 'index')))
                 else:
                     set_database_value(bot, duels.instigator, 'class_freebie', 1)
         return
@@ -2453,7 +2453,7 @@ def duels_command_function_loot(bot, triggerargsarray, command_main, trigger, co
         if lootitem == 'stimpack':
             mainlootusemessage = []
 
-            potionworth = array_compare(bot, 'stimpack', duels_loot_items, duels_loot_worth)
+            potionworth = spicemanip(bot, ['stimpack', duels_loot_items, duels_loot_worth], 'index')
             potionmaths = int(quantity) * potionworth
 
             # Select a body part
@@ -2465,7 +2465,7 @@ def duels_command_function_loot(bot, triggerargsarray, command_main, trigger, co
                 return
 
             # Health Maximum and status
-            maxbodyparthealth = array_compare(bot, bodypartselect, duels_bodyparts, duels_bodyparts_health)
+            maxbodyparthealth = spicemanip(bot, [bodypartselect, duels_bodyparts, duels_bodyparts_health], 'index')
             maxbodyparthealth = maxbodyparthealth * duels.tierscaling
             currentbodyparthealth = get_database_value(bot, targetbio.actual, bodypartselect)
 
@@ -2479,7 +2479,7 @@ def duels_command_function_loot(bot, triggerargsarray, command_main, trigger, co
 
             adjust_database_value(bot, targetbio.actual, 'stimpack', -abs(quantity))
 
-            potionworth = array_compare(bot, 'stimpack', duels_loot_items, duels_loot_worth)
+            potionworth = spicemanip(bot, ['stimpack', duels_loot_items, duels_loot_worth], 'index')
             potionmaths = int(quantity) * potionworth
 
             if int(quantity) == 1:
@@ -2717,7 +2717,7 @@ def duels_command_function_opt(bot, triggerargsarray, command_main, trigger, com
 
     # User can't toggle status all the time
     targetopttime = duels_time_since(bot, target, 'timeout_opttimetime')
-    if targetopttime < array_compare(bot, 'opttime', duels_timeouts, duels_timeouts_duration):
+    if targetopttime < spicemanip(bot, ['opttime', duels_timeouts, duels_timeouts_duration], 'index'):
         if duels.channel_current in duels.duels_dev_channels or duels.admin:
             allowpass = 1
         elif not duels.inchannel and len(duels.duels_dev_channels) > 0:
@@ -2725,7 +2725,7 @@ def duels_command_function_opt(bot, triggerargsarray, command_main, trigger, com
         elif duels.admin and targetbio.actual != duels.instigator:
             allowpass = 1
         else:
-            osd(bot, duels.instigator, 'notice', "It looks like you can't enable/disable duels for " + str(duels_hours_minutes_seconds((array_compare(bot, 'opttime', duels_timeouts, duels_timeouts_duration) - targetopttime))) + ".")
+            osd(bot, duels.instigator, 'notice', "It looks like you can't enable/disable duels for " + str(duels_hours_minutes_seconds((spicemanip(bot, ['opttime', duels_timeouts, duels_timeouts_duration], 'index') - targetopttime))) + ".")
             duels.command_stamina_cost = 0
             return
 
@@ -2940,15 +2940,15 @@ def duels_command_function_title(bot, triggerargsarray, command_main, trigger, c
 
     if targetbio.actual != duels.instigator:
         instigatorcoin = get_database_value(bot, duels.instigator, 'coin') or 0
-        if instigatorcoin < array_compare(bot, 'title', duels_ingame_coin_usage, duels_ingame_coin):
-            osd(bot, duels.instigator, 'notice', "Changing your title costs " + str(array_compare(bot, 'title', duels_ingame_coin_usage, duels_ingame_coin)) + " coin. You need more funding.")
+        if instigatorcoin < spicemanip(bot, ['title', duels_ingame_coin_usage, duels_ingame_coin], 'index'):
+            osd(bot, duels.instigator, 'notice', "Changing your title costs " + str(spicemanip(bot, ['title', duels_ingame_coin_usage, duels_ingame_coin], 'index')) + " coin. You need more funding.")
             duels.command_stamina_cost = 0
             return
         if len(titletoset) > 10:
             osd(bot, duels.instigator, 'notice', "Purchased titles can be no longer than 10 characters.")
             duels.command_stamina_cost = 0
             return
-        adjust_database_value(bot, duels.instigator, 'coin', -abs(array_compare(bot, 'title', duels_ingame_coin_usage, duels_ingame_coin)))
+        adjust_database_value(bot, duels.instigator, 'coin', -abs(spicemanip(bot, ['title', duels_ingame_coin_usage, duels_ingame_coin], 'index')))
 
     set_database_value(bot, targetbio.actual, 'title', titletoset)
     if targetbio.actual != duels.instigator:
@@ -3280,7 +3280,7 @@ def duels_command_function_merchant(bot, triggerargsarray, command_main, trigger
         merchantarray = []  # TODO track loot usage by players and create supply vs demand
         merchantarray.append("Merchant's Supply: ")
         for lootitem in duels_loot_items:
-            current_loot_cost = array_compare(bot, lootitem, duels_loot_items, duels_loot_cost)
+            current_loot_cost = spicemanip(bot, [lootitem, duels_loot_items, duels_loot_cost], 'index')
             if current_loot_cost != 'no':
 
                 # Cost of item
@@ -3657,20 +3657,20 @@ def duels_command_function_tavern(bot, triggerargsarray, command_main, trigger, 
             for stat in stats_character:
                 firstletter = stat[:1].title()
                 current_stat_tavern = eval("duels_tavern_special_"+stat)
-                currenteffect = array_compare(bot, beverage, duels_tavern_items, current_stat_tavern)
+                currenteffect = spicemanip(bot, [beverage, duels_tavern_items, current_stat_tavern], 'index')
                 if currenteffect != 0:
                     if currenteffect > 0:
                         currenteffect = str("+"+str(currenteffect))
                     currenteffect = str(str(currenteffect)+firstletter)
                     effectsarray.append(currenteffect)
             effectslist = spicemanip(bot, effectsarray, "list")
-            currentcost = array_compare(bot, beverage, duels_tavern_items, duels_tavern_cost)
+            currentcost = spicemanip(bot, [beverage, duels_tavern_items, duels_tavern_cost], 'index')
             beveragelisting.append(beverage.title() + "=(" + str(effectslist) + ")" + "[" + str(currentcost) + "$]")
         osd(bot, duels.channel_current, 'say', beveragelisting)
         duels.command_stamina_cost = 0
         return
 
-    current_loot_cost = array_compare(bot, beveragetype, duels_tavern_items, duels_tavern_cost)
+    current_loot_cost = spicemanip(bot, [beveragetype, duels_tavern_items, duels_tavern_cost], 'index')
 
     # The quantity the player is applyint to this transaction
     quantity = spicemanip(bot, [x for x in duels.command_restructure if x == 'all' or str(x).isdigit()], 1) or 1
@@ -3698,7 +3698,7 @@ def duels_command_function_tavern(bot, triggerargsarray, command_main, trigger, 
 
     for stat in stats_character:
         current_stat_tavern = eval("duels_tavern_special_"+stat)
-        currenteffect = array_compare(bot, beveragetype, duels_tavern_items, current_stat_tavern)
+        currenteffect = spicemanip(bot, [beveragetype, duels_tavern_items, current_stat_tavern], 'index')
         if currenteffect != 0:
             currenteffect = int(currenteffect) * int(quantity)
             currentvalue = str("lootusing."+stat+"="+str(currenteffect))
@@ -4012,7 +4012,7 @@ def duels_command_function_leaderboard(bot, triggerargsarray, command_main, trig
                     playerarray = spicemanip(bot, playerarray, 'reverse')
                 numberstat = int(subcommand)
                 playeratrankno = spicemanip(bot, playerarray, numberstat)
-                currentranking = array_compare(bot, playeratrankno, playerarray, statvaluearray)
+                currentranking = spicemanip(bot, [playeratrankno, playerarray, statvaluearray], 'index')
                 if stat == 'health':
                     playerclass = get_database_value(bot, playeratrankno, 'class') or 'unknown'
                     if playerclass == 'vampire':
@@ -4056,7 +4056,7 @@ def duels_command_function_leaderboard(bot, triggerargsarray, command_main, trig
                 if x != 'health':
                     statvaluearray = spicemanip(bot, statvaluearray, 'reverse')
                     playerarray = spicemanip(bot, playerarray, 'reverse')
-                currentranking = array_compare(bot, target, playerarray, statvaluearray)
+                currentranking = spicemanip(bot, [target, playerarray, statvaluearray], 'index')
                 playernumber, targetnumber = 0, 0
                 for player in playerarray:
                     playernumber = playernumber + 1
@@ -4146,7 +4146,7 @@ def duels_command_function_bounty(bot, triggerargsarray, command_main, trigger, 
             duels.command_stamina_cost = 0
             return
         else:
-            amount = array_compare(bot, 'bugbounty', duels_ingame_coin_usage, duels_ingame_coin)
+            amount = spicemanip(bot, ['bugbounty', duels_ingame_coin_usage, duels_ingame_coin], 'index')
     amount = int(amount)
 
     if bountytype == 'bug':
@@ -4726,10 +4726,10 @@ def chance_event_run(bot, duels, eventtype, eventlocation):
     if current_location_list != []:
         effectedplayers = spicemanip(bot, current_location_list, 'list')
 
-        chance_event_durationmax = array_compare(bot, eventtype, duels_chance_events_types, duels_chance_events_duration)
+        chance_event_durationmax = spicemanip(bot, [eventtype, duels_chance_events_types, duels_chance_events_duration], 'index')
         chance_event_durationtime = randint(1200, chance_event_durationmax)
-        chance_event_damage = array_compare(bot, eventtype, duels_chance_events_types, duels_chance_events_damage)
-        chance_event_special = array_compare(bot, eventtype, duels_chance_events_types, duels_chance_events_effected)
+        chance_event_damage = spicemanip(bot, [eventtype, duels_chance_events_types, duels_chance_events_damage], 'index')
+        chance_event_special = spicemanip(bot, [eventtype, duels_chance_events_types, duels_chance_events_effected], 'index')
 
         if len(current_location_list) > 1:
             dispmsgarray.append(str(effectedplayers) + " are unable to escape the " + str(eventtype) + " and have a " + str(chance_event_damage) + " to their " + str(chance_event_special) + " for " + str(duels_hours_minutes_seconds(chance_event_durationtime)))
@@ -4785,7 +4785,7 @@ def duels_halfhourtimer(bot):
             # Log out users that aren't playing
             lastcommandusedtime = duels_time_since(bot, u, 'lastcommand') or 0
             lastping = duels_time_since(bot, u, 'lastping') or 0
-            if array_compare(bot, 'auto-opt', duels_timeouts, duels_timeouts_duration) < lastcommandusedtime and lastping < array_compare(bot, 'auto-opt', duels_timeouts, duels_timeouts_duration):
+            if spicemanip(bot, ['auto-opt', duels_timeouts, duels_timeouts_duration], 'index') < lastcommandusedtime and lastping < spicemanip(bot, ['auto-opt', duels_timeouts, duels_timeouts_duration], 'index'):
                 logoutarray.append(u)
                 reset_database_value(bot, u, 'lastping')
             else:
@@ -4917,7 +4917,7 @@ def duels_docs_commands(bot, command):
     # Stamina Costs
     commandstaminacost = 0
     try:
-        commandstaminacost = array_compare(bot, command, duels_commands_stamina_required, duels_commands_stamina_cost) or 0
+        commandstaminacost = spicemanip(bot, [command, duels_commands_stamina_required, duels_commands_stamina_cost], 'index')
     except NameError:
         commandstaminacost = 0
     if commandstaminacost > 0:
@@ -4927,7 +4927,7 @@ def duels_docs_commands(bot, command):
         endmessage.append("Must be run in channel.")
 
     if command.lower() in duels_commands_special_events:
-        endmessage.append("Eligible for the 50th usage payout of " + str(array_compare(bot, 'specialevent', duels_ingame_coin_usage, duels_ingame_coin)) + " coins!")
+        endmessage.append("Eligible for the 50th usage payout of " + str(spicemanip(bot, ['specialevent', duels_ingame_coin_usage, duels_ingame_coin], 'index')) + " coins!")
 
     # timeout TODO
     try:
@@ -5154,7 +5154,7 @@ def duels_opening_monologue(bot, duels, user, opening_monologue, tierset, char_b
 
     # random Gender/Class/Race
     for char_basic in duels_character_basics:
-        currentarraysetting = array_compare(bot, char_basic, duels_character_basics, char_basics_array)
+        currentarraysetting = spicemanip(bot, [char_basic, duels_character_basics, char_basics_array], 'index')
         if currentarraysetting == '':
             if char_basic in opening_monologue:
                 currentrandomarray = eval('duels_character_valid_'+char_basic)
@@ -5225,8 +5225,8 @@ def duels_check_instigator(bot, trigger, command_main, duels, instigatorbio):
     # Check if Instigator is Opted in
     if duels.instigator not in duels.users_opted:
         instigatoropttime = duels_time_since(bot, duels.instigator, 'timeout_opttimetime')
-        if instigatoropttime < array_compare(bot, 'opttime', duels_timeouts, duels_timeouts_duration) and duels.dev_bypass_checks == 1 and not trigger.admin:
-            osd(bot, duels.instigator, 'notice', "You are not opted into duels. It looks like you can't enable/disable duels for " + str(duels_hours_minutes_seconds((array_compare(bot, 'opttime', duels_timeouts, duels_timeouts_duration) - instigatoropttime))) + ".")
+        if instigatoropttime < spicemanip(bot, ['opttime', duels_timeouts, duels_timeouts_duration], 'index') and duels.dev_bypass_checks == 1 and not trigger.admin:
+            osd(bot, duels.instigator, 'notice', "You are not opted into duels. It looks like you can't enable/disable duels for " + str(duels_hours_minutes_seconds((spicemanip(bot, ['opttime', duels_timeouts, duels_timeouts_duration], 'index') - instigatoropttime))) + ".")
             return checkpass
         else:
             if command_main != 'off' and command_main != 'on':
@@ -5500,7 +5500,7 @@ def duels_stamina_check(bot, nick, command, duels):
 
     stamina = get_database_value(bot, nick, 'stamina') or 0
     if command in duels_commands_stamina_required:
-        commandstaminacost = array_compare(bot, command, duels_commands_stamina_required, duels_commands_stamina_cost)
+        commandstaminacost = spicemanip(bot, [command, duels_commands_stamina_required, duels_commands_stamina_cost], 'index')
     else:
         commandstaminacost = 0
 
@@ -5522,7 +5522,7 @@ def duels_stamina_check(bot, nick, command, duels):
 def duels_stamina_charge(bot, nick, command):
 
     if command in duels_commands_stamina_required:
-        commandstaminacost = array_compare(bot, command, duels_commands_stamina_required, duels_commands_stamina_cost)
+        commandstaminacost = spicemanip(bot, [command, duels_commands_stamina_required, duels_commands_stamina_cost], 'index')
     else:
         commandstaminacost = 0
 
@@ -5564,7 +5564,7 @@ def duels_check_nick_condition(bot, nick, duels):
 
         # new player max health
         for part in duels_bodyparts:
-            maxhealthpart = array_compare(bot, part, duels_bodyparts, duels_bodyparts_health)
+            maxhealthpart = spicemanip(bot, [part, duels_bodyparts, duels_bodyparts_health], 'index')
             currenthealthtier = duels.tierscaling * int(maxhealthpart)
             set_database_value(bot, nick, part, currenthealthtier)
 
@@ -5584,7 +5584,7 @@ def duels_check_nick_condition(bot, nick, duels):
             osd(bot, nick, 'notice', "it looks like you were almost killed by "+deathblowkiller+", but the deathblow command was not issued in time. Your health has been restored! You have been moved to town.")
             duels_location_move(bot, duels, nick, 'town')
             for part in duels_bodyparts:
-                maxhealthpart = array_compare(bot, part, duels_bodyparts, duels_bodyparts_health)
+                maxhealthpart = spicemanip(bot, [part, duels_bodyparts, duels_bodyparts_health], 'index')
                 currenthealthtier = duels.tierscaling * int(maxhealthpart)
                 set_database_value(bot, nick, part, currenthealthtier)
             reset_database_value(bot, nick, 'deathblow')
@@ -5604,7 +5604,7 @@ def duels_check_nick_condition(bot, nick, duels):
         parthealth = get_database_value(bot, nick, part) or 0
 
         # find the maximum allowed health for part
-        maxhealthpart = array_compare(bot, part, duels_bodyparts, duels_bodyparts_health)
+        maxhealthpart = spicemanip(bot, [part, duels_bodyparts, duels_bodyparts_health], 'index')
 
         # scale the health maximum
         currenthealthtier = duels.tierscaling * int(maxhealthpart)
@@ -5635,7 +5635,7 @@ def duels_check_nick_condition(bot, nick, duels):
     if simulatedrespawn:
         # fresh health
         for part in duels_bodyparts:
-            maxhealthpart = array_compare(bot, part, duels_bodyparts, duels_bodyparts_health)
+            maxhealthpart = spicemanip(bot, [part, duels_bodyparts, duels_bodyparts_health], 'index')
             currenthealthtier = duels.tierscaling * int(maxhealthpart)
             set_database_value(bot, nick, part, currenthealthtier)
         # fresh stamina
@@ -5804,7 +5804,7 @@ def duels_death_handling(bot, duels, inflicter, inflictee):
 
     # Health
     for part in duels_bodyparts:
-        maxhealthpart = array_compare(bot, part, duels_bodyparts, duels_bodyparts_health)
+        maxhealthpart = spicemanip(bot, [part, duels_bodyparts, duels_bodyparts_health], 'index')
         if inflicter.actual == inflictee.actual:
             healthtoset = maxhealthpart
         else:
@@ -5908,7 +5908,7 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
                         bodypartinflictarray.append(bodypart)
                 else:
                     totalhealth = get_database_value(bot, inflictee.actual, bodypart)
-                    gethowmanymax = array_compare(bot, bodypart, duels_bodyparts, duels_bodyparts_health)
+                    gethowmanymax = spicemanip(bot, [bodypart, duels_bodyparts, duels_bodyparts_health], 'index')
                     gethowmanymax = gethowmanymax * duels.tierscaling
                     totalhealthmax = int(gethowmanymax)
                     if totalhealth < totalhealthmax:
@@ -5993,7 +5993,7 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
                 parthealth = get_database_value(bot, inflictee.actual, bodypart) or 0
 
                 # find the maximum allowed health for part
-                maxhealthpart = array_compare(bot, bodypart, duels_bodyparts, duels_bodyparts_health)
+                maxhealthpart = spicemanip(bot, [bodypart, duels_bodyparts, duels_bodyparts_health], 'index')
 
                 # scale the health maximum
                 currenthealthtier = duels.tierscaling * int(maxhealthpart)
@@ -6011,7 +6011,7 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
                 for x in duels_bodyparts:
                     gethowmany = get_database_value(bot, inflictee.actual, x)
                     totalhealth = totalhealth + gethowmany
-                    gethowmanymax = array_compare(bot, x, duels_bodyparts, duels_bodyparts_health)
+                    gethowmanymax = spicemanip(bot, [x, duels_bodyparts, duels_bodyparts_health], 'index')
                     gethowmanymax = gethowmanymax * duels.tierscaling
                     gethowmanymax = int(gethowmanymax)
                     totalhealthmax = totalhealthmax + gethowmanymax
@@ -6022,7 +6022,7 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
             else:
                 singlebodypart = spicemanip(bot, bodypartinflictarray, 1)
                 totalhealth = get_database_value(bot, inflictee.actual, singlebodypart)
-                gethowmanymax = array_compare(bot, singlebodypart, duels_bodyparts, duels_bodyparts_health)
+                gethowmanymax = spicemanip(bot, [singlebodypart, duels_bodyparts, duels_bodyparts_health], 'index')
                 gethowmanymax = gethowmanymax * duels.tierscaling
                 totalhealthmax = int(gethowmanymax)
                 singlebodypart = singlebodypart.replace("_", " ")
@@ -6101,7 +6101,7 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
 
                         # Armor
                         if currentsplitdamage > 0 and situation != 'magic' and situation != 'loot':
-                            armortype = array_compare(bot, bodypart, duels_bodyparts, stats_armor)
+                            armortype = spicemanip(bot, [bodypart, duels_bodyparts, stats_armor], 'index')
                             armorinflictee = get_database_value(bot, inflictee.actual, armortype) or 0
                             if armorinflictee:
                                 armorname = armortype.replace("_", " ")
@@ -6267,7 +6267,7 @@ def duels_stats_view(bot, duels, target_stats_view, targetbio, customview, actua
                 gethowmany = str(duels_hours_minutes_seconds((eval(x) - gethowmany)))
             if x in duels_bodyparts:
                 statname = x.replace("_", " ")
-                gethowmanymax = array_compare(bot, x, duels_bodyparts, duels_bodyparts_health)
+                gethowmanymax = spicemanip(bot, [x, duels_bodyparts, duels_bodyparts_health], 'index')
                 gethowmanymax = gethowmanymax * duels.tierscaling
                 gethowmanymax = int(gethowmanymax)
                 if targetbio.race == 'vampire':
@@ -6276,12 +6276,12 @@ def duels_stats_view(bot, duels, target_stats_view, targetbio, customview, actua
                 gethowmany = str(str(gethowmany) + "/" + str(gethowmanymax))
             if x in stats_armor:
                 if gethowmany == 'stockarmor':
-                    statname = array_compare(bot, x, stats_armor, duels_default_armor)
+                    statname = spicemanip(bot, [x, stats_armor, duels_default_armor], 'index')
                     statname = statname.replace("_", " ")
                     gethowmany = 'poor'
                 else:
                     statname = x.replace("_", " ")
-                    gethowmanymax = array_compare(bot, x, duels_forge_items, duels_armor_durabilitymax)
+                    gethowmanymax = aspicemanip(bot, [x, duels_forge_items, duels_armor_durabilitymax], 'index')
                     if targetbio.Class == 'blacksmith':
                         gethowmanymax = gethowmanymax + 5
                     gethowmanymax = gethowmanymax * duels.tierscaling
@@ -6291,7 +6291,7 @@ def duels_stats_view(bot, duels, target_stats_view, targetbio, customview, actua
                 statname = 'Total Health'
                 totalhealthmax = 0
                 for j in duels_bodyparts:
-                    gethowmanymax = array_compare(bot, j, duels_bodyparts, duels_bodyparts_health)
+                    gethowmanymax = spicemanip(bot, [j, duels_bodyparts, duels_bodyparts_health], 'index')
                     gethowmanymax = gethowmanymax * duels.tierscaling
                     gethowmanymax = int(gethowmanymax)
                     totalhealthmax += gethowmanymax
@@ -6487,7 +6487,7 @@ def duels_merchant_restock(bot):
     shelfhalf = duels_merchant_inv_max / 2
 
     for lootitem in duels_loot_items:
-        current_loot_cost = array_compare(bot, lootitem, duels_loot_items, duels_loot_cost)
+        current_loot_cost = spicemanip(bot, [lootitem, duels_loot_items, duels_loot_cost], 'index')
         if current_loot_cost != 'no':
             merchquant = eval(str("merchinv."+lootitem))
 
@@ -6513,7 +6513,7 @@ def duels_merchant_inventory(bot):
     merchantinitialinv = get_database_value(bot, 'duelsmerchant', 'newvendor')
     if not merchantinitialinv:
         for x in duels_loot_items:
-            current_loot_cost = array_compare(bot, x, duels_loot_items, duels_loot_cost)
+            current_loot_cost = spicemanip(bot, [x, duels_loot_items, duels_loot_cost], 'index')
             if current_loot_cost != 'no':
                 set_database_value(bot, 'duelsmerchant', x, duels_merchant_inv_max)
                 currentvalue = str("merchinv."+x+"="+str(duels_merchant_inv_max))
@@ -6531,7 +6531,7 @@ def duels_merchant_inventory(bot):
 
     # Normal vendor
     for x in duels_loot_items:
-        current_loot_cost = array_compare(bot, x, duels_loot_items, duels_loot_cost)
+        current_loot_cost = spicemanip(bot, [x, duels_loot_items, duels_loot_cost], 'index')
         if current_loot_cost != 'no':
             gethowmany = get_database_value(bot, 'duelsmerchant', x)
             if not gethowmany:
@@ -6698,7 +6698,7 @@ def duels_events_check(bot, command_main, duels):
         for x in validtargetmsgb:
             validtargetmsg.append(x)
 
-    timeouteval = array_compare(bot, command_main.lower(), duels_timeouts, duels_timeouts_duration)
+    timeouteval = spicemanip(bot, [command_main.lower(), duels_timeouts, duels_timeouts_duration], 'index')
     getlastusage = duels_time_since(bot, 'duelrecorduser', str('lastfullroom' + command_main)) or timeouteval
     getlastinstigator = get_database_value(bot, 'duelrecorduser', str('lastfullroom' + command_main + 'instigator')) or bot.nick
 
@@ -7064,7 +7064,7 @@ def duels_use_loot_item(bot, duels, nickusing, target, lootitem, quantity, extra
     if lootitem in duels_loot_null and lootitem != 'water':
         potionworth = 2
     else:
-        potionworth = array_compare(bot, lootitem, duels_loot_items, duels_loot_worth)
+        potionworth = spicemanip(bot, [lootitem, duels_loot_items, duels_loot_worth], 'index')
     potionmaths = int(quantity) * potionworth
 
     # Null loot
@@ -7841,6 +7841,9 @@ def spicemanip(bot, inputs, outputtask, output_type='default'):
         mainoutputtask = inputs[1]
         suboutputtask = inputs[2]
         inputs = inputs[0]
+    elif outputtask == 'arrange':
+        mainoutputtask = inputs[0]
+        suboutputtask = inputs[1]
     elif str(outputtask).isdigit():
         mainoutputtask, outputtask = int(outputtask), 'number'
     elif "^" in str(outputtask):
@@ -8121,14 +8124,6 @@ def spicemanip_excrange_minus(bot, inputs, outputtask, mainoutputtask, suboutput
     if inputs == []:
         return ''
     return spicemanip_rangebetween(bot, inputs, outputtask, 1, int(mainoutputtask) - 1)
-
-
-def array_compare(bot, indexitem, arraytoindex, arraytocompare):
-    item = ''
-    for x, y in zip(arraytoindex, arraytocompare):
-        if x == indexitem:
-            item = y
-    return item
 
 
 def array_arrangesort(bot, sortbyarray, arrayb):

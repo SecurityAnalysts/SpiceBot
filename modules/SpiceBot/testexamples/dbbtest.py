@@ -30,14 +30,6 @@ def mainfunction(bot, trigger):
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     osd(bot, trigger.sender, 'say', "This is deathbybandaid's test module")
 
-    arrayone = ['hand', 'foot', 'mouth']
-    arraytwo = ['glove', 'boot', 'muzzle']
-
-    riddleme = spicemanip(bot, ['foot', arrayone, arraytwo], 'index')
-    bot.say(str(riddleme))
-
-    return
-
     triggerargsarray = spicemanip(bot, trigger.group(2), 'create')
     bot.say(str(triggerargsarray))
 
@@ -392,14 +384,6 @@ def spicemanip_excrange_minus(bot, inputs, outputtask, mainoutputtask, suboutput
     if inputs == []:
         return ''
     return spicemanip_rangebetween(bot, inputs, outputtask, 1, int(mainoutputtask) - 1)
-
-
-def array_compare(bot, indexitem, arraytoindex, arraytocompare):
-    item = ''
-    for x, y in zip(arraytoindex, arraytocompare):
-        if x == indexitem:
-            item = y
-    return item
 
 
 def array_arrangesort(bot, sortbyarray, arrayb):

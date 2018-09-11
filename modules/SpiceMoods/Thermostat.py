@@ -35,7 +35,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     if not tempcommand or tempcommand in temp_scales or tempcommand in temp_scales_short:
         if tempcommand in temp_scales or tempcommand in temp_scales_short:
             if tempcommand in temp_scales_short:
-                tempcommand = array_compare(bot, tempcommand, temp_scales_short, temp_scales)
+                spicemanip(bot, [tempcommand, temp_scales_short, temp_scales], 'index')
             tempconvert = tempcommand
         else:
             tempconvert = spicemanip(bot, temp_scales, 'random')
@@ -60,7 +60,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         return
 
     if tempscale in temp_scales_short:
-        tempscale = array_compare(bot, tempscale, temp_scales_short, temp_scales)
+        tempscale = spicemanip(bot, [tempscale, temp_scales_short, temp_scales], 'index')
 
     tempcond = temp_condition(bot, number, tempscale)
 

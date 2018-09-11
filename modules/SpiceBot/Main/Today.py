@@ -44,7 +44,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
 def howlonguntilfriday(bot, whatistoday):
     fridaynumber = '4'
     if whatistoday == fridaynumber:
-        deityofchoice = spicemanip(bot, deities, 'random')
+        deityofchoice = get_trigger_arg(bot, deities, 'random')
         daystilfriday = "Thank " + str(deityofchoice) + " It's Friday! It's finally here!!!"
     elif whatistoday == '5' or whatistoday == '6':
         daystilfriday = "It's the Weekend!"

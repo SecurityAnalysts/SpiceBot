@@ -20,5 +20,5 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    target = spicemanip(bot, triggerargsarray, 1) or "DoubleD"
+    target = get_trigger_arg(bot, triggerargsarray, 1) or "DoubleD"
     osd(bot, trigger.sender, 'say', "With the power of magic and the love of small children, " + target + " has done the impossible. He has brought on whirled peas.")

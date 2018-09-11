@@ -18,7 +18,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    target = spicemanip(bot, triggerargsarray, 1)
+    target = get_trigger_arg(bot, triggerargsarray, 1)
     if not target:
         item = "sniffing glue"
     else:

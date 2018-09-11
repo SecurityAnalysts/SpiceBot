@@ -80,9 +80,9 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    answer1 = spicemanip(bot, insalton, 'random')
-    answer2 = spicemanip(bot, insalttw, 'random')
-    answer3 = spicemanip(bot, insaltth, 'random')
+    answer1 = get_trigger_arg(bot, insalton, 'random')
+    answer2 = get_trigger_arg(bot, insalttw, 'random')
+    answer3 = get_trigger_arg(bot, insaltth, 'random')
 
     message = "You are a " + answer1 + " " + answer2 + " " + answer3 + "."
     osd(bot, trigger.sender, 'say', message)

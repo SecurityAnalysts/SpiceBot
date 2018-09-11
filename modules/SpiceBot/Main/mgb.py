@@ -21,7 +21,7 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     basestring = "mumble-grumble-"
-    inputstring = spicemanip(bot, triggerargsarray, '1+')
+    inputstring = get_trigger_arg(bot, triggerargsarray, '1+')
     displaystring = "bullshit"
     if inputstring:
         displaystring = inputstring.replace(' ', '-')

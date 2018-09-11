@@ -21,7 +21,7 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
-    target = spicemanip(bot, triggerargsarray, 1)
+    target = get_trigger_arg(bot, triggerargsarray, 1)
     osd(bot, trigger.sender, 'action', instigator + " wispers to " + bot.nick)
     if not target:
         osd(bot, trigger.sender, 'action', bot.nick +  " yells neiner neiner at " + instigator)

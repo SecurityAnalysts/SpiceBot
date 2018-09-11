@@ -24,8 +24,8 @@ def mainfunction(bot, trigger):
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     decide = random.randint(1, 10)
     if decide > 7:
-        response = spicemanip(bot, actions, 'random')
+        response = get_trigger_arg(bot, actions, 'random')
         osd(bot, trigger.sender, 'action', response)
     else:
-        answer = spicemanip(bot, replies, 'random')
+        answer = get_trigger_arg(bot, replies, 'random')
         osd(bot, trigger.sender, 'say', answer)

@@ -21,9 +21,9 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
-    target = spicemanip(bot, triggerargsarray, 1)
+    target = get_trigger_arg(bot, triggerargsarray, 1)
     if not target:
         allUsers = [u.lower() for u in bot.users]
-        target = spicemanip(bot, allUsers, "random") or 'spicebot'
+        target = get_trigger_arg(bot, allUsers, "random") or 'spicebot'
     message = instigator + " kicks " + target + " with a big old boot!"
     osd(bot, trigger.sender, 'say', message)

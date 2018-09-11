@@ -39,15 +39,15 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
 
     if transfer(bot, botcom, instigator, 'casino', monopolyfee):
         if deckchoice == 1:
-            chancecard = spicemanip(bot, gooddeck, 'random')
+            chancecard = get_trigger_arg(bot, gooddeck, 'random')
             msg = chancecard + " and wins " + str(payout) + " Spicebucks"
             addbucks(bot, botcom, instigator, payout)
         elif deckchoice == 2:
-            chancecard = spicemanip(bot, baddeck, 'random')
+            chancecard = get_trigger_arg(bot, baddeck, 'random')
             msg = chancecard + " and loses " + str(payout) + " Spicebucks"
             minusbucks(bot, botcom, instigator, payout)
         elif deckchoice == 3:
-            msg = spicemanip(bot, neutraldeck, 'random')
+            msg = get_trigger_arg(bot, neutraldeck, 'random')
             payout = 0
         osd(bot, channel, 'say', instigator + " risks " + str(monopolyfee) + " Spicebucks to draw a card from the chance deck! " + instigator + " gets " + msg + ".")
     else:

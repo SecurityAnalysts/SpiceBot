@@ -18,7 +18,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    pill = spicemanip(bot, triggerargsarray, 1)
+    pill = get_trigger_arg(bot, triggerargsarray, 1)
     if not pill:
         message = 'You have two choices. redpill or bluepill'
     elif pill == 'redpill':

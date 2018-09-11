@@ -207,7 +207,7 @@ def create_args_array(fullstring):
             triggerargsarray.append(word)
     return triggerargsarray
 
-def spicemanip(triggerargsarray, number):
+def get_trigger_arg(triggerargsarray, number):
     totalarray = len(triggerargsarray)
     totalarray = totalarray + 1
     triggerarg = ''
@@ -238,7 +238,7 @@ def spicemanip(triggerargsarray, number):
             rangeb = totalarray
         if rangea <= totalarray:
             for i in range(rangea,rangeb):
-                arg = spicemanip(triggerargsarray, i)
+                arg = get_trigger_arg(triggerargsarray, i)
                 if triggerarg != '':
                     triggerarg = str(triggerarg + " " + arg)
                 else:
@@ -251,7 +251,7 @@ def spicemanip(triggerargsarray, number):
         number = re.sub(r"!", '', str(number))
         for i in range(1,totalarray):
             if int(i) != int(number):
-                arg = spicemanip(triggerargsarray, i)
+                arg = get_trigger_arg(triggerargsarray, i)
                 if triggerarg != '':
                     triggerarg = str(triggerarg + " " + arg)
                 else:

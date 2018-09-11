@@ -20,8 +20,8 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    target = spicemanip(bot, triggerargsarray, 1)
-    reason = spicemanip(bot, triggerargsarray, '2+')
+    target = get_trigger_arg(bot, triggerargsarray, 1)
+    reason = get_trigger_arg(bot, triggerargsarray, '2+')
     message = "Whoops, something went wrong."
     # Nothing specified
     if not target:
@@ -33,7 +33,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
 
     # Target is fine
     else:
-        weapon = spicemanip(bot, spankweapons, 'random')
+        weapon = get_trigger_arg(bot, spankweapons, 'random')
         if not reason:
             message = trigger.nick + " spanks " + target + " with a " + weapon + "."
         else:

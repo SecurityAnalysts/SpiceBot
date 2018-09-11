@@ -23,7 +23,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    requested = spicemanip(bot, triggerargsarray, 0)
+    requested = get_trigger_arg(bot, triggerargsarray, 0)
     myline = ''
     if not requested:
         myline = randomfra()
@@ -43,11 +43,11 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
                 if rulenumber > numberoflines:
                     myline = "Please select a rule number between 1 and " + str(numberoflines) + ""
                 else:
-                    myline = spicemanip(bot, lines, rulenumber)
+                    myline = get_trigger_arg(bot, lines, rulenumber)
             else:
                 try:
                     rulenumber = w2n.word_to_num(str(requested))
-                    myline = spicemanip(bot, lines, rulenumber)
+                    myline = get_trigger_arg(bot, lines, rulenumber)
                 except ValueError:
                     myline = 'That doesnt appear to be a rule number.'
     if not myline or myline == '\n':

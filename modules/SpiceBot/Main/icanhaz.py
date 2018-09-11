@@ -21,7 +21,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    command = spicemanip(bot, triggerargsarray, '1+')
+    command = get_trigger_arg(bot, triggerargsarray, '1+')
     if not command:
         command = "Cheezburger"
     rand = random.randint(1,10)

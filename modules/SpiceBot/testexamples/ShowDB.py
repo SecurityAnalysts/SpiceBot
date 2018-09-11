@@ -20,9 +20,9 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    nick = spicemanip(triggerargsarray, 0)
+    nick = get_trigger_arg(triggerargsarray, 0)
     osd(bot, trigger.sender, 'say', "nick: " + nick)
-    dbkey = spicemanip(triggerargsarray, 1)
+    dbkey = get_trigger_arg(triggerargsarray, 1)
     osd(bot, trigger.sender, 'say', "dbkey: " + dbkey)
     # dbresult = get_database_value(bot,
     # get_database_value(bot, nick, databasekey):

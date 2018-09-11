@@ -20,15 +20,15 @@ def mainfunction(bot, trigger):
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     # # Initial ARGS
     # triggerargsarray = create_args_array(trigger.group(3))
-    triggerargsarray = spicemanip(bot, trigger.group(3), 'create')
-    # commandused = spicemanip(bot, triggerargsarray, 0)
+    triggerargsarray = get_trigger_arg(bot, trigger.group(3), 'create')
+    # commandused = get_trigger_arg(bot, triggerargsarray, 0)
     commandused = trigger.group(1)
-    target = spicemanip(bot, triggerargsarray, 1)
+    target = get_trigger_arg(bot, triggerargsarray, 1)
     instigator = trigger.nick
     GITWIKIURL = 'https://github.com/SpiceBot/sopel-modules/wiki/Usage'
     # # Variable ARGS
-    moduletocheck = spicemanip(bot, triggerargsarray, 1) or instigator
-    checktarget = spicemanip(bot, triggerargsarray, 2)
+    moduletocheck = get_trigger_arg(bot, triggerargsarray, 1) or instigator
+    checktarget = get_trigger_arg(bot, triggerargsarray, 2)
     usagefor = ''
     querytype = 'specific'
     counter = 1

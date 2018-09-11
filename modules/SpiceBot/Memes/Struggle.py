@@ -18,7 +18,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    string = spicemanip(bot, triggerargsarray, 0)
+    string = get_trigger_arg(bot, triggerargsarray, 0)
     instigator = trigger.nick
     if string:
         message = instigator + " struggles with " + str(string)

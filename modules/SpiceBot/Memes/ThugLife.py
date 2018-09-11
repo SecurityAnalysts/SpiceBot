@@ -20,7 +20,7 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     """Handle the main task itself."""
-    target = spicemanip(bot, triggerargsarray, 1)
+    target = get_trigger_arg(bot, triggerargsarray, 1)
     isvalid, validmsg = targetcheck(bot, botcom, target, instigator)
     message = "%s didn't choose the thug life, the thug life chose %s." % (instigator.default, instigator.default)
     if not isvalid == 0:

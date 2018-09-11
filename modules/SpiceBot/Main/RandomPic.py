@@ -30,10 +30,10 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    pictype = spicemanip(bot, triggerargsarray, 1)
+    pictype = get_trigger_arg(bot, triggerargsarray, 1)
     outputtext = ''
     if not pictype:
-        pictype = spicemanip(bot, validpicarray, 'random')
+        pictype = get_trigger_arg(bot, validpicarray, 'random')
     if pictype not in validpicarray:
         outputtext = str("I don't currently have an api for " + str(pictype))
     else:

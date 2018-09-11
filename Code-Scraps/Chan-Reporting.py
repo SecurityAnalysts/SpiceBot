@@ -15,7 +15,7 @@ def mainfunction(bot, trigger):
         execute_main(bot, trigger, triggerargsarray)
     
 def execute_main(bot, trigger, triggerargsarray):
-    commandused = spicemanip(triggerargsarray, 1)
+    commandused = get_trigger_arg(triggerargsarray, 1)
     if not commandused:
         osd(bot, trigger.sender, 'say', "What report do you want?")
     elif commandused == 'inactive':

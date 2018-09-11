@@ -20,4 +20,8 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    osd(bot, trigger.sender, 'say', "That's Racist!™")
+    target = get_trigger_arg(bot, triggerargsarray, '1')
+    if target == "stupid" or target == "users" or target == "user":
+        osd(bot, trigger.sender, 'say', "That's Racist against stupid users!")
+    else:
+        osd(bot, trigger.sender, 'say', "That's Racist!™")

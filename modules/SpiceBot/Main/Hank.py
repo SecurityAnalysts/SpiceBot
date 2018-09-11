@@ -35,5 +35,5 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
                     "Bobby I'm going to tell you to do two things I hope you never have to do again, tape the Cowboys game and fetch me an apron.",
                     "That boy ain't right.",
                     "Yep"]
-    randomhank = spicemanip(bot, hank_quotes, 'random')
+    randomhank = get_trigger_arg(bot, hank_quotes, 'random')
     osd(bot, trigger.sender, 'say', randomhank)

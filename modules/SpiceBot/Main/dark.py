@@ -21,7 +21,7 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     allUsers = [u.lower() for u in bot.users]
-    user = spicemanip(bot, allUsers, "random") or 'spicebot'
+    user = get_trigger_arg(bot, allUsers, "random") or 'spicebot'
     osd(bot, trigger.sender, 'say', "It was a dark an stormy night.")
     osd(bot, trigger.sender, 'say', "But not any stormy night. You were alone in the house when you heard a creak right behind you. You turn around and can't believe your eyes.")
     osd(bot, trigger.sender, 'say', "You turn around and see it is " + user)

@@ -29,7 +29,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     # setting up variables
     osd(bot, trigger.sender, 'say', "")
     instigator = trigger.nick
-    command = spicemanip(bot, triggerargsarray, 1)
+    command = get_trigger_arg(bot, triggerargsarray, 1)
 
     if command == "help":
         osd(bot, trigger.sender, 'say', "For right now do .race random or .race person to race")
@@ -121,15 +121,15 @@ def damage(vehicleStats):
 
 def pickVehicle(bot, botcom, target):
     rand = random.randint(1,5)
-    vehicle = spicemanip(bot, vehicleType, rand) or 'walkin'
-    maxHealth = spicemanip(bot, maximumHealth, rand)
+    vehicle = get_trigger_arg(bot, vehicleType, rand) or 'walkin'
+    maxHealth = get_trigger_arg(bot, maximumHealth, rand)
     maxHealth = int(maxHealth)
     return vehicle, maxHealth
 
 
 def randomUser(bot, botcom, instigator):
     allUsers = [u.lower() for u in bot.users]
-    user = spicemanip(bot, allUsers, "random") or 'spicebot'
+    user = get_trigger_arg(bot, allUsers, "random") or 'spicebot'
     return user
 
 

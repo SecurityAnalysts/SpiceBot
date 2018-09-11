@@ -55,8 +55,8 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
     owner = bot.config.core.owner
     mastername = bot.db.get_nick_value(instigator, 'claimed') or ''
-    target = spicemanip(bot, triggerargsarray, 1)
-    admintarget = spicemanip(bot, triggerargsarray, 2)
+    target = get_trigger_arg(bot, triggerargsarray, 1)
+    admintarget = get_trigger_arg(bot, triggerargsarray, 2)
     # Names of channel
     inchannel = trigger.sender
     # Dates for usage
@@ -141,8 +141,8 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     # Admin functions
     elif target.lower() == 'admin':
         okaytoclaim = 0
-        function = spicemanip(bot, triggerargsarray, 2)
-        admintarget = spicemanip(bot, triggerargsarray, 3)
+        function = get_trigger_arg(bot, triggerargsarray, 2)
+        admintarget = get_trigger_arg(bot, triggerargsarray, 3)
         if trigger.admin:
             if function not in admincommands:
                 osd(bot, trigger.sender, 'say', "Please specify what you would like to do. Valid options are: " + str(', '.join(admincommands)))

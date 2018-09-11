@@ -19,5 +19,5 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     messages = [
                 "Good morning. I'm Wilford Brimley and I'd like to talk to you about Diabeetus.",
                 "If you have type 2 Diabeetus, you can get your testing supplies free..."]
-    message = spicemanip(bot, messages, 'random')
+    message = get_trigger_arg(bot, messages, 'random')
     osd(bot, trigger.sender, 'say', message)

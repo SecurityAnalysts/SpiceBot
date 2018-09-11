@@ -57,5 +57,5 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     osd(bot, trigger.sender, 'say', "Let me dig deep into the waters of life, and find your answer")
-    reply = spicemanip(bot, eightarray, 'random')
+    reply = get_trigger_arg(bot, eightarray, 'random')
     osd(bot, trigger.sender, 'say', reply)

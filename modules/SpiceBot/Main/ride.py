@@ -24,7 +24,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         osd(bot, trigger.sender, 'say', "Slow ride https://www.youtube.com/watch?v=T4287tw_dwk")
     else:
         instigator = trigger.nick
-        target = spicemanip(bot, triggerargsarray, 1) or instigator
+        target = get_trigger_arg(bot, triggerargsarray, 1) or instigator
         if target == instigator:
             message = target + " wants to put on some mad max gear, drop acid, and ride a motorcycle through the desert, while listening to some CoC."
         else:

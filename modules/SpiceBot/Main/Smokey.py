@@ -20,7 +20,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    target = spicemanip(bot, triggerargsarray, 1)
+    target = get_trigger_arg(bot, triggerargsarray, 1)
     if not target:
         osd(bot, trigger.sender, 'say', "Remember... Only YOU Can Prevent Forest Fires")
     else:

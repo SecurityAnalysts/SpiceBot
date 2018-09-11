@@ -21,7 +21,7 @@ def deal(bot, cardcount):
     hand = []
     deckofcards = deck()
     for i in range(cardcount):
-        card = spicemanip(bot, deckofcards, 'random')
+        card = get_trigger_arg(bot, deckofcards, 'random')
         hand.append(card)
     return hand
 

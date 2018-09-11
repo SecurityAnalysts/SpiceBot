@@ -24,7 +24,7 @@ def mainfunction(bot, trigger):
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     """Get sayings from function."""
     databasekey = 'guess'
-    command = spicemanip(bot, triggerargsarray, 1) or 'get'
+    command = get_trigger_arg(bot, triggerargsarray, 1) or 'get'
     if not sayingscheck(bot, databasekey) and command != "add":
         sayingsmodule(bot, databasekey, defaultoptions, 'initialise')
     message = sayingsmodule(bot, databasekey, triggerargsarray, command)

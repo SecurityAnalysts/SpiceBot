@@ -22,13 +22,13 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     """Take votes and create polls."""
     now = time.time()
     commandused = trigger.group(1)
-    choice = spicemanip(bot, triggerargsarray, 1)
+    choice = get_trigger_arg(bot, triggerargsarray, 1)
     player = trigger.nick
     if commandused == 'vote':
         if choice == 'results':
             getvotes(bot)
         elif choice == 'settime' and trigger.admin:
-            timing = spicemanip(bot, triggerargsarray, 2)
+            timing = get_trigger_arg(bot, triggerargsarray, 2)
             if timing.isdigit():
                 timing = int(timing)
                 set_database_value(bot, bot.nick, 'votetimer', timing)
@@ -70,7 +70,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         elif choice == 'results':
             getrating(bot)
         elif choice == 'settime' and trigger.admin:
-            timing = spicemanip(bot, triggerargsarray, 2)
+            timing = get_trigger_arg(bot, triggerargsarray, 2)
             if timing.isdigit():
                 timing = int(timing)
                 set_database_value(bot, bot.nick, 'ratetimer', timing)

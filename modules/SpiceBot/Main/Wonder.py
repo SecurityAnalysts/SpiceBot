@@ -20,7 +20,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    command = spicemanip(bot, triggerargsarray, '1+')
+    command = get_trigger_arg(bot, triggerargsarray, '1+')
     instigator = trigger.nick
     if not command:
         msg = instigator + " wonders if everything is ok in the chat room"

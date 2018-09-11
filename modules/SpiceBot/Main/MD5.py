@@ -21,6 +21,6 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    target = spicemanip(bot, triggerargsarray, '1+') or 'test'
+    target = get_trigger_arg(bot, triggerargsarray, '1+') or 'test'
     message = hashlib.md5(target.encode('utf-8')).hexdigest()
     osd(bot, trigger.sender, 'say', message)

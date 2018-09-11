@@ -25,9 +25,9 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
 
-    triggerargsarray = spicemanip(bot, triggerargsarray, 'lower')
+    triggerargsarray = get_trigger_arg(bot, triggerargsarray, 'lower')
 
-    tempcommand = spicemanip(bot, triggerargsarray, 1) or 0
+    tempcommand = get_trigger_arg(bot, triggerargsarray, 1) or 0
 
     currenttemp = get_database_value(bot, botcom.channel_current, 'temperature') or 32
     currentscale = get_database_value(bot, botcom.channel_current, 'temperature_scale') or 'fahrenheit'
@@ -38,7 +38,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
                 tempcommand = array_compare(bot, tempcommand, temp_scales_short, temp_scales)
             tempconvert = tempcommand
         else:
-            tempconvert = spicemanip(bot, temp_scales, 'random')
+            tempconvert = get_trigger_arg(bot, temp_scales, 'random')
         currenttemp = temperature(bot, currenttemp, currentscale, tempconvert)
         tempcond = temp_condition(bot, currenttemp, tempconvert)
         osd(bot, botcom.channel_current, 'say', "The current temperature in " + botcom.channel_current + " is " + str(currenttemp) + "° " + str(tempconvert.title()) + ". " + tempcond)
@@ -46,16 +46,16 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
 
     missingarray = []
 
-    number = spicemanip(bot, [x for x in triggerargsarray if str(x).isdigit], 1) or 0
+    number = get_trigger_arg(bot, [x for x in triggerargsarray if str(x).isdigit], 1) or 0
     if not number:
         missingarray.append("number")
 
-    tempscale = spicemanip(bot, [x for x in triggerargsarray if x in temp_scales or x in temp_scales_short], 1) or 0
+    tempscale = get_trigger_arg(bot, [x for x in triggerargsarray if x in temp_scales or x in temp_scales_short], 1) or 0
     if not tempscale:
         missingarray.append("temperature scale")
 
     if missingarray != []:
-        missinglist = spicemanip(bot, missingarray, 'list')
+        missinglist = get_trigger_arg(bot, missingarray, 'list')
         osd(bot, botcom.channel_current, 'say', "The following values were missing: " + missinglist)
         return
 

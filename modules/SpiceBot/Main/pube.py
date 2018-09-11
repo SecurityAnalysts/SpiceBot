@@ -21,7 +21,7 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
-    target = spicemanip(bot, triggerargsarray, 1)
+    target = get_trigger_arg(bot, triggerargsarray, 1)
     targetcheck = easytargetcheck(bot, botcom, target, instigator)
 
     if targetcheck == "instigator":
@@ -30,7 +30,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         osd(bot, trigger.sender, 'say', "You know I dont care what you say")
     elif targetcheck == "false":
         allUsers = [u.lower() for u in bot.users]
-        target = spicemanip(bot, allUsers, 0) or 'spicebot'
+        target = get_trigger_arg(bot, allUsers, 0) or 'spicebot'
         osd(bot, trigger.sender, 'say', instigator + " wants to know if " + target + "'s carpets matches the drapes")
     elif targetcheck == "offline":
         osd(bot, trigger.sender, 'say', "You cannot ask someone that is offline")
@@ -38,5 +38,5 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         osd(bot, trigger.sender, 'say', instigator + " wants to know if " + target + "'s carpets matches the drapes")
     else:
         allUsers = [u.lower() for u in bot.users]
-        target = spicemanip(bot, allUsers, 0) or 'spicebot'
+        target = get_trigger_arg(bot, allUsers, 0) or 'spicebot'
         osd(bot, trigger.sender, 'say', instigator + " wants to know if " + target + "'s carpets matches the drapes")

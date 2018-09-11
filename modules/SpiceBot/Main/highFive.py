@@ -22,7 +22,7 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     failureodds = 4
-    target = spicemanip(bot, triggerargsarray, 1)
+    target = get_trigger_arg(bot, triggerargsarray, 1)
     backfires = [
                 " drops everything they are doing and goes to high five " + target + ", but they miss.",
                 " overestimated their capabilities and knocks themselves out.",
@@ -38,7 +38,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     elif target != bot.nick:
         failchance = random.randint(1, failureodds)
         if failchance == 1:
-            hffail = spicemanip(bot, backfires, 'random')
+            hffail = get_trigger_arg(bot, backfires, 'random')
             osd(bot, trigger.sender, 'say', trigger.nick + hffail)
         else:
             osd(bot, trigger.sender, 'say', trigger.nick + " high fives %s, maintaining eye contact the entire time!" % target)

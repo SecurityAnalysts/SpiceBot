@@ -18,8 +18,8 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    myline = spicemanip(bot, triggerargsarray, 0)
-    triggerword = spicemanip(bot, triggerargsarray, 1)
+    myline = get_trigger_arg(bot, triggerargsarray, 0)
+    triggerword = get_trigger_arg(bot, triggerargsarray, 1)
     if not myline:
         osd(bot, trigger.sender, 'say', "Who/what are for suckers??")
     elif bot.nick in myline:

@@ -20,7 +20,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    command = spicemanip(bot, triggerargsarray, '1+')
+    command = get_trigger_arg(bot, triggerargsarray, '1+')
     if not command:
         message = "Do you want ants cause that's how you get ants!"
     else:

@@ -40,7 +40,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         osd(bot, trigger.sender, 'say', "______$___________$____")
         osd(bot, trigger.sender, 'say', "_______$$$$$$$$$$$_____")
     else:
-        target = spicemanip(bot, triggerargsarray, 1)
+        target = get_trigger_arg(bot, triggerargsarray, 1)
         instigator = trigger.nick
         if not target:
             message = instigator + " shows the birdy off to everyone in the room"

@@ -23,10 +23,10 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
-    target = spicemanip(bot, triggerargsarray, 1)
-    reason = spicemanip(bot, triggerargsarray, '2+')
+    target = get_trigger_arg(bot, triggerargsarray, 1)
+    reason = get_trigger_arg(bot, triggerargsarray, '2+')
     check = easytargetcheck(bot, botcom, target, instigator)
-    fuckType = spicemanip(bot, randomFuckArray, "random") or ''
+    fuckType = get_trigger_arg(bot, randomFuckArray, "random") or ''
 
     if not reason:
         if check == 'bot':

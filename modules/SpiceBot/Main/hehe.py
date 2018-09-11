@@ -20,8 +20,8 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    target = spicemanip(bot, triggerargsarray, 1)
-    reason = spicemanip(bot, triggerargsarray, '2+')
+    target = get_trigger_arg(bot, triggerargsarray, 1)
+    reason = get_trigger_arg(bot, triggerargsarray, '2+')
     check = easytargetcheck(bot, botcom, target, instigator)
 
     if not reason:
@@ -33,7 +33,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
             message = bot.nick + " laughs at " + target
         else:
             allUsers = [u.lower() for u in bot.users]
-            user = spicemanip(bot, allUsers, "random")
+            user = get_trigger_arg(bot, allUsers, "random")
             message = bot.nick + " laughs at " + user
 
     else:
@@ -45,7 +45,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
             message = bot.nick + " laughs at " + target + " because " + reason + "."
         else:
             allUsers = [u.lower() for u in bot.users]
-            user = spicemanip(bot, allUsers, "random")
+            user = get_trigger_arg(bot, allUsers, "random")
             message = bot.nick + " laughs at " + user + " because " + reason + "."
 
     osd(bot, trigger.sender, 'say', message)

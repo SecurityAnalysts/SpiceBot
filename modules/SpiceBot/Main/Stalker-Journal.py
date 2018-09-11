@@ -21,7 +21,7 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
-    whotostalk = spicemanip(bot, triggerargsarray, 1)
+    whotostalk = get_trigger_arg(bot, triggerargsarray, 1)
     if not whotostalk:
         osd(bot, trigger.sender, 'say', instigator + " updates their stalker journal.")
     else:

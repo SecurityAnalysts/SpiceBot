@@ -18,9 +18,9 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    item = spicemanip(bot, triggerargsarray, 0)
-    firstitem = spicemanip(bot, triggerargsarray, 1)
-    substring = spicemanip(bot, triggerargsarray, '2+') or 'empty'
+    item = get_trigger_arg(bot, triggerargsarray, 0)
+    firstitem = get_trigger_arg(bot, triggerargsarray, 1)
+    substring = get_trigger_arg(bot, triggerargsarray, '2+') or 'empty'
     if not item:
         message = "What can you risk going too far?"
     else:

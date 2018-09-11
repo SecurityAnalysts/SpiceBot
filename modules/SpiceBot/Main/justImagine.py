@@ -21,8 +21,8 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
-    person = spicemanip(bot, triggerargsarray, 1)
-    reason = spicemanip(bot, triggerargsarray, '2+')
+    person = get_trigger_arg(bot, triggerargsarray, 1)
+    reason = get_trigger_arg(bot, triggerargsarray, '2+')
 
     if not person:
         person = trigger.nick

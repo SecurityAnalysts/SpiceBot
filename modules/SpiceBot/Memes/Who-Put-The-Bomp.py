@@ -25,5 +25,5 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
                 "Who put the ram in the rama lama ding dong",
                 "Who put the bop in the bop shoo bop shoo bop",
                 "Who put the dip in the dip da dip da dip"]
-    message = spicemanip(bot, funlist, 'random')
+    message = get_trigger_arg(bot, funlist, 'random')
     osd(bot, trigger.sender, 'say', message)

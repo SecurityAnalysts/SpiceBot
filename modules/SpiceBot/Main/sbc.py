@@ -18,6 +18,6 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    message = spicemanip(bot, triggerargsarray, '1+') or "whisper-whisper-whisper"
+    message = get_trigger_arg(bot, triggerargsarray, '1+') or "whisper-whisper-whisper"
     displaymessage = "<secret_bot_code> %s </secret_bot_code>" % message
     osd(bot, trigger.sender, 'say', displaymessage)

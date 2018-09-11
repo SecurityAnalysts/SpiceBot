@@ -19,5 +19,5 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
-    target = spicemanip(bot, triggerargsarray, 1) or 'themself'
+    target = get_trigger_arg(bot, triggerargsarray, 1) or 'themself'
     osd(bot, trigger.sender, 'say', instigator + " gives " + target + " a nice big nohomo hug!")

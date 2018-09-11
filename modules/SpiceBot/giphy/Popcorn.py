@@ -23,7 +23,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    target = spicemanip(bot, triggerargsarray, 1)
+    target = get_trigger_arg(bot, triggerargsarray, 1)
     if not target:
         osd(bot, trigger.sender, 'action', "grabs popcorn and goes to watch the action")
         osd(bot, trigger.sender, 'say', "https://media2.giphy.com/media/daJWXqaZFqh0s/giphy.gif")

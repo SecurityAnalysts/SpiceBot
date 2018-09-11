@@ -20,7 +20,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    target = spicemanip(bot, triggerargsarray, 1)
+    target = get_trigger_arg(bot, triggerargsarray, 1)
     isValid = targetcheck(bot, botcom, target, instigator)
     if not target:
         target = trigger.nick
@@ -28,7 +28,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     elif isValid == 1:
         message  = "Is that what the kids are calling it these days, " + target
     else:
-        something = spicemanip(bot, triggerargsarray, '1+')
+        something = get_trigger_arg(bot, triggerargsarray, '1+')
         if something.endswith('s'):
             message = something + "??? is THAT what the kids are calling them these days?"
         else:

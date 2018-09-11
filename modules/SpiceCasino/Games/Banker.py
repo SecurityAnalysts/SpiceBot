@@ -23,8 +23,8 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     commandused = trigger.group(1)
-    target = spicemanip(bot, triggerargsarray, 1) or 'notarget'
-    amount = spicemanip(bot, triggerargsarray, 2) or 'noamount'
+    target = get_trigger_arg(bot, triggerargsarray, 1) or 'notarget'
+    amount = get_trigger_arg(bot, triggerargsarray, 2) or 'noamount'
     channel = botcom.channel_current
     player = trigger.nick
     if commandused == '':

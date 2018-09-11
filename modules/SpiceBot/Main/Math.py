@@ -25,5 +25,5 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    displaymsg = spicemanip(bot, responselist, 'random')
+    displaymsg = get_trigger_arg(bot, responselist, 'random')
     osd(bot, trigger.sender, 'say', displaymsg)

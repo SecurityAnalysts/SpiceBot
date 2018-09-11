@@ -28,8 +28,8 @@ def mainfunction(bot, trigger):
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     """Handles bribing other users."""
     instigator = trigger.nick
-    command = spicemanip(bot, triggerargsarray, 1)
-    target = spicemanip(bot, triggerargsarray, 1)
+    command = get_trigger_arg(bot, triggerargsarray, 1)
+    target = get_trigger_arg(bot, triggerargsarray, 1)
     amo = get_database_value(bot, instigator, databasekey) or '0'
     amount = int(amo)
     if command == "accept":

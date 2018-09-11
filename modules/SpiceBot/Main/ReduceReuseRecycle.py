@@ -20,7 +20,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    something = spicemanip(bot, triggerargsarray, '1+')
+    something = get_trigger_arg(bot, triggerargsarray, '1+')
     if not something:
         message = "Reduce, Reuse, Recycle everything"
     else:

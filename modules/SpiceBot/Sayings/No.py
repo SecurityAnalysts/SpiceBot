@@ -24,8 +24,8 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
     inchannel = trigger.sender
     databasekey = 'obviousno'
-    command = spicemanip(bot, triggerargsarray, 1)
-    inputstring = spicemanip(bot, triggerargsarray, '2+')
+    command = get_trigger_arg(bot, triggerargsarray, 1)
+    inputstring = get_trigger_arg(bot, triggerargsarray, '2+')
     existingarray = get_database_value(bot, bot.nick, databasekey) or []
     if command in commandarray:
         if command == "add":
@@ -47,11 +47,11 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         #    if inchannel.startswith("#"):
         #        message = "List can only be run in privmsg to avoid flooding."
         #    else:
-        #        message = spicemanip(bot, existingarray, "list")
+        #        message = get_trigger_arg(bot, existingarray, "list")
         elif command == "last":
-            message = spicemanip(bot, existingarray, "last")
+            message = get_trigger_arg(bot, existingarray, "last")
     else:
-        message = spicemanip(bot, existingarray, "random") or ''
+        message = get_trigger_arg(bot, existingarray, "random") or ''
         if message == '':
             message = "No response found. Have any been added?"
     osd(bot, trigger.sender, 'say', message)

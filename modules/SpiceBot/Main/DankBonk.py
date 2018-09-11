@@ -22,9 +22,9 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    target = spicemanip(bot, triggerargsarray, 1)
+    target = get_trigger_arg(bot, triggerargsarray, 1)
     instigator = trigger.nick
-    reason = spicemanip(bot, triggerargsarray, '2+')
+    reason = get_trigger_arg(bot, triggerargsarray, '2+')
 
     # no target
     if not target:

@@ -20,7 +20,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    thing = spicemanip(bot, triggerargsarray, 1) or 'car'
-    therest = spicemanip(bot, triggerargsarray, "2+") or 'spaghetti'
+    thing = get_trigger_arg(bot, triggerargsarray, 1) or 'car'
+    therest = get_trigger_arg(bot, triggerargsarray, "2+") or 'spaghetti'
     osd(bot, trigger.sender, 'action', "slaps roof of " + thing)
     osd(bot, trigger.sender, 'say', "this bad boy can fit so much fucking " + therest + " in it")

@@ -23,11 +23,11 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, arg):
     myscore = 0
-    myhand = get_trigger_arg(bot, arg, '1+') or 'A'
+    myhand = spicemanip(bot, arg, '1+') or 'A'
     if len(myhand) >= 12:
         osd(bot, trigger.sender, 'say', "Player wins for having more then 6 cards.")
     else:
-        # myhand =get_trigger_arg(bot,myhand,'list')
+        # myhand =spicemanip(bot,myhand,'list')
         osd(bot, trigger.sender, 'say', "Input: " + str(myhand))
         myscore = blackjackscore(bot, myhand)
     osd(bot, trigger.sender, 'say', "Player score is: " + str(myscore))
@@ -43,7 +43,7 @@ def blackjackscore(bot, hand):
     #
 
     for i in range(0, handlen):
-        card = get_trigger_arg(bot, hand, i)
+        card = spicemanip(bot, hand, i)
         if card.isdigit():
             myscore = myscore+int(card)
         elif(card == 'J' or card == 'Q' or card == 'K'):

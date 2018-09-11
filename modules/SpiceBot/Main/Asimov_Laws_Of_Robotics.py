@@ -28,23 +28,23 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     """Get law of robotics from list."""
-    requested = get_trigger_arg(bot, triggerargsarray, 0)
+    requested = spicemanip(bot, triggerargsarray, 0)
     if not requested:
-        myline = get_trigger_arg(bot, laws, 'random')
+        myline = spicemanip(bot, laws, 'random')
     else:
         requested.lstrip("-")
         if (requested == '0' or requested.lower()) == 'zero':
             myline = ''
         else:
             if requested.isdigit():
-                myline = get_trigger_arg(bot, laws, requested)
+                myline = spicemanip(bot, laws, requested)
             else:
                 try:
                     requested = w2n.word_to_num(str(requested))
-                    myline = get_trigger_arg(bot, laws, requested)
+                    myline = spicemanip(bot, laws, requested)
                 except ValueError:
                     myline = ''
 
     if not myline:
-        myline = myline = get_trigger_arg(bot, laws, 'random')
+        myline = myline = spicemanip(bot, laws, 'random')
     osd(bot, trigger.sender, 'action', myline)

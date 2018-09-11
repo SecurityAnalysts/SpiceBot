@@ -21,10 +21,10 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
-    reason = get_trigger_arg(bot, triggerargsarray, 0)
+    reason = spicemanip(bot, triggerargsarray, 0)
 
     allUsers = [u.lower() for u in bot.users]
-    user = get_trigger_arg(bot, allUsers, "random") or 'DoubleD'
+    user = spicemanip(bot, allUsers, "random") or 'DoubleD'
 
     if not reason:
         message = instigator + " lowers their balls into " + user + "\'s mouth."

@@ -18,7 +18,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    myown = get_trigger_arg(bot, triggerargsarray, 0)
+    myown = spicemanip(bot, triggerargsarray, 0)
     message = "Fine! I'll start my own my casino with blackjack and hookers!"
     if myown and bot.nick not in myown:
         message = "Fine! I'll start my own " + myown + ", with blackjack and hookers!"

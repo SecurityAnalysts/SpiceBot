@@ -22,8 +22,8 @@ def mainfunction(bot, trigger):
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
     allUsers = [u.lower() for u in bot.users]
-    users = get_trigger_arg(bot, allUsers, 0) or 'spicebot'
-    reason = get_trigger_arg(bot, triggerargsarray, '1+')
+    users = spicemanip(bot, allUsers, 0) or 'spicebot'
+    reason = spicemanip(bot, triggerargsarray, '1+')
     if not reason:
         message = instigator + " is tagging everyone. " + users
     else:

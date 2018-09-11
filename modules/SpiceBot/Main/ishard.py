@@ -18,5 +18,5 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    value = get_trigger_arg(bot, triggerargsarray, 1) or 'value'
+    value = spicemanip(bot, triggerargsarray, 1) or 'value'
     osd(bot, trigger.sender, 'say', str(value).upper() + " IS HAAAAARD!!!")

@@ -20,7 +20,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    sparta = get_trigger_arg(bot, triggerargsarray, 0) or 'SPARTA'
+    sparta = spicemanip(bot, triggerargsarray, 0) or 'SPARTA'
     osd(bot, trigger.sender, 'say', "THIS")
     osd(bot, trigger.sender, 'say', "IS")
     osd(bot, trigger.sender, 'say', sparta.upper())

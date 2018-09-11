@@ -27,11 +27,11 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
 
-    command = get_trigger_arg(bot, triggerargsarray, 1) or 'get'
+    command = spicemanip(bot, triggerargsarray, 1) or 'get'
     if command in triggerargsarray:
         triggerargsarray.remove(command)
 
-    whatisleft = get_trigger_arg(bot, triggerargsarray, 0)
+    whatisleft = spicemanip(bot, triggerargsarray, 0)
 
     # RPG dynamic Class
     rpg = class_create('rpg')

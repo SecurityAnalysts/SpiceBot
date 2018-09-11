@@ -20,18 +20,18 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    command = get_trigger_arg(bot, triggerargsarray, 1)
+    command = spicemanip(bot, triggerargsarray, 1)
     instigator = trigger.nick
     if command == "first":
-        target = get_trigger_arg(bot, triggerargsarray, 2)
+        target = spicemanip(bot, triggerargsarray, 2)
         message = instigator + " welcomes " + target + " to the channel"
     elif command == "major":
         message = instigator + " is really glad to see " + target + " again."
     else:
-        target = get_trigger_arg(bot, triggerargsarray, 1)
+        target = spicemanip(bot, triggerargsarray, 1)
         if not target:
             allUsers = [u.lower() for u in bot.users]
-            target = get_trigger_arg(bot, allUsers, "random")
+            target = spicemanip(bot, allUsers, "random")
         message = instigator + " is glad to see " + target + " again."
 
     osd(bot, trigger.sender, 'say', message)

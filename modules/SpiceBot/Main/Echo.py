@@ -18,7 +18,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    echotext = get_trigger_arg(bot, triggerargsarray, 0)
+    echotext = spicemanip(bot, triggerargsarray, 0)
     if echotext:
         osd(bot, trigger.sender, 'say', echotext)
     else:

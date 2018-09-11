@@ -21,7 +21,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    ernpert = get_trigger_arg(bot, triggerargsarray, 0)
+    ernpert = spicemanip(bot, triggerargsarray, 0)
     if ernpert:
         spertitert = trernslert(ernpert)
         message = "ERMAHGERD," + str(spertitert)

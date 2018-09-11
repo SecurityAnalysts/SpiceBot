@@ -32,8 +32,8 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     if not channel.startswith("#"):
         osd(bot, instigator, 'notice', "Clue must be in a channel.")
         return
-    target = get_trigger_arg(bot, triggerargsarray, 1)
-    suspect = get_trigger_arg(bot, triggerargsarray, 2)
+    target = spicemanip(bot, triggerargsarray, 1)
+    suspect = spicemanip(bot, triggerargsarray, 2)
     cluefee = 5
     if not target:
         cluefee = 0

@@ -21,8 +21,8 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
-    whotoblame = get_trigger_arg(bot, triggerargsarray, 1)
-    forwhat = get_trigger_arg(bot, triggerargsarray, '2+') or ''
+    whotoblame = spicemanip(bot, triggerargsarray, 1)
+    forwhat = spicemanip(bot, triggerargsarray, '2+') or ''
     if not whotoblame:
         botusersarray = get_database_value(bot, bot.nick, 'botusers') or []
         blametargetarray = []
@@ -32,7 +32,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         if blametargetarray == []:
             whotoblame = str(instigator + "'s mom")
         else:
-            whotoblame = get_trigger_arg(bot, blametargetarray, 'random')
+            whotoblame = spicemanip(bot, blametargetarray, 'random')
             osd(bot, trigger.sender, 'say', "It's " + whotoblame + "'s fault.")
     elif whotoblame.lower() not in [u.lower() for u in bot.users]:
         osd(bot, trigger.sender, 'say', "I blame " + whotoblame + " for that.")

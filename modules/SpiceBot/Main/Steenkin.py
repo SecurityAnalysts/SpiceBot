@@ -18,7 +18,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    target = get_trigger_arg(bot, triggerargsarray, 0)
+    target = spicemanip(bot, triggerargsarray, 0)
     if not target:
         osd(bot, trigger.sender, 'say', "What don't we need?")
     else:

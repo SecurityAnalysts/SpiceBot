@@ -72,12 +72,12 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
-    target = get_trigger_arg(bot, triggerargsarray, 1)
+    target = spicemanip(bot, triggerargsarray, 1)
     if (instigator == 'Cipher-0' and not target) or target == 'Cipher-0':
-        modelnumber = get_trigger_arg(bot, modelnumbers, 'random')
-        missiontype = get_trigger_arg(bot, missiontypes, 'random')
+        modelnumber = spicemanip(bot, modelnumbers, 'random')
+        missiontype = spicemanip(bot, missiontypes, 'random')
         missionsarray = eval(missiontype+"_mission")
-        mission = get_trigger_arg(bot, missionsarray, 'random')
+        mission = spicemanip(bot, missionsarray, 'random')
         osd(bot, trigger.sender, 'say', 'CYBORG TISSUE GENERATION ' + str(modelnumber).upper() + ' SEQUENCE INITIATED')
         osd(bot, trigger.sender, 'say', 'DOWNLOADING CURRENT OBJECTIVE FROM SKYNET: ' + str(mission).upper())
         osd(bot, trigger.sender, 'say', 'ACTIVATING Cipher-0')

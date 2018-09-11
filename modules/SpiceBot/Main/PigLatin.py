@@ -35,7 +35,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
             else:
                 new_word = word[1:] + first + pyg
             rebuildarray.append(new_word)
-        words = get_trigger_arg(bot, rebuildarray, 0)
+        words = spicemanip(bot, rebuildarray, 0)
         osd(bot, trigger.sender, 'say', words)
     else:
         osd(bot, trigger.sender, 'say', "Oink oink")

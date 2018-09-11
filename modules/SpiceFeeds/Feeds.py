@@ -120,15 +120,15 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     feeds = class_create('feeds')
 
     valid_commands = ['enable', 'disable', 'reset', 'run', 'subscribe', 'unsubscribe']
-    command = get_trigger_arg(bot, [x for x in triggerargsarray if x in valid_commands], 1) or 'run'
+    command = spicemanip(bot, [x for x in triggerargsarray if x in valid_commands], 1) or 'run'
     if command in triggerargsarray:
         triggerargsarray.remove(command)
 
     feeds = feeds_configs(bot, feeds)
 
-    feed_select = get_trigger_arg(bot, [x for x in triggerargsarray if x in feeds.list or x == 'all'], 1) or 'nofeed'
+    feed_select = spicemanip(bot, [x for x in triggerargsarray if x in feeds.list or x == 'all'], 1) or 'nofeed'
     if feed_select == 'nofeed':
-        feed_list = get_trigger_arg(bot, feeds.list, 'list')
+        feed_list = spicemanip(bot, feeds.list, 'list')
         osd(bot, botcom.channel_current, 'say', "Valid Feeds are " + feed_list)
         return
     if feed_select == 'all':
@@ -159,7 +159,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
                 newlist.append(feed)
         if newlist != []:
             adjust_database_array(bot, botcom.instigator, newlist, 'feeds_enabled', 'add')
-            osd(bot, botcom.channel_current, 'say', "You are now " + command + "d to " + get_trigger_arg(bot, newlist, 'list'))
+            osd(bot, botcom.channel_current, 'say', "You are now " + command + "d to " + spicemanip(bot, newlist, 'list'))
         else:
             osd(bot, botcom.channel_current, 'say', "No selected feeds to " + command + ".")
         return
@@ -172,7 +172,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
                 newlist.append(feed)
         if newlist != []:
             adjust_database_array(bot, botcom.instigator, newlist, 'feeds_enabled', 'del')
-            osd(bot, botcom.channel_current, 'say', "You are now " + command + "d from " + get_trigger_arg(bot, newlist, 'list'))
+            osd(bot, botcom.channel_current, 'say', "You are now " + command + "d from " + spicemanip(bot, newlist, 'list'))
         else:
             osd(bot, botcom.channel_current, 'say', "No selected feeds to " + command + ".")
         return
@@ -190,12 +190,12 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         if newlist != []:
             for feed in newlist:
                 reset_database_value(bot, bot.nick, feed + '_lastbuildcurrent')
-            osd(bot, botcom.channel_current, 'say', get_trigger_arg(bot, newlist, 'list') + " " + hashave(newlist) + " been " + command + ".")
+            osd(bot, botcom.channel_current, 'say', spicemanip(bot, newlist, 'list') + " " + hashave(newlist) + " been " + command + ".")
         else:
             osd(bot, botcom.channel_current, 'say', "No selected feeds to " + command + ".")
         return
 
-    channelselect = get_trigger_arg(bot, [x for x in triggerargsarray if x in botcom.channel_list], 1) or botcom.channel_current
+    channelselect = spicemanip(bot, [x for x in triggerargsarray if x in botcom.channel_list], 1) or botcom.channel_current
 
     if command == 'enable':
         channelmodulesarray = get_database_value(bot, channelselect, 'feeds_enabled') or []
@@ -205,7 +205,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
                 newlist.append(feed)
         if newlist != []:
             adjust_database_array(bot, channelselect, newlist, 'feeds_enabled', 'add')
-            osd(bot, botcom.channel_current, 'say', get_trigger_arg(bot, newlist, 'list') + " " + hashave(newlist) + " been " + command + "d for " + str(channelselect) + ".")
+            osd(bot, botcom.channel_current, 'say', spicemanip(bot, newlist, 'list') + " " + hashave(newlist) + " been " + command + "d for " + str(channelselect) + ".")
         else:
             osd(bot, botcom.channel_current, 'say', "No selected feeds to " + command + ".")
         return
@@ -218,7 +218,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
                 newlist.append(feed)
         if newlist != []:
             adjust_database_array(bot, channelselect, newlist, 'feeds_enabled', 'del')
-            osd(bot, botcom.channel_current, 'say', get_trigger_arg(bot, newlist, 'list') + " " + hashave(newlist) + " been " + command + "d for " + str(channelselect) + ".")
+            osd(bot, botcom.channel_current, 'say', spicemanip(bot, newlist, 'list') + " " + hashave(newlist) + " been " + command + "d for " + str(channelselect) + ".")
         else:
             osd(bot, botcom.channel_current, 'say', "No selected feeds to " + command + ".")
         return

@@ -18,9 +18,9 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    target = get_trigger_arg(bot, triggerargsarray, 1)
-    phrase = get_trigger_arg(bot, triggerargsarray, '1+')
-    action = get_trigger_arg(bot, triggerargsarray, '2+')
+    target = spicemanip(bot, triggerargsarray, 1)
+    phrase = spicemanip(bot, triggerargsarray, '1+')
+    action = spicemanip(bot, triggerargsarray, '2+')
     if target:
         if target == 'to':
             parta = phrase

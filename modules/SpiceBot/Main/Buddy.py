@@ -18,7 +18,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    myline = get_trigger_arg(bot, triggerargsarray, 0)
+    myline = spicemanip(bot, triggerargsarray, 0)
     if not myline:
         message = "What is your buddy good at?"
     else:

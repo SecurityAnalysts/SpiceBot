@@ -13,6 +13,6 @@ from BotShared import *
 @sopel.module.commands('warn')
 def mainfunction(bot, trigger):
     inchannel = trigger.sender
-    triggerargsarray = get_trigger_arg(bot, trigger.group(2), 'create')
-    target = get_trigger_arg(bot, triggerargsarray, 2) or ''
+    triggerargsarray = spicemanip(bot, trigger.group(2), 'create')
+    target = spicemanip(bot, triggerargsarray, 2) or ''
     osd(bot, inchannel, 'action', target + "This is just a warning. Overuse of the bot, can get you kicked or banned by an operator. If you want to purely play with the bot, go to #Spicebot or #Spicebottest, or send Spicebot a PrivateMessage.")

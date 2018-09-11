@@ -18,7 +18,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    happen = get_trigger_arg(bot, triggerargsarray, 0)
+    happen = spicemanip(bot, triggerargsarray, 0)
     if not happen:
         message = "Stop trying to make stuff happen. It's not going to happen"
     else:

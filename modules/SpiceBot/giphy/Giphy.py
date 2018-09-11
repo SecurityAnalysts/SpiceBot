@@ -22,7 +22,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    target = get_trigger_arg(bot, triggerargsarray, 0)
+    target = spicemanip(bot, triggerargsarray, 0)
     if target != "roulette":
         query = target.replace(' ', '%20')
         query = str(query)

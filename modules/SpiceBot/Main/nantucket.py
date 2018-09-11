@@ -21,7 +21,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    command = get_trigger_arg(bot, triggerargsarray, 1)
+    command = spicemanip(bot, triggerargsarray, 1)
     if command == "dirty":
         osd(bot, trigger.sender, 'say', "There was a young man from Nantucket; Whose dick was so long he could suck it.; He said with a grin; As he wiped off his chin,; If my ear was a cunt I would fuck it.")
     else:

@@ -18,7 +18,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    pfremembers = get_trigger_arg(bot, triggerargsarray, 0)
+    pfremembers = spicemanip(bot, triggerargsarray, 0)
     if pfremembers:
         message = "Pepperidge Farms remembers " + str(pfremembers)
     else:

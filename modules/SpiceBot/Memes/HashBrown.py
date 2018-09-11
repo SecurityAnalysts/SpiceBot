@@ -18,7 +18,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    hashstring = get_trigger_arg(bot, triggerargsarray, '1+') or 'fail'
+    hashstring = spicemanip(bot, triggerargsarray, '1+') or 'fail'
     if hashstring == "fwp":
         hashstring = "firstworldproblems"
     if hashstring == "ym":

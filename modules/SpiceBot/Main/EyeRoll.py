@@ -22,8 +22,8 @@ def mainfunction(bot, trigger):
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
     inchannel = trigger.sender
-    target = get_trigger_arg(bot, triggerargsarray, 1)
-    reason = get_trigger_arg(bot, triggerargsarray, '2+')
+    target = spicemanip(bot, triggerargsarray, 1)
+    reason = spicemanip(bot, triggerargsarray, '2+')
 
     # No target specified
     if not target:

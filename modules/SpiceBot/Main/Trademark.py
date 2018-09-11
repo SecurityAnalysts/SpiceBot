@@ -20,5 +20,5 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    complete = get_trigger_arg(bot, triggerargsarray, 0)
+    complete = spicemanip(bot, triggerargsarray, 0)
     osd(bot, trigger.sender, 'say', complete + "ᵀᴹ")

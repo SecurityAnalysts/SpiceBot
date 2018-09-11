@@ -20,7 +20,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    command = get_trigger_arg(bot, triggerargsarray, '1+') or 'none'
+    command = spicemanip(bot, triggerargsarray, '1+') or 'none'
     if command.isdigit():
         message = command.decode("hex")
     else:

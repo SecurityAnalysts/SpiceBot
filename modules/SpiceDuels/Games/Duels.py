@@ -47,7 +47,7 @@ Main Command Usage
 @sopel.module.thread(True)
 def duel_action(bot, trigger):
     command_type = 'actionduel'
-    triggerargsarray = get_trigger_arg(bot, trigger.group(1), 'create')
+    triggerargsarray = spicemanip(bot, trigger.group(1), 'create')
     execute_main(bot, trigger, triggerargsarray, command_type)
 
 
@@ -65,7 +65,7 @@ def duel_nickcom(bot, trigger):
 @sopel.module.thread(True)
 def mainfunction(bot, trigger):
     command_type = 'normalcom'
-    triggerargsarray = get_trigger_arg(bot, trigger.group(2), 'create')
+    triggerargsarray = spicemanip(bot, trigger.group(2), 'create')
     execute_main(bot, trigger, triggerargsarray, command_type)
 
 
@@ -85,9 +85,9 @@ def mainfunction(bot, trigger):
 @sopel.module.thread(True)
 def mainfunctionnobeguine(bot, trigger):
     command_type = 'normalcom'
-    triggerargsarray = get_trigger_arg(bot, trigger.group(0), 'create')
-    triggerargsarray = get_trigger_arg(bot, triggerargsarray, '2+')
-    triggerargsarray = get_trigger_arg(bot, triggerargsarray, 'create')
+    triggerargsarray = spicemanip(bot, trigger.group(0), 'create')
+    triggerargsarray = spicemanip(bot, triggerargsarray, '2+')
+    triggerargsarray = spicemanip(bot, triggerargsarray, 'create')
     execute_main(bot, trigger, triggerargsarray, command_type)
 
 
@@ -95,14 +95,14 @@ def mainfunctionnobeguine(bot, trigger):
 @module.rule('^(?:use)\s+?.*')
 def mainfunctionuse(bot, trigger):
     command_type = 'normalcom'
-    triggerargsarray = get_trigger_arg(bot, trigger.group(0), 'create')
-    triggerargsarray = get_trigger_arg(bot, triggerargsarray, '2+')
-    triggerargsarray = get_trigger_arg(bot, triggerargsarray, 'create')
-    lootitem = get_trigger_arg(bot, triggerargsarray, 1)
+    triggerargsarray = spicemanip(bot, trigger.group(0), 'create')
+    triggerargsarray = spicemanip(bot, triggerargsarray, '2+')
+    triggerargsarray = spicemanip(bot, triggerargsarray, 'create')
+    lootitem = spicemanip(bot, triggerargsarray, 1)
     if lootitem in duels_loot_items:
-        restoftheline = get_trigger_arg(bot, triggerargsarray, "2+")
+        restoftheline = spicemanip(bot, triggerargsarray, "2+")
         triggerargsarray = str("loot use " + lootitem + " " + restoftheline)
-        triggerargsarray = get_trigger_arg(bot, triggerargsarray, 'create')
+        triggerargsarray = spicemanip(bot, triggerargsarray, 'create')
         execute_main(bot, trigger, triggerargsarray, command_type)
 
 
@@ -110,8 +110,8 @@ def mainfunctionuse(bot, trigger):
 @sopel.module.commands('dual')
 @sopel.module.thread(True)
 def dual_clone(bot, trigger):
-    triggerargsarray = get_trigger_arg(bot, trigger.group(2), 'create')
-    target = get_trigger_arg(bot, triggerargsarray, 1)
+    triggerargsarray = spicemanip(bot, trigger.group(2), 'create')
+    target = spicemanip(bot, triggerargsarray, 1)
     if not target:
         osd(bot, trigger.sender, 'say', "Who do you want to clone?")
     elif target.lower() not in [u.lower() for u in bot.users]:
@@ -127,10 +127,10 @@ def dual_clone(bot, trigger):
 @module.rule('^(?:!duals)\s+?.*')
 @module.rule('^(?:,duals)\s+?.*')
 def dual_cloneb(bot, trigger):
-    triggerargsarray = get_trigger_arg(bot, trigger.group(0), 'create')
-    triggerargsarray = get_trigger_arg(bot, triggerargsarray, '2+')
-    triggerargsarray = get_trigger_arg(bot, triggerargsarray, 'create')
-    target = get_trigger_arg(bot, triggerargsarray, 1)
+    triggerargsarray = spicemanip(bot, trigger.group(0), 'create')
+    triggerargsarray = spicemanip(bot, triggerargsarray, '2+')
+    triggerargsarray = spicemanip(bot, triggerargsarray, 'create')
+    target = spicemanip(bot, triggerargsarray, 1)
     if target.lower() not in [u.lower() for u in bot.users]:
         osd(bot, trigger.sender, 'say', "I'm not sure who that is.")
     else:
@@ -181,7 +181,7 @@ def execute_main(bot, trigger, triggerargsarray, command_type):
     duels.command_type = command_type
 
     # First Command
-    command_full = get_trigger_arg(bot, triggerargsarray, 0)
+    command_full = spicemanip(bot, triggerargsarray, 0)
     if not command_full:
         if duels.command_type != 'actionduel':
             osd(bot, duels.instigator, 'notice', "You must specify either a target, or a subcommand. Online Docs: " + GITWIKIURL)
@@ -192,7 +192,7 @@ def execute_main(bot, trigger, triggerargsarray, command_type):
         if "&&" in command_full:
             osd(bot, duels.instigator, 'notice', "you cannot run multiple commands via action.")
             return
-    command_main = get_trigger_arg(bot, triggerargsarray, 1)
+    command_main = spicemanip(bot, triggerargsarray, 1)
 
     # Time when Module use started
     duels.now = time.time()
@@ -228,7 +228,7 @@ def execute_main(bot, trigger, triggerargsarray, command_type):
 
     # Tiers
     duels.currenttier = get_database_value(bot, 'duelrecorduser', 'tier') or 0
-    duels.tierscaling = float(duels_tier_current_to_ratio(bot))
+    duels.tierscaling = duels_tier_current_to_ratio(bot)
 
     # Validate Instigator
     duels_check_nick_condition(bot, duels.instigator, duels)
@@ -251,7 +251,7 @@ def execute_main(bot, trigger, triggerargsarray, command_type):
 
     # Cycle through command array
     for command_split_partial in commands_array:
-        triggerargsarray_part = get_trigger_arg(bot, command_split_partial, 'create')
+        triggerargsarray_part = spicemanip(bot, command_split_partial, 'create')
 
         # Admin only
         duels.admin = 0
@@ -264,8 +264,8 @@ def execute_main(bot, trigger, triggerargsarray, command_type):
                 return
 
         # Split commands to pass
-        command_full_part = get_trigger_arg(bot, triggerargsarray_part, 0)
-        command_main_part = get_trigger_arg(bot, triggerargsarray_part, 1)
+        command_full_part = spicemanip(bot, triggerargsarray_part, 0)
+        command_main_part = spicemanip(bot, triggerargsarray_part, 1)
 
         # allow players to set custom shortcuts to numbers
         if command_main_part.isdigit():
@@ -277,11 +277,11 @@ def execute_main(bot, trigger, triggerargsarray, command_type):
                 number_command_list = get_database_value(bot, duels.instigator, 'hotkey_complete') or []
                 if command_main_part not in number_command_list:
                     adjust_database_array(bot, duels.instigator, [command_main_part], 'hotkey_complete', 'add')
-                commandremaining = get_trigger_arg(bot, triggerargsarray_part, '2+') or ''
+                commandremaining = spicemanip(bot, triggerargsarray_part, '2+') or ''
                 number_command = str(number_command + " " + commandremaining)
-                triggerargsarray_part = get_trigger_arg(bot, number_command, 'create')
-                command_full_part = get_trigger_arg(bot, triggerargsarray_part, 0)
-                command_main_part = get_trigger_arg(bot, triggerargsarray_part, 1)
+                triggerargsarray_part = spicemanip(bot, number_command, 'create')
+                command_full_part = spicemanip(bot, triggerargsarray_part, 0)
+                command_main_part = spicemanip(bot, triggerargsarray_part, 1)
 
         # Run command process
         command_main_process(bot, trigger, triggerargsarray_part, command_full_part, command_main_part, duels, instigatorbio)
@@ -292,7 +292,7 @@ def execute_main(bot, trigger, triggerargsarray, command_type):
         for inflicter in deathblowpeoplearray:
             inflicterdeathblowpeoplearray = get_database_value(bot, inflicter, 'deathblowtargetsnew') or []
             if inflicterdeathblowpeoplearray != []:
-                deathblowlist = get_trigger_arg(bot, inflicterdeathblowpeoplearray, "list")
+                deathblowlist = spicemanip(bot, inflicterdeathblowpeoplearray, "list")
                 deathblowmsg = str(inflicter + " has a chance of striking a deathblow on " + deathblowlist + "! FINISH THEM!!!!")
                 osd(bot, duels.channel_current, 'say', deathblowmsg)
                 reset_database_value(bot, inflicter, 'deathblowtargetsnew')
@@ -374,10 +374,10 @@ def command_main_process(bot, trigger, triggerargsarray, command_full, command_m
     """ Anything Else is a Target For Dueling """
 
     # Rebuild user input
-    command_full = get_trigger_arg(bot, command_full, 0)
+    command_full = spicemanip(bot, command_full, 0)
     command_full = str("combat " + command_full)
-    command_main = get_trigger_arg(bot, command_full, 1)
-    triggerargsarray = get_trigger_arg(bot, command_full, 'create')
+    command_main = spicemanip(bot, command_full, 1)
+    triggerargsarray = spicemanip(bot, command_full, 'create')
 
     # Cycle back through with the subcommand "combat" as it will run various usage counters and such
     command_main_process(bot, trigger, triggerargsarray, command_full, command_main, duels, instigatorbio)
@@ -386,9 +386,9 @@ def command_main_process(bot, trigger, triggerargsarray, command_full, command_m
 # process commands, and run
 def subcommands(bot, trigger, triggerargsarray, command_full, command_main, duels, instigatorbio):
 
-    command_restructure = get_trigger_arg(bot, triggerargsarray, '2+')
-    duels.command_restructure = get_trigger_arg(bot, command_restructure, 'create')
-    docscheck = get_trigger_arg(bot, duels.command_restructure, 1)
+    command_restructure = spicemanip(bot, triggerargsarray, '2+')
+    duels.command_restructure = spicemanip(bot, command_restructure, 'create')
+    docscheck = spicemanip(bot, duels.command_restructure, 1)
     if docscheck == 'docs' or docscheck in duels_commands_alternate_docs:
         endmessage = duels_docs_commands(bot, command_main)
         osd(bot, duels.channel_current, 'say', endmessage)
@@ -551,13 +551,13 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
             if randominventoryfind:
                 if randomfindchance >= 100:
                     howluckyarethey = ' very luckily'
-                    loot = get_trigger_arg(bot, duels_loot_winnable_plus, 'random')
+                    loot = spicemanip(bot, duels_loot_winnable_plus, 'random')
                 elif randomfindchance <= 95:
                     howluckyarethey = ''
-                    loot = get_trigger_arg(bot, duels_loot_winnable_lower, 'random')
+                    loot = spicemanip(bot, duels_loot_winnable_lower, 'random')
                 else:
                     howluckyarethey = ' luckily'
-                    loot = get_trigger_arg(bot, duels_loot_winnable_norm, 'random')
+                    loot = spicemanip(bot, duels_loot_winnable_norm, 'random')
                 aoran = 'a'
                 if loot.lower().startswith(('a', 'e', 'i', 'o', 'u')):
                     aoran = 'an'
@@ -566,7 +566,7 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
 
         # Winner Selection
         winner = duels_combat_selectwinner(bot, competitors, duels, playerbio_maindueler, playerbio_target)
-        loser = get_trigger_arg(bot, [x for x in competitors if x != winner], 1) or winner
+        loser = spicemanip(bot, [x for x in competitors if x != winner], 1) or winner
 
         # rebase the player bios
         if winner == playerbio_maindueler.actual:
@@ -599,10 +599,10 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
 
         # Display main attack
         if playerbio_winner.actual != playerbio_loser.actual:
-            striketype = get_trigger_arg(bot, duel_hit_types, 'random')
+            striketype = spicemanip(bot, duel_hit_types, 'random')
             combattextarraycomplete.append(playerbio_winner.nametext + " attempts to " + striketype + " " + playerbio_loser.nametextb + " " + weapon)
         else:
-            striketype = get_trigger_arg(bot, duel_hit_types_s, 'random')
+            striketype = spicemanip(bot, duel_hit_types_s, 'random')
             combattextarraycomplete.append(playerbio_winner.nametext + " " + striketype + " " + playerbio_loser.nametextb + " " + weapon)
 
         # Damage
@@ -648,7 +648,7 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
                 transformodds = randint(playerbio_loser.agility * 10, 100)
             if transformodds >= 80:
                 currentanimals = duels_druid_current_array(bot, playerbio_loser.actual)
-                currentanimal = get_trigger_arg(bot, currentanimals, 'random')
+                currentanimal = spicemanip(bot, currentanimals, 'random')
                 aoran = 'a'
                 if currentanimal.lower().startswith(('a', 'e', 'i', 'o', 'u')):
                     aoran = 'an'
@@ -693,7 +693,7 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
             if playerbio_winner.actual == playerbio_target.actual:
                 combattextarraycomplete.append(playerbio_winner.nametext + " gains the " + str(loot))
             adjust_database_value(bot, lootwinner, loot, 1)
-            lootloser = get_trigger_arg(bot, [x for x in competitors if x != lootwinner], 1) or lootwinner
+            lootloser = spicemanip(bot, [x for x in competitors if x != lootwinner], 1) or lootwinner
             if typeofduel in duels_commands_events:
                 adjust_database_value(bot, lootwinner, 'combat_track_loot_won', 1)
                 adjust_database_value(bot, lootloser, 'combat_track_loot_lost', 1)
@@ -763,7 +763,7 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
             combattextarraycomplete.append("New Tier Unlocked!")
             tiercheck = eval("duels_commands_tier_unlocks_"+str(currenttierend))
             if tiercheck != []:
-                newtierlist = get_trigger_arg(bot, tiercheck, "list")
+                newtierlist = spicemanip(bot, tiercheck, "list")
                 combattextarraycomplete.append("Feature(s) now available: " + newtierlist)
                 if typeofduel in duels_commands_events:
                     osd(bot, duels.duels_enabled_channels, 'say', "New Tier Unlocked!     Feature(s) now available: " + newtierlist)
@@ -814,10 +814,10 @@ def duel_combat(bot, maindueler, targetarray, triggerargsarray, typeofduel, duel
 
 def duels_command_function_combat(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
-    subcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'last'], 1) or 'combat'
+    subcommand = spicemanip(bot, [x for x in duels.command_restructure if x == 'last'], 1) or 'combat'
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
     if not validtarget and not duels.admin:
         osd(bot, duels.instigator, 'notice', validtargetmsg)
@@ -855,7 +855,7 @@ def duels_docs_combat(bot):
 def duels_command_function_classic(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     if target != duels.instigator and target != bot.nick:
         if target == 'monster':
             osd(bot, duels.instigator, 'notice', "The monster can't play the classic duels game.")
@@ -868,7 +868,7 @@ def duels_command_function_classic(bot, triggerargsarray, command_main, trigger,
             return
     target = nick_actual(bot, target)
 
-    subcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'stats' or x == 'leaderboard'], 1) or 'combat'
+    subcommand = spicemanip(bot, [x for x in duels.command_restructure if x == 'stats' or x == 'leaderboard'], 1) or 'combat'
 
     if subcommand == 'stats':
         duelclassic_stats(bot, trigger, target)
@@ -898,17 +898,17 @@ def duels_command_function_classic(bot, triggerargsarray, command_main, trigger,
         worstlossesscores, worstlossesplayers = array_arrangesort(bot, worstlossesscores, worstlossesplayers)
         classicleaderboardmessage = []
         if winrateplayers != []:
-            winrateleadername = get_trigger_arg(bot, winrateplayers, 'last')
-            winrateleadernumber = get_trigger_arg(bot, winratescores, 'last')
+            winrateleadername = spicemanip(bot, winrateplayers, 'last')
+            winrateleadernumber = spicemanip(bot, winratescores, 'last')
             winrateleadernumber = format(winrateleadernumber, '.3f')
             classicleaderboardmessage.append("Best win rate is " + winrateleadername + " with " + str(winrateleadernumber))
         if bestwinsplayers != []:
-            bestwinleadername = get_trigger_arg(bot, bestwinsplayers, 'last')
-            bestwinleadernumber = get_trigger_arg(bot, bestwinscores, 'last')
+            bestwinleadername = spicemanip(bot, bestwinsplayers, 'last')
+            bestwinleadernumber = spicemanip(bot, bestwinscores, 'last')
             classicleaderboardmessage.append("Worst losing streak is " + bestwinleadername + " with " + str(bestwinleadernumber))
         if worstlossesplayers != []:
-            worstlossessleadername = get_trigger_arg(bot, worstlossesplayers, 'last')
-            worstlossesleadernumber = get_trigger_arg(bot, worstlossesscores, 'last')
+            worstlossessleadername = spicemanip(bot, worstlossesplayers, 'last')
+            worstlossesleadernumber = spicemanip(bot, worstlossesscores, 'last')
             classicleaderboardmessage.append("Best win streak is " + worstlossessleadername + " with " + str(worstlossesleadernumber))
         osd(bot, duels.channel_current, 'say', classicleaderboardmessage)
         duels.command_stamina_cost = 0
@@ -953,7 +953,7 @@ def duels_command_function_assault(bot, triggerargsarray, command_main, trigger,
         return
 
     # Announce to channel the contestants
-    displaymessage = get_trigger_arg(bot, duels.users_canduel_allchan, "list")
+    displaymessage = spicemanip(bot, duels.users_canduel_allchan, "list")
     osd(bot, duels.channel_current, 'say', duels.instigator + " Initiated a full channel " + command_main + " event. Good luck to " + displaymessage)
 
     # Temp stats
@@ -1019,7 +1019,7 @@ def duels_command_function_mayhem(bot, triggerargsarray, command_main, trigger, 
         return
 
     # Announce to channel the contestants
-    displaymessage = get_trigger_arg(bot, duels.users_canduel_allchan, "list")
+    displaymessage = spicemanip(bot, duels.users_canduel_allchan, "list")
     osd(bot, duels.channel_current, 'say', duels.instigator + " Initiated a full channel " + command_main + " event. Good luck to " + displaymessage)
 
     # Temp stats
@@ -1042,8 +1042,8 @@ def duels_command_function_mayhem(bot, triggerargsarray, command_main, trigger, 
         currentcombo = []
         for combouser in usercombo:
             currentcombo.append(combouser)
-        playera = get_trigger_arg(bot, currentcombo, 1)
-        playerb = get_trigger_arg(bot, currentcombo, "last")
+        playera = spicemanip(bot, currentcombo, 1)
+        playerb = spicemanip(bot, currentcombo, "last")
         if playera != playerb:
             playerafought = get_database_value(bot, playera, 'mayhemorganizer') or []
             playerbfought = get_database_value(bot, playerb, 'mayhemorganizer') or []
@@ -1070,8 +1070,8 @@ def duels_command_function_mayhem(bot, triggerargsarray, command_main, trigger, 
             reset_database_value(bot, user, "combat_track_" + astat)
         if playerarray != [] and statvaluearray != []:
             statvaluearray, playerarray = array_arrangesort(bot, statvaluearray, playerarray)
-            statleadername = get_trigger_arg(bot, playerarray, 'last')
-            statleadernumber = get_trigger_arg(bot, statvaluearray, 'last')
+            statleadername = spicemanip(bot, playerarray, 'last')
+            statleadernumber = spicemanip(bot, statvaluearray, 'last')
             astatname = astat.replace("_", " ")
             astatname = astatname.title()
             assaultstatsarray.append("Most " + astatname + ": "+str(statleadername) + " at " + str(statleadernumber))
@@ -1103,7 +1103,7 @@ def duels_command_function_hungergames(bot, triggerargsarray, command_main, trig
     dispmsgarray = []
 
     # Announce to channel the contestants
-    displaymessage = get_trigger_arg(bot, duels.users_canduel_allchan, "list")
+    displaymessage = spicemanip(bot, duels.users_canduel_allchan, "list")
     osd(bot, duels.channel_current, 'say', duels.instigator + " Initiated a full channel " + command_main + " event. Good luck to " + displaymessage)
 
     # Rebuild array
@@ -1118,8 +1118,8 @@ def duels_command_function_hungergames(bot, triggerargsarray, command_main, trig
     # Individual duels to find victor
     while totaltributes > 1:
         totaltributes = totaltributes - 1
-        maindueler = get_trigger_arg(bot, hungerarray, 1)
-        current_target = get_trigger_arg(bot, hungerarray, 2)
+        maindueler = spicemanip(bot, hungerarray, 1)
+        current_target = spicemanip(bot, hungerarray, 2)
 
         currentdeathblowcheck = get_database_value(bot, current_target, 'deathblow')
         if not currentdeathblowcheck:
@@ -1146,7 +1146,7 @@ def duels_command_function_hungergames(bot, triggerargsarray, command_main, trig
     reset_database_value(bot, 'duelrecorduser', 'hungergame_winner')
 
     # Display
-    hungerwinner = get_trigger_arg(bot, hungerarray, 1)
+    hungerwinner = spicemanip(bot, hungerarray, 1)
     dispmsgarray.append(hungerwinner + " is the victor!")
     dispmsgarray.append(firsttodie + " was the first to fall.")
     osd(bot, duels.channel_current, 'say', dispmsgarray)
@@ -1179,7 +1179,7 @@ def duels_command_function_colosseum(bot, triggerargsarray, command_main,  trigg
     # Vars
     currenttierstart = get_database_value(bot, 'duelrecorduser', 'tier') or 0
     dispmsgarray = []
-    displaymessage = get_trigger_arg(bot, duels.users_canduel_allchan, "list")
+    displaymessage = spicemanip(bot, duels.users_canduel_allchan, "list")
 
     # Announce
     osd(bot, duels.channel_current, 'say', duels.instigator + " Initiated a full channel " + command_main + " event. Good luck to " + displaymessage)
@@ -1190,8 +1190,8 @@ def duels_command_function_colosseum(bot, triggerargsarray, command_main,  trigg
     # Individual duels to find victor
     while int(totalplayers) > 1:
         totalplayers = totalplayers - 1
-        maindueler = get_trigger_arg(bot, duels.users_canduel_allchan, 1)
-        current_target = get_trigger_arg(bot, duels.users_canduel_allchan, 2)
+        maindueler = spicemanip(bot, duels.users_canduel_allchan, 1)
+        current_target = spicemanip(bot, duels.users_canduel_allchan, 2)
         currentdeathblowcheck = get_database_value(bot, current_target, 'deathblow')
         if not currentdeathblowcheck:
             currentdeathblowcheckb = get_database_value(bot, maindueler, 'deathblow')
@@ -1212,7 +1212,7 @@ def duels_command_function_colosseum(bot, triggerargsarray, command_main,  trigg
     reset_database_value(bot, 'duelrecorduser', 'colosseum_damage')
 
     # Announce winner and pay out
-    colosseumwinner = get_trigger_arg(bot, duels.users_canduel_allchan, 1)
+    colosseumwinner = spicemanip(bot, duels.users_canduel_allchan, 1)
     adjust_database_value(bot, colosseumwinner, 'coin', riskcoins)
     osd(bot, duels.channel_current, 'say', "The Winner is: " + colosseumwinner + "! Total winnings: " + str(riskcoins) + " coin! Losers took " + str(riskcoins) + " damage.")
 
@@ -1233,7 +1233,7 @@ def duels_command_function_monster(bot, triggerargsarray, command_main, trigger,
         set_database_value(bot, 'duelsmonster', 'newplayer', 1)
 
     # command
-    monstercommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'hunt'], 1) or 'attack'
+    monstercommand = spicemanip(bot, [x for x in duels.command_restructure if x == 'hunt'], 1) or 'attack'
 
     if monstercommand == 'hunt':
         # Pick Monsters name
@@ -1244,9 +1244,9 @@ def duels_command_function_monster(bot, triggerargsarray, command_main, trigger,
             duels_monster_stats_generate(bot, duels, 1)
 
             # Monster's name
-            duelsmonstervarient = get_trigger_arg(bot, duelsmonstervarientarray, 'random')
+            duelsmonstervarient = spicemanip(bot, duelsmonstervarientarray, 'random')
             set_database_value(bot, 'duelsmonster', 'last_monster_varent', duelsmonstervarient)
-            duelsmonstername = get_trigger_arg(bot, monstersarray, 'random')
+            duelsmonstername = spicemanip(bot, monstersarray, 'random')
             set_database_value(bot, 'duelsmonster', 'last_monster', duelsmonstername)
 
         # Run a normal duel if only one opponent
@@ -1256,7 +1256,7 @@ def duels_command_function_monster(bot, triggerargsarray, command_main, trigger,
             return
 
         # Announce to channel the contestants
-        displaymessage = get_trigger_arg(bot, duels.users_canduel_allchan, "list")
+        displaymessage = spicemanip(bot, duels.users_canduel_allchan, "list")
         osd(bot, duels.channel_current, 'say', duels.instigator + " Initiated a full channel " + command_main + " hunt event. Good luck to " + displaymessage)
 
         lastfoughtstart = get_database_value(bot, duels.instigator, 'lastfought')
@@ -1303,9 +1303,9 @@ def duels_command_function_monster(bot, triggerargsarray, command_main, trigger,
             duels_monster_stats_generate(bot, duels, 1)
 
             # Monster's name
-            duelsmonstervarient = get_trigger_arg(bot, duelsmonstervarientarray, 'random')
+            duelsmonstervarient = spicemanip(bot, duelsmonstervarientarray, 'random')
             set_database_value(bot, 'duelsmonster', 'last_monster_varent', duelsmonstervarient)
-            duelsmonstername = get_trigger_arg(bot, monstersarray, 'random')
+            duelsmonstername = spicemanip(bot, monstersarray, 'random')
             set_database_value(bot, 'duelsmonster', 'last_monster', duelsmonstername)
 
         # Combat
@@ -1339,7 +1339,7 @@ def duels_command_function_random(bot, triggerargsarray, command_main, trigger, 
     # monster
     duels.users_canduel_allchan.append('duelsmonster')
 
-    target = get_trigger_arg(bot, duels.users_canduel_allchan, 'random')
+    target = spicemanip(bot, duels.users_canduel_allchan, 'random')
     if target == 'duelsmonster':
         duels_command_function_monster(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio)
         return
@@ -1367,7 +1367,7 @@ Other Damage Commands
 
 def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
-    roulettesubcom = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'last' or str(x).isdigit()], 1) or 'normal'
+    roulettesubcom = spicemanip(bot, [x for x in duels.command_restructure if x == 'last' or str(x).isdigit()], 1) or 'normal'
 
     if roulettesubcom == 'last':
         roulettelastplayeractual = get_database_value(bot, 'duelrecorduser', 'roulettelastplayeractualtext') or str("I don't have a record of the last roulette.")
@@ -1464,21 +1464,21 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
             for x in roulettespinarray:
                 if int(x) != int(roulettechamber):
                     roulettetemp.append(x)
-            rouletteremove = get_trigger_arg(bot, roulettetemp, "random")
+            rouletteremove = spicemanip(bot, roulettetemp, "random")
             roulettetempb = []
             roulettetempb.append(roulettechamber)
             for j in roulettetemp:
                 if int(j) != int(rouletteremove):
                     roulettetempb.append(j)
             set_database_value(bot, 'duelrecorduser', 'roulettespinarray', roulettetempb)
-            currentspin = get_trigger_arg(bot, roulettetempb, "random")
+            currentspin = spicemanip(bot, roulettetempb, "random")
         else:
             currentspin = roulettechamber  # if only one chambers left
             reset_database_value(bot, 'duelrecorduser', 'roulettespinarray')
     else:
         roulettespinarray = [1, 2, 3, 4, 5, 6]
         reset_database_value(bot, 'duelrecorduser', 'roulettespinarray')
-        currentspin = get_trigger_arg(bot, roulettespinarray, "random")
+        currentspin = spicemanip(bot, roulettespinarray, "random")
 
     # current spin is safe
     if int(currentspin) != int(roulettechamber):
@@ -1512,7 +1512,7 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
         # Dish out the pain
         damage = randint(50, 120)
         bodypart = 'head'
-        revolver = get_trigger_arg(bot, roulette_revolver_list, 'random')
+        revolver = spicemanip(bot, roulette_revolver_list, 'random')
         damage = duels.tierscaling * damage
         dispmsgarray.append(duels.instigator + " shoots themself in the head with the " + revolver + ", dealing " + str(damage) + " damage. ")
         roulettelastplayeractualtext = str(duels.instigator + " shot themself in the head with the " + revolver + ", dealing " + str(damage) + " damage. ")
@@ -1546,7 +1546,7 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
 
         # unique winner list
         if uniquewinnersarray != []:
-            displaymessage = get_trigger_arg(bot, uniquewinnersarray, "list")
+            displaymessage = spicemanip(bot, uniquewinnersarray, "list")
             if len(uniquewinnersarray) > 1:
                 dispmsgarray.append("Winners: " + displaymessage + ".")
             else:
@@ -1554,8 +1554,8 @@ def duels_command_function_roulette(bot, triggerargsarray, command_main, trigger
 
         if playerarray != [] and statvaluearray != []:
             statvaluearray, playerarray = array_arrangesort(bot, statvaluearray, playerarray)
-            statleadername = get_trigger_arg(bot, playerarray, 'last')
-            statleadernumber = get_trigger_arg(bot, statvaluearray, 'last')
+            statleadername = spicemanip(bot, playerarray, 'last')
+            statleadernumber = spicemanip(bot, statvaluearray, 'last')
             dispmsgarray.append("Biggest Payout: " + statleadername + " with " + str(statleadernumber) + " coins.")
 
         roulettecount = get_database_value(bot, 'duelrecorduser', 'roulettecount') or 1
@@ -1600,10 +1600,10 @@ def duels_command_function_trebuchet(bot, triggerargsarray, command_main, trigge
         return
 
     # what is launched
-    projectile = get_trigger_arg(bot, trebuchet_projectiles_list, 'random')
+    projectile = spicemanip(bot, trebuchet_projectiles_list, 'random')
 
     # Who might get hit
-    target = get_trigger_arg(bot, duels.users_canduel_allchan, 'random')
+    target = spicemanip(bot, duels.users_canduel_allchan, 'random')
 
     # Check target
     duels_check_nick_condition(bot, target, duels)
@@ -1643,8 +1643,8 @@ def duels_command_function_deathblow(bot, triggerargsarray, command_main, trigge
         duels.command_stamina_cost = 0
         return
 
-    firstdeathblowtarget = get_trigger_arg(bot, deathblowtargetarray, 1)
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan or x == 'all'], 1) or firstdeathblowtarget
+    firstdeathblowtarget = spicemanip(bot, deathblowtargetarray, 1)
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan or x == 'all'], 1) or firstdeathblowtarget
     if target not in deathblowtargetarray and target != 'all':
         osd(bot, duels.instigator, 'notice', target + " is not available for you to finish.")
         duels.command_stamina_cost = 0
@@ -1697,7 +1697,7 @@ def duels_command_function_grenade(bot, triggerargsarray, command_main, trigger,
         return
 
     # The quantity the player is applyint to this transaction
-    quantity = get_trigger_arg(bot, [x for x in duels.command_restructure if str(x).isdigit()], 1) or 1
+    quantity = spicemanip(bot, [x for x in duels.command_restructure if str(x).isdigit()], 1) or 1
     if quantity > 1:
         osd(bot, duels.instigator, 'notice', "You can only throw one grenade at a time.")
         duels.command_stamina_cost = 0
@@ -1744,7 +1744,7 @@ def duels_command_function_grenade(bot, triggerargsarray, command_main, trigger,
                 dispmsgarray.append(j)
             duels.users_canduel_allchan.remove(player)
     if duels.users_canduel_allchan != []:
-        remainingarray = get_trigger_arg(bot, duels.users_canduel_allchan, "list")
+        remainingarray = spicemanip(bot, duels.users_canduel_allchan, "list")
         dispmsgarray.append(remainingarray + " completely jump out of the way")
     osd(bot, duels.channel_current, 'say', dispmsgarray)
 
@@ -1772,15 +1772,15 @@ def duels_command_function_magic(bot, triggerargsarray, command_main, trigger, c
         duels.command_stamina_cost = 0
         return
 
-    magicusage = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels_magic_types], 1)
+    magicusage = spicemanip(bot, [x for x in duels.command_restructure if x in duels_magic_types], 1)
     if not magicusage:
-        magicoptions = get_trigger_arg(bot, duels_magic_types, 'list')
+        magicoptions = spicemanip(bot, duels_magic_types, 'list')
         osd(bot, duels.channel_current, 'say', "Magic uses include: " + magicoptions + ".")
         duels.command_stamina_cost = 0
         return
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     if target != duels.instigator:
         validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
         if not validtarget:
@@ -1807,7 +1807,7 @@ def duels_command_function_magic(bot, triggerargsarray, command_main, trigger, c
         return
 
     # The quantity the player is applyint to this transaction
-    quantity = get_trigger_arg(bot, [x for x in duels.command_restructure if str(x).isdigit()], 1) or 1
+    quantity = spicemanip(bot, [x for x in duels.command_restructure if str(x).isdigit()], 1) or 1
 
     # How much mana is required
     manarequired = array_compare(bot, magicusage, duels_magic_types, duels_magic_required)
@@ -1885,10 +1885,10 @@ Character Commands
 def duels_command_function_character(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
     valid_character_subcoms = ['setup']
-    charcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x in valid_character_subcoms or x in duels_character_basics], 1) or 'sheet'
+    charcommand = spicemanip(bot, [x for x in duels.command_restructure if x in valid_character_subcoms or x in duels_character_basics], 1) or 'sheet'
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
     if target != duels.instigator:
         if not validtarget and not duels.admin:
@@ -1901,7 +1901,7 @@ def duels_command_function_character(bot, triggerargsarray, command_main, trigge
 
     for char_basic in duels_character_basics:
         currentrandomarray = eval('duels_character_valid_'+char_basic)
-        currentrandom = get_trigger_arg(bot, currentrandomarray, 'random')
+        currentrandom = spicemanip(bot, currentrandomarray, 'random')
         exec("random" + char_basic + " = " + "'"+currentrandom+"'")
 
     if charcommand == 'sheet':
@@ -1927,14 +1927,14 @@ def duels_command_function_character(bot, triggerargsarray, command_main, trigge
 
     if charcommand == 'setup':
 
-        setuptype = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'quick' or x == 'valid' or x == 'random'], 1) or 'normal'
+        setuptype = spicemanip(bot, [x for x in duels.command_restructure if x == 'quick' or x == 'valid' or x == 'random'], 1) or 'normal'
 
         if setuptype == 'valid':
             dispmsgarray = []
             dispmsgarray.append("Valid Character settings include:")
             for x in duels_character_basics:
                 validarray = eval("duels_character_valid_" + x)
-                validarraylist = get_trigger_arg(bot, validarray, "list")
+                validarraylist = spicemanip(bot, validarray, "list")
                 dispmsgarray.append(x.title() + " = " + validarraylist)
             osd(bot, duels.channel_current, 'say', dispmsgarray)
             osd(bot, duels.instigator, 'notice', "Example setup command is        .duel character setup " + randomgender + " " + randomrace + " " + randomclass + "     OR simply run .duel character setup quick")
@@ -1950,7 +1950,7 @@ def duels_command_function_character(bot, triggerargsarray, command_main, trigge
         # only allow character creation once unless in dev mode
         playerreset = 0
         if duels.channel_current not in duels.duels_dev_channels:
-            confirm = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'confirm'], 1) or 0
+            confirm = spicemanip(bot, [x for x in duels.command_restructure if x == 'confirm'], 1) or 0
             if not confirm:
                 osd(bot, duels.channel_current, 'say', "Your character sheet cannot be changed without resetting ALL stats. You may run this command with the word 'confirm' if you want a new character sheet.")
                 duels.command_stamina_cost = 0
@@ -1961,7 +1961,7 @@ def duels_command_function_character(bot, triggerargsarray, command_main, trigge
         if setuptype != 'quick' and setuptype != 'random':
             for char_basic in duels_character_basics:
                 validarray = eval("duels_character_valid_" + char_basic)
-                char_basic_check = get_trigger_arg(bot, [x for x in duels.command_restructure if x in validarray], 1) or 0
+                char_basic_check = spicemanip(bot, [x for x in duels.command_restructure if x in validarray], 1) or 0
                 if not char_basic_check:
                     playercurrent = get_database_value(bot, targetbio.actual, char_basic) or 'none'
                     if playercurrent not in validarray:
@@ -1989,8 +1989,8 @@ def duels_command_function_character(bot, triggerargsarray, command_main, trigge
     # Class, Race, Gender
     if charcommand in duels_character_basics:
 
-        valid_list = get_trigger_arg(bot, eval("duels_character_valid_"+charcommand), "list")
-        subcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'set' or x == 'change'], 1) or 'view'
+        valid_list = spicemanip(bot, eval("duels_character_valid_"+charcommand), "list")
+        subcommand = spicemanip(bot, [x for x in duels.command_restructure if x == 'set' or x == 'change'], 1) or 'view'
         if charcommand == 'class':
             targetbio_current = eval(str("targetbio."+charcommand.title()))
         else:
@@ -2007,7 +2007,7 @@ def duels_command_function_character(bot, triggerargsarray, command_main, trigge
                     osd(bot, duels.instigator, 'notice', "you cannot change somebody elses "+charcommand)
                     duels.command_stamina_cost = 0
                     return
-        newset = get_trigger_arg(bot, [x for x in duels.command_restructure if x in eval("duels_character_valid_"+charcommand)], 1) or 0
+        newset = spicemanip(bot, [x for x in duels.command_restructure if x in eval("duels_character_valid_"+charcommand)], 1) or 0
         if not newset:
             osd(bot, duels.instigator, 'notice', "Which "+charcommand+" would you like to use? Options are: " + valid_list + ".")
             duels.command_stamina_cost = 0
@@ -2073,10 +2073,10 @@ def duels_command_function_special(bot, triggerargsarray, command_main, trigger,
 
     # Get The Command Used
     validstatcommands = ['combine']
-    statcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x in validstatcommands], 1) or 'view'
+    statcommand = spicemanip(bot, [x for x in duels.command_restructure if x in validstatcommands], 1) or 'view'
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
     if target != duels.instigator:
         if not validtarget and not duels.admin:
@@ -2107,12 +2107,12 @@ def duels_command_function_special(bot, triggerargsarray, command_main, trigger,
 
     if statcommand == 'combine':
 
-        racecommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels_character_valid_race], 1)
+        racecommand = spicemanip(bot, [x for x in duels.command_restructure if x in duels_character_valid_race], 1)
         if not racecommand:
             osd(bot, duels.instigator, 'notice', "you are missing race in the command.")
             return
 
-        classcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels_character_valid_class], 1)
+        classcommand = spicemanip(bot, [x for x in duels.command_restructure if x in duels_character_valid_class], 1)
         if not classcommand:
             osd(bot, duels.instigator, 'notice', "you are missing class in the command.")
             return
@@ -2147,10 +2147,10 @@ def duels_command_function_stats(bot, triggerargsarray, command_main, trigger, c
 
     # Get The Command Used
     validstatcommands = ['add', 'del', 'default', 'admin']
-    statcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x in validstatcommands], 1) or 'view'
+    statcommand = spicemanip(bot, [x for x in duels.command_restructure if x in validstatcommands], 1) or 'view'
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan or x == 'everyone'], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan or x == 'everyone'], 1) or duels.instigator
     validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
     if target != duels.instigator:
         if not validtarget and not duels.admin:
@@ -2194,7 +2194,7 @@ def duels_command_function_stats(bot, triggerargsarray, command_main, trigger, c
             if stat not in duels.stats_valid and stat != 'health' and stat not in stats_character and stat != 'pepper' and stat != 'winlossratio' and stat != 'location':
                 invalidstats.append(stat)
         if invalidstats != []:
-            invalidstatslist = get_trigger_arg(bot, invalidstats, 'list')
+            invalidstatslist = spicemanip(bot, invalidstats, 'list')
             osd(bot, duels.instigator, 'notice', "the following stats are not valid: " + str(invalidstatslist))
             duels.command_stamina_cost = 0
             return
@@ -2219,13 +2219,13 @@ def duels_command_function_stats(bot, triggerargsarray, command_main, trigger, c
             duels.command_stamina_cost = 0
             return
 
-        statset = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.stats_valid], 1)
+        statset = spicemanip(bot, [x for x in duels.command_restructure if x in duels.stats_valid], 1)
         if not statset:
             osd(bot, duels.instigator, 'notice', "Stat Missing.")
             duels.command_stamina_cost = 0
             return
 
-        subcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'set' or x == 'reset'], 1)
+        subcommand = spicemanip(bot, [x for x in duels.command_restructure if x == 'set' or x == 'reset'], 1)
         if not subcommand:
             osd(bot, duels.instigator, 'notice', "Set or Reset. ")
             duels.command_stamina_cost = 0
@@ -2236,7 +2236,7 @@ def duels_command_function_stats(bot, triggerargsarray, command_main, trigger, c
             duels.command_restructure.remove(targetbio.actual)
         duels.command_restructure.remove(statset)
         duels.command_restructure.remove(subcommand)
-        newvalue = get_trigger_arg(bot, duels.command_restructure, 0) or 'None'
+        newvalue = spicemanip(bot, duels.command_restructure, 0) or 'None'
         if subcommand == 'set' and newvalue == 'None':
             osd(bot, duels.instigator, 'notice', "When using set, you must specify a value.")
             duels.command_stamina_cost = 0
@@ -2276,10 +2276,10 @@ def duels_command_function_health(bot, triggerargsarray, command_main, trigger, 
 
     # Get The Command Used
     validstatcommands = []
-    statcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x in validstatcommands], 1) or 'view'
+    statcommand = spicemanip(bot, [x for x in duels.command_restructure if x in validstatcommands], 1) or 'view'
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
     if target != duels.instigator:
         if not validtarget and not duels.admin:
@@ -2329,10 +2329,10 @@ def duels_command_function_streaks(bot, triggerargsarray, command_main, trigger,
 
     # Get The Command Used
     validstatcommands = []
-    statcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x in validstatcommands], 1) or 'view'
+    statcommand = spicemanip(bot, [x for x in duels.command_restructure if x in validstatcommands], 1) or 'view'
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
     if target != duels.instigator:
         if not validtarget and not duels.admin:
@@ -2380,10 +2380,10 @@ def duels_command_function_loot(bot, triggerargsarray, command_main, trigger, co
 
     # Get The Command Used
     validstatcommands = ['use']
-    statcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x in validstatcommands], 1) or 'view'
+    statcommand = spicemanip(bot, [x for x in duels.command_restructure if x in validstatcommands], 1) or 'view'
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
     if target != duels.instigator:
         if not validtarget and not duels.admin:
@@ -2426,7 +2426,7 @@ def duels_command_function_loot(bot, triggerargsarray, command_main, trigger, co
             plural_loot.append(itemname)
 
         # Main transaction item
-        lootitem = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels_loot_items or x in plural_loot], 1)
+        lootitem = spicemanip(bot, [x for x in duels.command_restructure if x in duels_loot_items or x in plural_loot], 1)
         if not lootitem:
             osd(bot, duels.instigator, 'notice', "What do you want to " + str(statcommand) + "?")
             duels.command_stamina_cost = 0
@@ -2434,7 +2434,7 @@ def duels_command_function_loot(bot, triggerargsarray, command_main, trigger, co
 
         # The quantity the player is applyint to this transaction
         gethowmanylootitem = get_database_value(bot, duels.instigator, lootitem) or 0
-        quantity = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'all' or str(x).isdigit()], 1) or 1
+        quantity = spicemanip(bot, [x for x in duels.command_restructure if x == 'all' or str(x).isdigit()], 1) or 1
         if quantity == 'all':
             quantity = gethowmanylootitem
 
@@ -2466,9 +2466,9 @@ def duels_command_function_loot(bot, triggerargsarray, command_main, trigger, co
             potionmaths = int(quantity) * potionworth
 
             # Select a body part
-            bodypartselect = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels_bodyparts], 1) or 'list'
+            bodypartselect = spicemanip(bot, [x for x in duels.command_restructure if x in duels_bodyparts], 1) or 'list'
             if bodypartselect not in duels_bodyparts:
-                bodypartlist = get_trigger_arg(bot, duels_bodyparts, 'list')
+                bodypartlist = spicemanip(bot, duels_bodyparts, 'list')
                 osd(bot, duels.instigator, 'notice', "Select a valid body part to apply the stimpack to. Valid options: " + bodypartlist)
                 duels.command_stamina_cost = 0
                 return
@@ -2547,9 +2547,9 @@ def duels_command_function_loot(bot, triggerargsarray, command_main, trigger, co
             # Build a list of potions, randomly
             while int(quantity) > 0:
                 quantity = int(quantity) - 1
-                loot = get_trigger_arg(bot, duels_loot_potion_types, 'random')
+                loot = spicemanip(bot, duels_loot_potion_types, 'random')
                 if loot == 'mysterypotion':
-                    loot = get_trigger_arg(bot, duels_loot_null, 'random')
+                    loot = spicemanip(bot, duels_loot_null, 'random')
                 uselootarray.append(loot)
 
             # Build baseline of how we will display what potions were used
@@ -2566,7 +2566,7 @@ def duels_command_function_loot(bot, triggerargsarray, command_main, trigger, co
                 else:
                     actualpotionmathedarray.append(uloot)
 
-            postionsusedarray = get_trigger_arg(bot, actualpotionmathedarray, "list")
+            postionsusedarray = spicemanip(bot, actualpotionmathedarray, "list")
             mainlootusemessage.append("Potion(s) used: " + postionsusedarray)
 
         for uloot, unumber in zip(uniquelootitems, uniquecount):
@@ -2597,10 +2597,10 @@ def duels_command_function_armor(bot, triggerargsarray, command_main, trigger, c
 
     # Get The Command Used
     validstatcommands = []
-    statcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x in validstatcommands], 1) or 'view'
+    statcommand = spicemanip(bot, [x for x in duels.command_restructure if x in validstatcommands], 1) or 'view'
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
     if target != duels.instigator:
         if not validtarget and not duels.admin:
@@ -2647,7 +2647,7 @@ def duels_docs_armor(bot):
 def duels_command_function_opt(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
     # is the opt in or out
-    directionchange = get_trigger_arg(bot, [x for x in triggerargsarray if x in duels_commands_alternate_opt], 1)
+    directionchange = spicemanip(bot, [x for x in triggerargsarray if x in duels_commands_alternate_opt], 1)
     if not directionchange:
         osd(bot, duels.channel_current, 'say', "Do you want to play duels or not?")
         duels.command_stamina_cost = 0
@@ -2658,7 +2658,7 @@ def duels_command_function_opt(bot, triggerargsarray, command_main, trigger, com
         directionchange = 'off'
 
     # Who is opting in/out
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan or x == 'everyone'], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan or x == 'everyone'], 1) or duels.instigator
     if target != duels.instigator and target != duels.channel_current:
         duels.optcheck = 0
         validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
@@ -2708,7 +2708,7 @@ def duels_command_function_opt(bot, triggerargsarray, command_main, trigger, com
                 return
 
         # Reason provided
-        reasonmessage = get_trigger_arg(bot, triggerargsarray, '3+')
+        reasonmessage = spicemanip(bot, triggerargsarray, '3+')
         if not reasonmessage:
             if not duels.admin:
                 osd(bot, duels.instigator, 'notice', "if you would like " + targetbio.nametext + " to turn duels "+directionchange+", you can run this command along with a message, that they will get privately.")
@@ -2780,7 +2780,7 @@ def duels_command_function_opt(bot, triggerargsarray, command_main, trigger, com
             if directionchange == 'on':
                 dispmsgarray.append(targetbio.nametext + " has entered the arena!")
             else:
-                cowardterm = get_trigger_arg(bot, cowardarray, 'random')
+                cowardterm = spicemanip(bot, cowardarray, 'random')
                 dispmsgarray.append(targetbio.nametext + " has left the arena! " + cowardterm)
         osd(bot, duels.duels_enabled_channels, 'say', dispmsgarray)
 
@@ -2797,10 +2797,10 @@ def duels_docs_opt(bot):
 
 def duels_command_function_location(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
-    newlocation = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels_commands_locations], 1) or 'view'
+    newlocation = spicemanip(bot, [x for x in duels.command_restructure if x in duels_commands_locations], 1) or 'view'
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
     if not validtarget and not duels.admin:
         osd(bot, duels.instigator, 'notice', validtargetmsg)
@@ -2818,7 +2818,7 @@ def duels_command_function_location(bot, triggerargsarray, command_main, trigger
     targetlocation = duels_get_location(bot, duels, targetbio.actual)
 
     if newlocation == 'view':
-        valid_locations = get_trigger_arg(bot, duels_commands_locations, "list")
+        valid_locations = spicemanip(bot, duels_commands_locations, "list")
         if targetbio.actual == duels.instigator:
             osd(bot, duels.instigator, 'notice',  "You are currently located at the " + targetlocation + " area. You may run   .duel location $location    to move your player. Valid locations are: " + valid_locations)
         else:
@@ -2850,7 +2850,7 @@ def duels_command_function_location(bot, triggerargsarray, command_main, trigger
         dispmsgarray.append(targetbio.nametext + " has entered the arena!")
     else:
         if targetlocation == 'arena' and newlocation != 'arena':
-            cowardterm = get_trigger_arg(bot, cowardarray, 'random')
+            cowardterm = spicemanip(bot, cowardarray, 'random')
             dispmsgarray.append(targetbio.nametext + " has left the arena! " + cowardterm)
     if dispmsgarray != []:
         osd(bot, duels.duels_enabled_channels, 'say', dispmsgarray)
@@ -2868,7 +2868,7 @@ def duels_docs_location(bot):
 def duels_command_function_harakiri(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     if target != duels.instigator:
         validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
         if not validtarget:
@@ -2880,7 +2880,7 @@ def duels_command_function_harakiri(bot, triggerargsarray, command_main, trigger
     else:
         targetbio = instigatorbio
 
-    confirm = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'confirm'], 1) or 0
+    confirm = spicemanip(bot, [x for x in duels.command_restructure if x == 'confirm'], 1) or 0
     if not confirm:
         osd(bot, duels.channel_current, 'say', "You must run this command with 'confirm' to kill yourself. No rewards are given in to cowards.")
         duels.command_stamina_cost = 0
@@ -2909,7 +2909,7 @@ def duels_docs_template(bot):
 def duels_command_function_title(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     if target != duels.instigator:
         validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
         if not validtarget:
@@ -2929,7 +2929,7 @@ def duels_command_function_title(bot, triggerargsarray, command_main, trigger, c
 
     if targetbio.actual in duels.command_restructure:
         duels.command_restructure.remove(targetbio.actual)
-    titletoset = get_trigger_arg(bot, duels.command_restructure, 0)
+    titletoset = spicemanip(bot, duels.command_restructure, 0)
     if not titletoset:
         if targetbio.actual != duels.instigator:
             osd(bot, duels.instigator, 'notice', "What do you want "+targetbio.nametextpos+" your title to be?")
@@ -2978,7 +2978,7 @@ def duels_docs_title(bot):
 def duels_command_function_weaponslocker(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
     validdirectionarray = ['total', 'inv', 'add', 'del', 'reset']
-    adjustmentdirection = get_trigger_arg(bot, [x for x in duels.command_restructure if x in validdirectionarray], 1)
+    adjustmentdirection = spicemanip(bot, [x for x in duels.command_restructure if x in validdirectionarray], 1)
     if not adjustmentdirection:
         osd(bot, duels.instigator, 'notice', "Use .duel weaponslocker add/del to adjust Locker Inventory.")
         duels.command_stamina_cost = 0
@@ -2989,7 +2989,7 @@ def duels_command_function_weaponslocker(bot, triggerargsarray, command_main, tr
     if adjustmentdirection == 'add' or adjustmentdirection == 'del':
         target = duels.instigator
     else:
-        target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+        target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     if target != duels.instigator:
         validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
         if not validtarget:
@@ -3015,7 +3015,7 @@ def duels_command_function_weaponslocker(bot, triggerargsarray, command_main, tr
             osd(bot, duels.instigator, 'notice', "There doesnt appear to be anything in the weapons locker! Use .duel weaponslocker add/del to adjust Locker Inventory.")
             duels.command_stamina_cost = 0
             return
-        osd(bot, duels.instigator, 'say', get_trigger_arg(bot, weaponslist, 'list'))
+        osd(bot, duels.instigator, 'say', spicemanip(bot, weaponslist, 'list'))
         duels.command_stamina_cost = 0
         return
 
@@ -3030,7 +3030,7 @@ def duels_command_function_weaponslocker(bot, triggerargsarray, command_main, tr
         duels.command_stamina_cost = 0
         return
 
-    weaponchange = get_trigger_arg(bot, duels.command_restructure, 0)
+    weaponchange = spicemanip(bot, duels.command_restructure, 0)
     if not weaponchange:
         osd(bot, duels.instigator, 'notice', "What weapon would you like to add/remove?")
         duels.command_stamina_cost = 0
@@ -3082,12 +3082,12 @@ Town Vendor Commands
 
 
 def duels_command_function_forge(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
-    armors = get_trigger_arg(bot, stats_armor, 'list')
+    armors = spicemanip(bot, stats_armor, 'list')
 
-    subcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels_forge_transaction_types], 1) or 'view'
+    subcommand = spicemanip(bot, [x for x in duels.command_restructure if x in duels_forge_transaction_types], 1) or 'view'
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     if target != duels.instigator:
         validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
         if not validtarget:
@@ -3104,7 +3104,7 @@ def duels_command_function_forge(bot, triggerargsarray, command_main, trigger, c
         targetbio = instigatorbio
 
     if subcommand != 'view':
-        typearmor = get_trigger_arg(bot, [x for x in duels.command_restructure if x in stats_armor or x == 'all'], 1)
+        typearmor = spicemanip(bot, [x for x in duels.command_restructure if x in stats_armor or x == 'all'], 1)
         if not typearmor:
             osd(bot, duels.channel_current, 'say', "What type of armor do you wish to " + subcommand + "? Options are: " + armors + ".")
             duels.command_stamina_cost = 0
@@ -3114,7 +3114,7 @@ def duels_command_function_forge(bot, triggerargsarray, command_main, trigger, c
         merchantarray = []  # TODO track loot usage by players and create supply vs demand
         for armor in stats_armor:
             merchantarray.append(armor + "="+str(armor_cost))
-        merchantstock = get_trigger_arg(bot, merchantarray, 'list')
+        merchantstock = spicemanip(bot, merchantarray, 'list')
         osd(bot, duels.channel_current, 'say',  "Forge Supply (item=coin-cost): " + merchantstock)
         duels.command_stamina_cost = 0
         return
@@ -3262,10 +3262,10 @@ def duels_docs_forge(bot):
 def duels_command_function_merchant(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
     # Get The Command Used
-    lootcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels_merchant_transaction_types], 1) or 'view'
+    lootcommand = spicemanip(bot, [x for x in duels.command_restructure if x in duels_merchant_transaction_types], 1) or 'view'
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     if target != duels.instigator:
         validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
         if not validtarget:
@@ -3312,7 +3312,7 @@ def duels_command_function_merchant(bot, triggerargsarray, command_main, trigger
         plural_loot.append(itemname)
 
     # Main transaction item
-    lootitem = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels_loot_items or x in plural_loot], 1)
+    lootitem = spicemanip(bot, [x for x in duels.command_restructure if x in duels_loot_items or x in plural_loot], 1)
     if not lootitem:
         osd(bot, duels.instigator, 'notice', "What do you want to " + str(lootcommand) + "?")
         duels.command_stamina_cost = 0
@@ -3326,7 +3326,7 @@ def duels_command_function_merchant(bot, triggerargsarray, command_main, trigger
         return
 
     # The quantity the player is applyint to this transaction
-    quantity = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'all' or str(x).isdigit()], 1) or 1
+    quantity = spicemanip(bot, [x for x in duels.command_restructure if x == 'all' or str(x).isdigit()], 1) or 1
     if quantity == 'all':
         quantity = gethowmanylootitem
 
@@ -3413,10 +3413,10 @@ def duels_command_function_locker(bot, triggerargsarray, command_main, trigger, 
 
     # Get The Command Used
     valid_comms = ['store', 'take']
-    lootcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x in valid_comms], 1) or 'view'
+    lootcommand = spicemanip(bot, [x for x in duels.command_restructure if x in valid_comms], 1) or 'view'
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     if target != duels.instigator:
         validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
         if not validtarget:
@@ -3478,7 +3478,7 @@ def duels_command_function_locker(bot, triggerargsarray, command_main, trigger, 
         plural_loot.append(itemname)
 
     # Main transaction item
-    lootitem = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels_loot_view or x in plural_loot or x == 'everything'], 1)
+    lootitem = spicemanip(bot, [x for x in duels.command_restructure if x in duels_loot_view or x in plural_loot or x == 'everything'], 1)
     if not lootitem:
         osd(bot, duels.instigator, 'notice', "What do you want to " + str(lootcommand) + "?")
         duels.command_stamina_cost = 0
@@ -3508,7 +3508,7 @@ def duels_command_function_locker(bot, triggerargsarray, command_main, trigger, 
     if lootcommand == 'take':
         gethowmanylootitem = get_database_value(bot, duels.instigator, lootitem+"_locker") or 0
 
-    quantity = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'all' or str(x).isdigit()], 1) or 1
+    quantity = spicemanip(bot, [x for x in duels.command_restructure if x == 'all' or str(x).isdigit()], 1) or 1
     if quantity == 'all':
         quantity = gethowmanylootitem
 
@@ -3562,7 +3562,7 @@ def duels_docs_locker(bot):
 def duels_command_function_craft(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     if target != duels.instigator:
         validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
         if not validtarget:
@@ -3578,16 +3578,16 @@ def duels_command_function_craft(bot, triggerargsarray, command_main, trigger, c
     else:
         targetbio = instigatorbio
 
-    validlist = get_trigger_arg(bot, duels_craft_valid, "list")
+    validlist = spicemanip(bot, duels_craft_valid, "list")
 
-    lootcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'recipe' or x == 'create' or x == 'list'], 1) or 'create'
+    lootcommand = spicemanip(bot, [x for x in duels.command_restructure if x == 'recipe' or x == 'create' or x == 'list'], 1) or 'create'
 
     if lootcommand == 'list':
         osd(bot, duels.channel_current, 'say', "Valid Crafting Recipes include: " + validlist)
         duels.command_stamina_cost = 0
         return
 
-    lootitem = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels_craft_valid], 1)
+    lootitem = spicemanip(bot, [x for x in duels.command_restructure if x in duels_craft_valid], 1)
     if not lootitem:
         osd(bot, duels.instigator, 'notice', "what type of loot item would to like to " + lootcommand + "?")
         duels.command_stamina_cost = 0
@@ -3604,7 +3604,7 @@ def duels_command_function_craft(bot, triggerargsarray, command_main, trigger, c
         duels.command_stamina_cost = 0
         return
 
-    quantity = get_trigger_arg(bot, [x for x in duels.command_restructure if str(x).isdigit()], 1) or 1
+    quantity = spicemanip(bot, [x for x in duels.command_restructure if str(x).isdigit()], 1) or 1
     quantity = int(quantity)
 
     if lootcommand == 'create':
@@ -3640,10 +3640,10 @@ def duels_docs_craft(bot):
 
 def duels_command_function_tavern(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
-    beveragetype = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels_tavern_items], 1) or 'view'
+    beveragetype = spicemanip(bot, [x for x in duels.command_restructure if x in duels_tavern_items], 1) or 'view'
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     if target != duels.instigator:
         validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
         if not validtarget:
@@ -3672,7 +3672,7 @@ def duels_command_function_tavern(bot, triggerargsarray, command_main, trigger, 
                         currenteffect = str("+"+str(currenteffect))
                     currenteffect = str(str(currenteffect)+firstletter)
                     effectsarray.append(currenteffect)
-            effectslist = get_trigger_arg(bot, effectsarray, "list")
+            effectslist = spicemanip(bot, effectsarray, "list")
             currentcost = array_compare(bot, beverage, duels_tavern_items, duels_tavern_cost)
             beveragelisting.append(beverage.title() + "=(" + str(effectslist) + ")" + "[" + str(currentcost) + "$]")
         osd(bot, duels.channel_current, 'say', beveragelisting)
@@ -3682,7 +3682,7 @@ def duels_command_function_tavern(bot, triggerargsarray, command_main, trigger, 
     current_loot_cost = array_compare(bot, beveragetype, duels_tavern_items, duels_tavern_cost)
 
     # The quantity the player is applyint to this transaction
-    quantity = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'all' or str(x).isdigit()], 1) or 1
+    quantity = spicemanip(bot, [x for x in duels.command_restructure if x == 'all' or str(x).isdigit()], 1) or 1
     quantity = int(quantity)
 
     coinrequired = int(current_loot_cost) * int(quantity)
@@ -3738,7 +3738,7 @@ Channel Based Subcommands
 
 def duels_command_function_tier(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
-    command = get_trigger_arg(bot, triggerargsarray, 2) or 'view'
+    command = spicemanip(bot, triggerargsarray, 2) or 'view'
     dispmsgarray = []
     currenttierpepper = duels_tier_number_to_pepper(bot, duels.currenttier)
     dispmsgarray.append("The current tier is " + str(duels.currenttier) + " (" + str(currenttierpepper.title()) + ").")
@@ -3755,10 +3755,10 @@ def duels_command_function_tier(bot, triggerargsarray, command_main, trigger, co
                 else:
                     futuretierlistarray.append(x)
         if currenttierlistarray != []:
-            currenttierlist = get_trigger_arg(bot, currenttierlistarray, "list")
+            currenttierlist = spicemanip(bot, currenttierlistarray, "list")
             dispmsgarray.append("Feature(s) currently available: " + currenttierlist + ".")
         if futuretierlistarray != []:
-            futuretierlist = get_trigger_arg(bot, futuretierlistarray, "list")
+            futuretierlist = spicemanip(bot, futuretierlistarray, "list")
             dispmsgarray.append("Feature(s) not yet unlocked: " + futuretierlist + ".")
 
     # What tier is next
@@ -3771,7 +3771,7 @@ def duels_command_function_tier(bot, triggerargsarray, command_main, trigger, co
         nextpepper = duels_tier_number_to_pepper(bot, nexttier)
         tiercheck = eval("duels_commands_tier_unlocks_"+str(nexttier))
         if tiercheck != []:
-            tierlist = get_trigger_arg(bot, tiercheck, "list")
+            tierlist = spicemanip(bot, tiercheck, "list")
             dispmsgarray.append("Feature(s) that are available at tier " + str(nexttier) + " (" + str(nextpepper.title()) + "): " + tierlist + ".")
         else:
             dispmsgarray.append("No New Feature(s) available at tier " + str(nexttier) + " (" + str(nextpepper.title()) + ").")
@@ -3791,7 +3791,7 @@ def duels_command_function_tier(bot, triggerargsarray, command_main, trigger, co
         commandtier = duels_tier_number_to_pepper_index(bot, command)
         tiercheck = eval("duels_commands_tier_unlocks_"+str(commandtier))
         if tiercheck != []:
-            tierlist = get_trigger_arg(bot, tiercheck, "list")
+            tierlist = spicemanip(bot, tiercheck, "list")
             dispmsgarray.append("Feature(s) that are available at tier " + str(commandtier) + " (" + str(command.title()) + "): " + tierlist + ".")
         else:
             dispmsgarray.append("No New Feature(s) available at tier " + str(commandtier) + " (" + str(command.title()) + ").")
@@ -3809,7 +3809,7 @@ def duels_command_function_tier(bot, triggerargsarray, command_main, trigger, co
         commandpepper = duels_tier_number_to_pepper(bot, command)
         tiercheck = eval("duels_commands_tier_unlocks_"+str(command))
         if tiercheck != []:
-            tierlist = get_trigger_arg(bot, tiercheck, "list")
+            tierlist = spicemanip(bot, tiercheck, "list")
             dispmsgarray.append("Feature(s) that are available at tier " + str(command) + " (" + str(commandpepper.title()) + "): " + tierlist + ".")
         else:
             dispmsgarray.append("No New Feature(s) available at tier " + str(command) + " (" + str(commandpepper.title()) + ").")
@@ -3835,16 +3835,16 @@ def duels_command_function_tier(bot, triggerargsarray, command_main, trigger, co
 
         if playerarray != [] and statvaluearray != []:
             statvaluearray, playerarray = array_arrangesort(bot, statvaluearray, playerarray)
-            statleadername = get_trigger_arg(bot, playerarray, 'last')
-            statleadernumber = get_trigger_arg(bot, statvaluearray, 'last')
+            statleadername = spicemanip(bot, playerarray, 'last')
+            statleadernumber = spicemanip(bot, statvaluearray, 'last')
 
-            tierxprequired = get_trigger_arg(bot, duels_commands_xp_levels, nexttier)
+            tierxprequired = spicemanip(bot, duels_commands_xp_levels, nexttier)
             tierxpmath = tierxprequired - statleadernumber
             dispmsgarray.append("The leader in xp is " + statleadername + " with " + str(statleadernumber) + ". The next tier is " + str(abs(tierxpmath)) + " xp away.")
             nextpepper = duels_tier_number_to_pepper(bot, nexttier)
             tiercheck = eval("duels_commands_tier_unlocks_"+str(nexttier))
             if tiercheck != []:
-                tierlist = get_trigger_arg(bot, tiercheck, "list")
+                tierlist = spicemanip(bot, tiercheck, "list")
                 dispmsgarray.append("Feature(s) that are available at tier " + str(nexttier) + " (" + str(nextpepper.title()) + "): " + tierlist + ".")
             else:
                 dispmsgarray.append("No New Feature(s) available at tier " + str(nexttier) + " (" + str(nextpepper.title()) + ").")
@@ -3877,7 +3877,7 @@ def duels_docs_tier(bot):
 def duels_command_function_warroom(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
     # Get The Command Used
-    subcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels_commands_events or x in duels.users_all_allchan or x in duels.commands_alt or x in duels_commands_locations], 1) or 'list'
+    subcommand = spicemanip(bot, [x for x in duels.command_restructure if x in duels_commands_events or x in duels.users_all_allchan or x in duels.commands_alt or x in duels_commands_locations], 1) or 'list'
     if subcommand in duels.commands_alt:
         for subcom in duels_commands_alternate_list:
             duels_commands_alternate_eval = eval("duels_commands_alternate_"+subcom)
@@ -3889,7 +3889,7 @@ def duels_command_function_warroom(bot, triggerargsarray, command_main, trigger,
         if commandlocation == []:
             osd(bot, duels.channel_current, 'say', "The following nobody is located in " + subcommand + ".")
         else:
-            displaymessage = get_trigger_arg(bot, commandlocation, "list")
+            displaymessage = spicemanip(bot, commandlocation, "list")
             osd(bot, duels.channel_current, 'say', "The following users are located in " + subcommand + ": " + str(displaymessage))
         duels.command_stamina_cost = 0
         return
@@ -3904,7 +3904,7 @@ def duels_command_function_warroom(bot, triggerargsarray, command_main, trigger,
         if bot.nick in duels.users_canduel_allchan:
             duels.users_canduel_allchan.remove(bot.nick)
         if duels.users_canduel_allchan != []:
-            displaymessage = get_trigger_arg(bot, duels.users_canduel_allchan, "list")
+            displaymessage = spicemanip(bot, duels.users_canduel_allchan, "list")
             osd(bot, duels.channel_current, 'say', duels.instigator + ", you may duel the following users: " + str(displaymessage))
         else:
             osd(bot, duels.instigator, 'notice', "It looks like you can't duel anybody at the moment.")
@@ -3942,9 +3942,9 @@ def duels_docs_warroom(bot):
 
 def duels_command_function_leaderboard(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
-    subcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'lowest' or x == 'highest' or x in duels.users_all_allchan or str(x).isdigit()], 1) or 'main'
+    subcommand = spicemanip(bot, [x for x in duels.command_restructure if x == 'lowest' or x == 'highest' or x in duels.users_all_allchan or str(x).isdigit()], 1) or 'main'
     if subcommand != 'main' and subcommand not in duels.users_all_allchan:
-        stat = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.stats_valid or x == 'health'], 1)
+        stat = spicemanip(bot, [x for x in duels.command_restructure if x in duels.stats_valid or x == 'health'], 1)
         if not stat:
             osd(bot, duels.channel_current, 'say', "What stat do you want to check?")
             duels.command_stamina_cost = 0
@@ -3982,20 +3982,20 @@ def duels_command_function_leaderboard(bot, triggerargsarray, command_main, trig
             if playerarray != [] and statvaluearray != []:
                 statvaluearray, playerarray = array_arrangesort(bot, statvaluearray, playerarray)
                 if x == 'health':
-                    statleadername = get_trigger_arg(bot, playerarray, 1)
-                    statleadernumber = get_trigger_arg(bot, statvaluearray, 1)
+                    statleadername = spicemanip(bot, playerarray, 1)
+                    statleadernumber = spicemanip(bot, statvaluearray, 1)
                     leaderclass = get_database_value(bot, statleadername, 'class') or 'unknown'
                     leaderrace = get_database_value(bot, statleadername, 'race') or 'unknown'
                     if leaderclass == 'vampire':
                         statleadernumber = int(statleadernumber)
                         statleadernumber = -abs(statleadernumber)
                 elif x == 'winlossratio':
-                    statleadername = get_trigger_arg(bot, playerarray, 'last')
-                    statleadernumber = get_trigger_arg(bot, statvaluearray, 'last')
+                    statleadername = spicemanip(bot, playerarray, 'last')
+                    statleadernumber = spicemanip(bot, statvaluearray, 'last')
                     statleadernumber = format(statleadernumber, '.3f')
                 else:
-                    statleadername = get_trigger_arg(bot, playerarray, 'last')
-                    statleadernumber = get_trigger_arg(bot, statvaluearray, 'last')
+                    statleadername = spicemanip(bot, playerarray, 'last')
+                    statleadernumber = spicemanip(bot, statvaluearray, 'last')
                 leaderscript.append(str(currentdispmsg) + " " + str(statleadername) + " at " + str(statleadernumber) + " " + str(currentdispmsgb))
         if leaderscript == []:
             leaderscript.append("Leaderboard appears to be empty")
@@ -4017,10 +4017,10 @@ def duels_command_function_leaderboard(bot, triggerargsarray, command_main, trig
             if playerarray != [] and statvaluearray != []:
                 statvaluearray, playerarray = array_arrangesort(bot, statvaluearray, playerarray)
                 if stat != 'health':
-                    statvaluearray = get_trigger_arg(bot, statvaluearray, 'reverse')
-                    playerarray = get_trigger_arg(bot, playerarray, 'reverse')
+                    statvaluearray = spicemanip(bot, statvaluearray, 'reverse')
+                    playerarray = spicemanip(bot, playerarray, 'reverse')
                 numberstat = int(subcommand)
-                playeratrankno = get_trigger_arg(bot, playerarray, numberstat)
+                playeratrankno = spicemanip(bot, playerarray, numberstat)
                 currentranking = array_compare(bot, playeratrankno, playerarray, statvaluearray)
                 if stat == 'health':
                     playerclass = get_database_value(bot, playeratrankno, 'class') or 'unknown'
@@ -4063,8 +4063,8 @@ def duels_command_function_leaderboard(bot, triggerargsarray, command_main, trig
             if playerarray != [] and statvaluearray != [] and target in playerarray:
                 statvaluearray, playerarray = array_arrangesort(bot, statvaluearray, playerarray)
                 if x != 'health':
-                    statvaluearray = get_trigger_arg(bot, statvaluearray, 'reverse')
-                    playerarray = get_trigger_arg(bot, playerarray, 'reverse')
+                    statvaluearray = spicemanip(bot, statvaluearray, 'reverse')
+                    playerarray = spicemanip(bot, playerarray, 'reverse')
                 currentranking = array_compare(bot, target, playerarray, statvaluearray)
                 playernumber, targetnumber = 0, 0
                 for player in playerarray:
@@ -4103,11 +4103,11 @@ def duels_command_function_leaderboard(bot, triggerargsarray, command_main, trig
         if playerarray != [] and statvaluearray != []:
             statvaluearray, playerarray = array_arrangesort(bot, statvaluearray, playerarray)
             if subcommand.lower() == 'lowest':
-                statleadername = get_trigger_arg(bot, playerarray, 1)
-                statleadernumber = get_trigger_arg(bot, statvaluearray, 1)
+                statleadername = spicemanip(bot, playerarray, 1)
+                statleadernumber = spicemanip(bot, statvaluearray, 1)
             else:
-                statleadername = get_trigger_arg(bot, playerarray, 'last')
-                statleadernumber = get_trigger_arg(bot, statvaluearray, 'last')
+                statleadername = spicemanip(bot, playerarray, 'last')
+                statleadernumber = spicemanip(bot, statvaluearray, 'last')
             if stat.lower() == 'health':
                 leaderclass = get_database_value(bot, statleadername, 'class') or 'unknown'
                 leaderrace = get_database_value(bot, statleadername, 'race') or 'unknown'
@@ -4132,14 +4132,14 @@ def duels_docs_leaderboard(bot):
 
 def duels_command_function_bounty(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
-    bountytype = get_trigger_arg(bot, [x for x in duels.command_restructure if x == 'bug'], 1) or 'normal'
+    bountytype = spicemanip(bot, [x for x in duels.command_restructure if x == 'bug'], 1) or 'normal'
     if bountytype == 'bug' and not duels.admin:
         osd(bot, duels.instigator, 'notice', "Bug Bounty is for bot admins only.")
         duels.command_stamina_cost = 0
         return
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     if target != duels.instigator:
         validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
         if not validtarget:
@@ -4148,7 +4148,7 @@ def duels_command_function_bounty(bot, triggerargsarray, command_main, trigger, 
             return
     target = nick_actual(bot, target)
 
-    amount = get_trigger_arg(bot, [x for x in duels.command_restructure if str(x).isdigit()], 1) or 0
+    amount = spicemanip(bot, [x for x in duels.command_restructure if str(x).isdigit()], 1) or 0
     if not amount:
         if bountytype == 'normal':
             osd(bot, duels.instigator, 'notice', "How much of a bounty do you wish to place on "+target+".")
@@ -4196,7 +4196,7 @@ Admin Subcommands
 def duels_command_function_game(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
     # Channel
-    channeltarget = get_trigger_arg(bot, [x for x in triggerargsarray if x.startswith('#')], 1)
+    channeltarget = spicemanip(bot, [x for x in triggerargsarray if x.startswith('#')], 1)
     if not channeltarget:
         if duels.channel_current.startswith('#'):
             channeltarget = duels.channel_current
@@ -4206,7 +4206,7 @@ def duels_command_function_game(bot, triggerargsarray, command_main, trigger, co
             return
 
     # on or off
-    command = get_trigger_arg(bot, [x for x in triggerargsarray if x == 'on' or x == 'off'], 1)
+    command = spicemanip(bot, [x for x in triggerargsarray if x == 'on' or x == 'off'], 1)
     if not command:
         osd(bot, duels.instigator, 'notice', "you must specify if you want the channel on or off.")
         duels.command_stamina_cost = 0
@@ -4254,7 +4254,7 @@ def duels_docs_game(bot):
 def duels_command_function_devmode(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
     # Channel
-    channeltarget = get_trigger_arg(bot, [x for x in triggerargsarray if x.startswith('#')], 1)
+    channeltarget = spicemanip(bot, [x for x in triggerargsarray if x.startswith('#')], 1)
     if not channeltarget:
         if duels.channel_current.startswith('#'):
             channeltarget = duels.channel_current
@@ -4264,7 +4264,7 @@ def duels_command_function_devmode(bot, triggerargsarray, command_main, trigger,
             return
 
     # on or off
-    command = get_trigger_arg(bot, [x for x in triggerargsarray if x == 'on' or x == 'off'], 1)
+    command = spicemanip(bot, [x for x in triggerargsarray if x == 'on' or x == 'off'], 1)
     if not command:
         osd(bot, duels.instigator, 'notice', "you must specify if you want the channel on or off.")
         duels.command_stamina_cost = 0
@@ -4311,19 +4311,19 @@ def duels_docs_devmode(bot):
 
 def duels_command_function_admin(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
-    subcommand = get_trigger_arg(bot, triggerargsarray, 2).lower()
+    subcommand = spicemanip(bot, triggerargsarray, 2).lower()
     if subcommand not in duels.commands_valid and subcommand != 'bugbounty' and subcommand != 'channel':
         osd(bot, duels.instigator, 'notice', "What Admin adjustment do you want to make?")
         duels.command_stamina_cost = 0
         return
 
     if subcommand == 'tier':
-        command = get_trigger_arg(bot, triggerargsarray, 3).lower()
+        command = spicemanip(bot, triggerargsarray, 3).lower()
         if not command:
             osd(bot, duels.instigator, 'notice', "What did you intend to do with tiers?")
             duels.command_stamina_cost = 0
             return
-        target = get_trigger_arg(bot, triggerargsarray, 4).lower() or duels.instigator
+        target = spicemanip(bot, triggerargsarray, 4).lower() or duels.instigator
         if target == 'channel':
             target = 'duelrecorduser'
         if command == 'view':
@@ -4333,7 +4333,7 @@ def duels_command_function_admin(bot, triggerargsarray, command_main, trigger, c
             osd(bot, duels.instigator, 'notice', target + "'s tier has been reset.")
             reset_database_value(bot, target, 'tier')
         elif command == 'set':
-            newsetting = get_trigger_arg(bot, triggerargsarray, 5)
+            newsetting = spicemanip(bot, triggerargsarray, 5)
             if not newsetting or not newsetting.isdigit():
                 osd(bot, duels.instigator, 'notice', "You must specify a number setting.")
                 duels.command_stamina_cost = 0
@@ -4344,7 +4344,7 @@ def duels_command_function_admin(bot, triggerargsarray, command_main, trigger, c
             osd(bot, duels.instigator, 'notice', "This looks to be an invalid command.")
 
     elif subcommand == 'roulette':
-        command = get_trigger_arg(bot, triggerargsarray, 3).lower()
+        command = spicemanip(bot, triggerargsarray, 3).lower()
         if command != 'reset':
             osd(bot, duels.instigator, 'notice', "What did you intend to do with roulette?")
             duels.command_stamina_cost = 0
@@ -4359,7 +4359,7 @@ def duels_command_function_admin(bot, triggerargsarray, command_main, trigger, c
             reset_database_value(bot, user, 'roulettepayout')
 
     elif subcommand == 'channel':
-        settingchange = get_trigger_arg(bot, triggerargsarray, 3)
+        settingchange = spicemanip(bot, triggerargsarray, 3)
         if not settingchange:
             osd(bot, duels.instigator, 'notice', "What channel setting do you want to change?")
         elif settingchange == 'statreset':
@@ -4382,7 +4382,7 @@ def duels_command_function_admin(bot, triggerargsarray, command_main, trigger, c
             osd(bot, duels.instigator, 'notice', "Must be an invalid command.")
 
     elif subcommand == 'deathblow':
-        newsetting = get_trigger_arg(bot, triggerargsarray, 3).lower()
+        newsetting = spicemanip(bot, triggerargsarray, 3).lower()
         set_database_value(bot, duels.instigator, 'deathblowtarget', newsetting)
         set_database_value(bot, duels.instigator, 'deathblowtargettime', duels.now)
 
@@ -4420,7 +4420,7 @@ def duels_docs_author(bot):
 def duels_command_function_hotkey(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan and x != 'random' and x != 'monster'], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan and x != 'random' and x != 'monster'], 1) or duels.instigator
     if target != duels.instigator:
         validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
         if not validtarget:
@@ -4436,9 +4436,9 @@ def duels_command_function_hotkey(bot, triggerargsarray, command_main, trigger, 
     else:
         targetbio = instigatorbio
 
-    numberused = get_trigger_arg(bot, [x for x in duels.command_restructure if str(x).isdigit()], 1) or 'nonumber'
+    numberused = spicemanip(bot, [x for x in duels.command_restructure if str(x).isdigit()], 1) or 'nonumber'
     hotkeyvalid = ['view', 'update', 'reset', 'list']
-    hotkeysetting = get_trigger_arg(bot, [x for x in duels.command_restructure if x in hotkeyvalid], 1) or 'view'
+    hotkeysetting = spicemanip(bot, [x for x in duels.command_restructure if x in hotkeyvalid], 1) or 'view'
 
     if hotkeysetting == 'list':
         hotkeyslist = get_database_value(bot, targetbio.actual, 'hotkey_complete') or []
@@ -4446,7 +4446,7 @@ def duels_command_function_hotkey(bot, triggerargsarray, command_main, trigger, 
             osd(bot, duels.instigator, 'notice', "looks like you have no hotkeys.")
             duels.command_stamina_cost = 0
             return
-        hotkeyslist = get_trigger_arg(bot, hotkeyslist, 'list')
+        hotkeyslist = spicemanip(bot, hotkeyslist, 'list')
         osd(bot, duels.channel_current, 'say', "Your hotkey list: " + hotkeyslist)
         duels.command_stamina_cost = 0
         return
@@ -4480,7 +4480,7 @@ def duels_command_function_hotkey(bot, triggerargsarray, command_main, trigger, 
         duels.command_restructure.remove(numberused)
         duels.command_restructure.remove(hotkeysetting)
 
-        newcommandhot = get_trigger_arg(bot, duels.command_restructure, 0) or 0
+        newcommandhot = spicemanip(bot, duels.command_restructure, 0) or 0
         if not newcommandhot:
             osd(bot, duels.instigator, 'notice', "you can't set an empty hotkey.")
             duels.command_stamina_cost = 0
@@ -4491,7 +4491,7 @@ def duels_command_function_hotkey(bot, triggerargsarray, command_main, trigger, 
             duels.command_stamina_cost = 0
             return
 
-        actualcommand_main = get_trigger_arg(bot, newcommandhot, 1) or 0
+        actualcommand_main = spicemanip(bot, newcommandhot, 1) or 0
         if actualcommand_main not in duels.commands_valid and actualcommand_main not in duels.commands_alt:
             osd(bot, duels.instigator, 'notice', str(actualcommand_main) + " does not appear to be a valid command to hotkey.")
             duels.command_stamina_cost = 0
@@ -4534,7 +4534,7 @@ def duels_command_function_konami(bot, duels):
 
 def duels_command_function_intent(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.instigator
     validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
     if not validtarget and not duels.admin:
         osd(bot, duels.instigator, 'notice', validtargetmsg)
@@ -4584,7 +4584,7 @@ def duels_command_function_docs(bot, triggerargsarray, command_main, trigger, co
 
     endmessage = []
 
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.channel_current
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan], 1) or duels.channel_current
     if target != duels.instigator and target != duels.channel_current:
         validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
         if not validtarget:
@@ -4593,7 +4593,7 @@ def duels_command_function_docs(bot, triggerargsarray, command_main, trigger, co
             return
     target = nick_actual(bot, target)
 
-    messageinput = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.commands_alt or x in duels.commands_valid], 1) or 'online'
+    messageinput = spicemanip(bot, [x for x in duels.command_restructure if x in duels.commands_alt or x in duels.commands_valid], 1) or 'online'
     if messageinput == 'online':
         endmessage.append("Online Docs: " + GITWIKIURL)
         osd(bot, target, 'say', endmessage)
@@ -4625,10 +4625,10 @@ def duels_docs_docs(bot):
 def duels_command_function_usage(bot, triggerargsarray, command_main, trigger, command_full, duels, instigatorbio):
 
     # Get The Command Used
-    subcommand = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.commands_valid], 1) or 'total'
+    subcommand = spicemanip(bot, [x for x in duels.command_restructure if x in duels.commands_valid], 1) or 'total'
 
     # Who is the target
-    target = get_trigger_arg(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan or x == 'channel'], 1) or duels.instigator
+    target = spicemanip(bot, [x for x in duels.command_restructure if x in duels.users_all_allchan or x == 'channel'], 1) or duels.instigator
     if target != duels.instigator and target != 'channel':
         validtarget, validtargetmsg = duels_target_check(bot, target, duels, instigatorbio)
         if not validtarget:
@@ -4712,11 +4712,11 @@ def duels_chanceevents(bot):
     set_database_value(bot, 'duelrecorduser', "chance_event_next_timeout", chance_event_next_timeout)
 
     # next location to effect
-    chance_event_next_location = get_trigger_arg(bot, duels_commands_locations, 'random')
+    chance_event_next_location = spicemanip(bot, duels_commands_locations, 'random')
     set_database_value(bot, 'duelrecorduser', "chance_event_next_location", chance_event_next_location)
 
     # next event type
-    chance_event_next_type = get_trigger_arg(bot, duels_chance_events_types, 'random')
+    chance_event_next_type = spicemanip(bot, duels_chance_events_types, 'random')
     set_database_value(bot, 'duelrecorduser', "chance_event_next_type", chance_event_next_type)
 
 
@@ -4733,7 +4733,7 @@ def chance_event_run(bot, duels, eventtype, eventlocation):
     current_location_list = eval("duels.users_current_allchan_" + eventlocation)
 
     if current_location_list != []:
-        effectedplayers = get_trigger_arg(bot, current_location_list, 'list')
+        effectedplayers = spicemanip(bot, current_location_list, 'list')
 
         chance_event_durationmax = array_compare(bot, eventtype, duels_chance_events_types, duels_chance_events_duration)
         chance_event_durationtime = randint(1200, chance_event_durationmax)
@@ -4775,7 +4775,7 @@ def duels_halfhourtimer(bot):
         duels.instigator = bot.nick
         duels.commands_valid = duels_valid_commands(bot)
         duels.commands_alt = duels_valid_commands_alternative(bot)
-        duels.channel_current = get_trigger_arg(bot, duels.duels_enabled_channels, 1)
+        duels.channel_current = spicemanip(bot, duels.duels_enabled_channels, 1)
         duels.inchannel = 0
         if duels.channel_current.startswith("#"):
             duels.inchannel = 1
@@ -4804,7 +4804,7 @@ def duels_halfhourtimer(bot):
         duels.duels_enabled_channels = get_database_value(bot, 'duelrecorduser', 'gameenabled') or []
         if logoutarray != []:
             dispmsgarray = []
-            logoutusers = get_trigger_arg(bot, logoutarray, 'list')
+            logoutusers = spicemanip(bot, logoutarray, 'list')
             if len(logoutarray) > 1:
                 dispmsgarray.append(logoutusers + " have been logged out of duels for inactivity!")
             else:
@@ -4825,7 +4825,7 @@ def duels_halfhourtimer(bot):
                 if u != lasttimedlootwinner:
                     valid_winners.append(u)
         if valid_winners != []:
-            lootwinner = get_trigger_arg(bot, valid_winners, 'random')
+            lootwinner = spicemanip(bot, valid_winners, 'random')
             adjust_database_value(bot, lootwinner, 'mysterypotion_locker', 1)
             adjust_database_array(bot, 'duelrecorduser', [lootwinner], 'lasttimedlootwinners', 'add')
             set_database_value(bot, 'duelrecorduser', 'lasttimedlootwinner', lootwinner)
@@ -4876,7 +4876,7 @@ channel enter/exit
 #    if duels.instigator in duels.users_opted:
 #        duels.instigator_location = duels_get_location(bot,duels,duels.instigator)
 #        if duels.instigator_location == 'arena':
-#            cowardterm = get_trigger_arg(bot, cowardarray, 'random')
+#            cowardterm = spicemanip(bot, cowardarray, 'random')
 #            osd(bot, duels.duels_enabled_channels, 'say', duels.instigator + " has left the arena! " + cowardterm)
 
 
@@ -4915,7 +4915,7 @@ def duels_docs_commands(bot, command):
     # Alternate Commands
     if command in duels_commands_alternate_list:
         duels_commands_alternate_evalb = eval("duels_commands_alternate_"+command)
-        alternatelist = get_trigger_arg(bot, duels_commands_alternate_evalb, 'list')
+        alternatelist = spicemanip(bot, duels_commands_alternate_evalb, 'list')
         endmessage.append("Alternate Command(s) = "+alternatelist)
 
     # Tier
@@ -5167,7 +5167,7 @@ def duels_opening_monologue(bot, duels, user, opening_monologue, tierset, char_b
         if currentarraysetting == '':
             if char_basic in opening_monologue:
                 currentrandomarray = eval('duels_character_valid_'+char_basic)
-                currentrandom = get_trigger_arg(bot, currentrandomarray, 'random')
+                currentrandom = spicemanip(bot, currentrandomarray, 'random')
                 exec("random" + char_basic + " = " + "'"+currentrandom+"'")
                 randomset = eval("random"+char_basic)
                 set_database_value(bot, user, char_basic, randomset)
@@ -5404,7 +5404,7 @@ def duel_target_playerbio(bot, duels, player):
 
     # random
     if player == 'random':
-        player = get_trigger_arg(bot, duels.users_canduel_allchan, 'random')
+        player = spicemanip(bot, duels.users_canduel_allchan, 'random')
 
     # Open Class
     if player != duels.instigator:
@@ -5421,9 +5421,9 @@ def duel_target_playerbio(bot, duels, player):
             # Generate Monster's stats based on room average
             duels_monster_stats_generate(bot, duels, 1)
             # Monster's name
-            duelsmonstervarient = get_trigger_arg(bot, duelsmonstervarientarray, 'random')
+            duelsmonstervarient = spicemanip(bot, duelsmonstervarientarray, 'random')
             set_database_value(bot, 'duelsmonster', 'last_monster_varent', duelsmonstervarient)
-            duelsmonstername = get_trigger_arg(bot, monstersarray, 'random')
+            duelsmonstername = spicemanip(bot, monstersarray, 'random')
             set_database_value(bot, 'duelsmonster', 'last_monster', duelsmonstername)
     else:
         playerbio.actual = nick_actual(bot, player)
@@ -5564,7 +5564,7 @@ def duels_check_nick_condition(bot, nick, duels):
             setup_check_missing.append(stat_there)
 
     if setup_check_missing != []:
-        missing_settings = get_trigger_arg(bot, setup_check_missing, "list")
+        missing_settings = spicemanip(bot, setup_check_missing, "list")
         osd(bot, nick, 'notice', "you seem to be missing your "+str(missing_settings)+" setting(s). Please talk to " + str(duels_bot_owner) + " to get this fixed.")
 
     # New Player?
@@ -5761,14 +5761,14 @@ def duels_special_combination(bot, nick):
 
 # cleaner display of SPECIAL
 def duels_special_humanize(bot, statsarray):
-    strength = get_trigger_arg(bot, statsarray, 1)
-    perception = get_trigger_arg(bot, statsarray, 2)
-    endurance = get_trigger_arg(bot, statsarray, 3)
-    charisma = get_trigger_arg(bot, statsarray, 4)
-    intelligence = get_trigger_arg(bot, statsarray, 5)
-    agility = get_trigger_arg(bot, statsarray, 6)
-    luck = get_trigger_arg(bot, statsarray, 7)
-    magic = get_trigger_arg(bot, statsarray, 8)
+    strength = spicemanip(bot, statsarray, 1)
+    perception = spicemanip(bot, statsarray, 2)
+    endurance = spicemanip(bot, statsarray, 3)
+    charisma = spicemanip(bot, statsarray, 4)
+    intelligence = spicemanip(bot, statsarray, 5)
+    agility = spicemanip(bot, statsarray, 6)
+    luck = spicemanip(bot, statsarray, 7)
+    magic = spicemanip(bot, statsarray, 8)
     return strength, perception, endurance, charisma, intelligence, agility, luck, magic
 
 
@@ -5859,7 +5859,7 @@ def duels_death_handling(bot, duels, inflicter, inflictee):
                 textarray.append(inflictee.nametext + " loses all loot.")
         else:
             if lootedarray != []:
-                illgottenbooty = get_trigger_arg(bot, lootedarray, "list")
+                illgottenbooty = spicemanip(bot, lootedarray, "list")
                 textarray.append(inflictee.nametext + " loses all loot to " + inflicter.nametext + ". Contents included: " + str(illgottenbooty))
     else:
         textarray.append(inflictee.nametextpos + " status as a ranger prevented the loss of loot, and is now stored in their locker in town.")
@@ -6029,7 +6029,7 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
                 else:
                     dispmsgarray.append(inflictee.nametext + " gains " + str(effectamount) + " health, bringing them to full health")
             else:
-                singlebodypart = get_trigger_arg(bot, bodypartinflictarray, 1)
+                singlebodypart = spicemanip(bot, bodypartinflictarray, 1)
                 totalhealth = get_database_value(bot, inflictee.actual, singlebodypart)
                 gethowmanymax = array_compare(bot, singlebodypart, duels_bodyparts, duels_bodyparts_health)
                 gethowmanymax = gethowmanymax * duels.tierscaling
@@ -6194,7 +6194,7 @@ def duels_effect_inflict(bot, duels, inflicter, inflictee, bodypartselection, ef
                     if playercurrenthealthbody <= 0:
                         crippledarray.append(bodypart)
                 if crippledarray != []:
-                    bodypartnamelist = get_trigger_arg(bot, crippledarray, "list")
+                    bodypartnamelist = spicemanip(bot, crippledarray, "list")
                     dispmsgarray.append(inflictee.nametextpos + " now crippled bodyparts: " + bodypartnamelist)
 
     return dispmsgarray
@@ -6356,7 +6356,7 @@ def duels_tier_number_to_pepper(bot, tiernumber):
     if not tiernumber:
         pepper = 'n00b'
     else:
-        pepper = get_trigger_arg(bot, duels_commands_pepper_levels, tiernumber + 1)
+        pepper = spicemanip(bot, duels_commands_pepper_levels, tiernumber + 1)
         pepper = pepper.title()
     return pepper
 
@@ -6406,7 +6406,7 @@ def duels_tier_nick_to_pepper(bot, nick):
 # current tier to ratio
 def duels_tier_current_to_ratio(bot):
     currenttier = get_database_value(bot, 'duelrecorduser', 'tier') or 1
-    tierratio = get_trigger_arg(bot, duels_commands_tier_ratio, currenttier) or 1
+    tierratio = spicemanip(bot, duels_commands_tier_ratio, currenttier) or 1
     return tierratio
 
 
@@ -6879,7 +6879,7 @@ def duels_combat_selectwinner(bot, competitors, duels, playerbio_maindueler, pla
         if user not in uniqueplayers:
             uniqueplayers.append(user)
     if len(uniqueplayers) == 1:
-        winner = get_trigger_arg(bot, uniqueplayers, 1)
+        winner = spicemanip(bot, uniqueplayers, 1)
         return winner
 
     # Dev_win
@@ -6898,7 +6898,7 @@ def duels_combat_selectwinner(bot, competitors, duels, playerbio_maindueler, pla
     playerbio_target.winnerselection = 1
 
     # random roll
-    randomrollwinner = get_trigger_arg(bot, competitors, 'random')
+    randomrollwinner = spicemanip(bot, competitors, 'random')
     if randomrollwinner == playerbio_maindueler.actual:
         playerbio_maindueler.winnerselection = playerbio_maindueler.winnerselection + 1
     else:
@@ -6916,7 +6916,7 @@ def duels_combat_selectwinner(bot, competitors, duels, playerbio_maindueler, pla
     specialmaxarray.append(playerbio_maindueler.specialmax)
     specialmaxarray.append(playerbio_target.specialmax)
     specialmaxarray, competitorsspecial = array_arrangesort(bot, specialmaxarray, competitors)
-    specialleadername = get_trigger_arg(bot, competitorsspecial, 'last')
+    specialleadername = spicemanip(bot, competitorsspecial, 'last')
     if specialleadername == playerbio_maindueler.actual:
         playerbio_maindueler.winnerselection = playerbio_maindueler.winnerselection + 1
     else:
@@ -6937,9 +6937,9 @@ def duels_combat_selectwinner(bot, competitors, duels, playerbio_maindueler, pla
             statvaluearray.append(x)
         statvaluearray, playerarray = array_arrangesort(bot, statvaluearray, playerarray)
         if x == 'respawns' or x == 'streak_win_current':
-            statleadername = get_trigger_arg(bot, playerarray, 1)
+            statleadername = spicemanip(bot, playerarray, 1)
         else:
-            statleadername = get_trigger_arg(bot, playerarray, 'last')
+            statleadername = spicemanip(bot, playerarray, 'last')
         if statleadername == playerbio_maindueler.actual:
             playerbio_maindueler.winnerselection = playerbio_maindueler.winnerselection + 1
         else:
@@ -6971,13 +6971,13 @@ def duels_combat_selectwinner(bot, competitors, duels, playerbio_maindueler, pla
 
     # who wins
     if playerbio_maindueler.winnerselection == playerbio_target.winnerselection:
-        winner = get_trigger_arg(bot, competitors, 'random')
+        winner = spicemanip(bot, competitors, 'random')
     else:
         rollsarray = []
         rollsarray.append(playerbio_maindueler.winnerselection)
         rollsarray.append(playerbio_target.winnerselection)
         rollsarray, competitors = array_arrangesort(bot, rollsarray, competitors)
-        winner = get_trigger_arg(bot, competitors, 'last')
+        winner = spicemanip(bot, competitors, 'last')
 
     return winner
 
@@ -7032,7 +7032,7 @@ def duels_bodypart_select(bot, nick):
         bodypart = 'head'
     else:
         currentbodypartsarray = duels_nick_bodyparts_remaining(bot, nick)
-        bodypart = get_trigger_arg(bot, currentbodypartsarray, 'random')
+        bodypart = spicemanip(bot, currentbodypartsarray, 'random')
     if "_" in bodypart:
         bodypartname = bodypart.replace("_", " ")
     else:
@@ -7147,7 +7147,7 @@ def duels_weaponslocker_channel(bot):
         weaponslist = get_database_value(bot, u, 'weaponslocker_complete') or ['fist']
         for x in weaponslist:
             allchanweaponsarray.append(x)
-    weapon = get_trigger_arg(bot, allchanweaponsarray, 'random')
+    weapon = spicemanip(bot, allchanweaponsarray, 'random')
     return weapon
 
 
@@ -7167,7 +7167,7 @@ def duels_weaponslocker_nick_selection(bot, nick):
     if weaponslistselect == [] and weaponslist != []:
         reset_database_value(bot, nick, 'weaponslocker_lastweaponusedarray')
         return duels_weaponslocker_nick_selection(bot, nick)
-    weapon = get_trigger_arg(bot, weaponslistselect, 'random') or 'fist'
+    weapon = spicemanip(bot, weaponslistselect, 'random') or 'fist'
     adjust_database_array(bot, nick, [weapon], 'weaponslocker_lastweaponusedarray', 'add')
     set_database_value(bot, nick, 'weaponslocker_lastweaponused', weapon)
     return weapon
@@ -7600,7 +7600,7 @@ def find_switch_equal(bot, inputarray, switch):
                     continue
         if finishmark != 0:
             exitoutputrange = str(str(beguinemark) + "^" + str(finishmark))
-            exitoutput = get_trigger_arg(bot, inputarray, exitoutputrange)
+            exitoutput = spicemanip(bot, inputarray, exitoutputrange)
             exitoutput = exitoutput.replace("-"+switch+'=', ' ')
             exitoutput = exitoutput.replace('"', '')
             exitoutput = exitoutput.strip()
@@ -7818,12 +7818,6 @@ def osd(bot, target_array, text_type_array, text_array):
 """
 Array/List/String Manipulation
 """
-
-
-# Legacy
-def get_trigger_arg(bot, inputs, outputtask, output_type='default'):
-    return spicemanip(bot, inputs, outputtask, output_type)
-    # return get_trigger_arg_old(bot, inputs, outputtask)
 
 
 # Hub
@@ -8103,374 +8097,6 @@ def spicemanip_excrange_minus(bot, inputs, outputtask, mainoutputtask, suboutput
     if inputs == []:
         return ''
     return spicemanip_rangebetween(bot, inputs, outputtask, 1, int(mainoutputtask) - 1)
-
-
-# Hub
-def get_trigger_arg_old(bot, inputs, outputtask):
-    # Create
-    if outputtask == 'create':
-        return create_array(bot, inputs)
-    # lower
-    if outputtask == 'lower':
-        return lower_array(bot, inputs)
-    # UPPER
-    if outputtask == 'upper':
-        return upper_array(bot, inputs)
-    # Title
-    if outputtask == 'title':
-        return title_array(bot, inputs)
-    # reverse
-    if outputtask == 'reverse':
-        return reverse_array(bot, inputs)
-    # Comma Seperated List
-    if outputtask == 'list':
-        return list_array(bot, inputs)
-    if outputtask == 'andlist':
-        return andlist_array(bot, inputs)
-    if outputtask == 'orlist':
-        return orlist_array(bot, inputs)
-    if outputtask == 'random':
-        return random_array(bot, inputs)
-    # Last element
-    if outputtask == 'last':
-        return last_array(bot, inputs)
-    # Complete String
-    if outputtask == 0 or outputtask == 'complete' or outputtask == 'string':
-        return string_array(bot, inputs)
-    # Number
-    if str(outputtask).isdigit():
-        return number_array(bot, inputs, outputtask)
-    # Exlude from array
-    if str(outputtask).endswith("!"):
-        return excludefrom_array(bot, inputs, outputtask)
-    # Inclusive range starting at
-    if str(outputtask).endswith("+"):
-        return incrange_plus_array(bot, inputs, outputtask)
-    # Inclusive range ending at
-    if str(outputtask).endswith("-"):
-        return incrange_minus_array(bot, inputs, outputtask)
-    # Exclusive range starting at
-    if str(outputtask).endswith(">"):
-        return excrange_plus_array(bot, inputs, outputtask)
-    # Exclusive range ending at
-    if str(outputtask).endswith("<"):
-        return excrange_minus_array(bot, inputs, outputtask)
-    # Range Between Numbers
-    if "^" in str(outputtask):
-        return rangebetween_array(bot, inputs, outputtask)
-    string = ''
-    return string
-
-
-# Convert String to lower
-def lower_array(bot, inputs):
-    if isinstance(inputs, list):
-        string = ''
-        for x in inputs:
-            if string != '':
-                string = str(string + " " + str(x.lower()))
-            else:
-                string = str(x.lower())
-        inputs = string
-    outputs = []
-    if inputs:
-        for word in inputs.split():
-            outputs.append(word.encode('ascii', 'ignore').decode('ascii'))
-    return outputs
-
-
-# Convert String to UPPER
-def upper_array(bot, inputs):
-    if isinstance(inputs, list):
-        string = ''
-        for x in inputs:
-            if string != '':
-                string = str(string + " " + str(x.upper()))
-            else:
-                string = str(x.upper())
-        inputs = string
-    outputs = []
-    if inputs:
-        for word in inputs.split():
-            outputs.append(word.encode('ascii', 'ignore').decode('ascii'))
-    return outputs
-
-
-# Convert String to title
-def title_array(bot, inputs):
-    if isinstance(inputs, list):
-        string = ''
-        for x in inputs:
-            if string != '':
-                string = str(string + " " + str(x.title()))
-            else:
-                string = str(x.title())
-        inputs = string
-    outputs = []
-    if inputs:
-        for word in inputs.split():
-            outputs.append(word.encode('ascii', 'ignore').decode('ascii'))
-    return outputs
-
-
-# Convert String to array
-def create_array(bot, inputs):
-    if isinstance(inputs, list):
-        string = ''
-        for x in inputs:
-            if string != '':
-                string = str(string + " " + str(x))
-            else:
-                string = str(x)
-        inputs = string
-    outputs = []
-    if inputs:
-        for word in inputs.split():
-            outputs.append(word.encode('ascii', 'ignore').decode('ascii'))
-    return outputs
-
-
-# Convert Array to String
-def string_array(bot, inputs):
-    if not isinstance(inputs, list):
-        inputs = create_array(bot, inputs)
-    string = ''
-    for x in inputs:
-        if string != '':
-            string = str(string + " " + str(x))
-        else:
-            string = str(x)
-    return string
-
-
-# output reverse order
-def reverse_array(bot, inputs):
-    if not isinstance(inputs, list):
-        inputs = create_array(bot, inputs)
-    if len(inputs) == 1:
-        return inputs
-    outputs = []
-    if inputs == []:
-        return outputs
-    for d in inputs:
-        outputs.append(d)
-    outputs.reverse()
-    return outputs
-
-
-# Comma Seperated List
-def list_array(bot, inputs):
-    if not isinstance(inputs, list):
-        inputs = create_array(bot, inputs)
-    string = ''
-    if inputs == []:
-        return string
-    for x in inputs:
-        if string != '':
-            string = str(str(string) + ", " + str(x))
-        else:
-            string = str(x)
-    return string
-
-
-# Comma Seperated List
-def andlist_array(bot, inputs):
-    if not isinstance(inputs, list):
-        inputs = create_array(bot, inputs)
-    string = ''
-    if inputs == []:
-        return string
-    inputnumberstart = len(inputs)
-    inputsnumber = len(inputs)
-    for x in inputs:
-        if inputsnumber == 1 and inputsnumber != inputnumberstart:
-            string = str(str(string) + ", and " + str(x))
-        elif string != '':
-            string = str(str(string) + ", " + str(x))
-        else:
-            string = str(x)
-        inputsnumber = inputsnumber - 1
-    return string
-
-
-# Comma Seperated List
-def orlist_array(bot, inputs):
-    if not isinstance(inputs, list):
-        inputs = create_array(bot, inputs)
-    string = ''
-    if inputs == []:
-        return string
-    inputnumberstart = len(inputs)
-    inputsnumber = len(inputs)
-    for x in inputs:
-        if inputsnumber == 1 and inputsnumber != inputnumberstart:
-            string = str(str(string) + ", or " + str(x))
-        elif string != '':
-            string = str(str(string) + ", " + str(x))
-        else:
-            string = str(x)
-        inputsnumber = inputsnumber - 1
-    return string
-
-
-# Random element
-def random_array(bot, inputs):
-    if not isinstance(inputs, list):
-        inputs = create_array(bot, inputs)
-    string = ''
-    if inputs == []:
-        return string
-    temparray = []
-    for d in inputs:
-        temparray.append(d)
-    shuffledarray = random.shuffle(temparray)
-    randomselected = random.randint(0, len(temparray) - 1)
-    string = str(temparray[randomselected])
-    return string
-
-
-# Last element
-def last_array(bot, inputs):
-    if not isinstance(inputs, list):
-        inputs = create_array(bot, inputs)
-    string = ''
-    if inputs == []:
-        return string
-    string = inputs[len(inputs)-1]
-    return string
-
-
-# select a number
-def number_array(bot, inputs, number):
-    if not isinstance(inputs, list):
-        inputs = create_array(bot, inputs)
-    string = ''
-    if str(number).isdigit():
-        numberadjust = int(number) - 1
-        if numberadjust < len(inputs) and numberadjust >= 0:
-            number = int(number) - 1
-            string = inputs[number]
-    return string
-
-
-# range
-def range_array(bot, inputs, rangea, rangeb):
-    if not isinstance(inputs, list):
-        inputs = create_array(bot, inputs)
-    string = ''
-    if not str(rangea).isdigit() or not str(rangeb).isdigit():
-        return string
-    if int(rangeb) == int(rangea):
-        return number_array(bot, inputs, rangeb)
-    if int(rangeb) < int(rangea):
-        tempa, tempb = rangeb, rangea
-        rangea, rangeb = tempa, tempb
-    if int(rangea) < 1:
-        rangea = 1
-    if int(rangeb) > len(inputs):
-        return string
-    for i in range(int(rangea), int(rangeb) + 1):
-        arg = number_array(bot, inputs, i)
-        if string != '':
-            string = str(string + " " + arg)
-        else:
-            string = str(arg)
-    return string
-
-
-# exclude a number
-def excludefrom_array(bot, inputs, number):
-    if not isinstance(inputs, list):
-        inputs = create_array(bot, inputs)
-    string = ''
-    if str(number).endswith("!"):
-        number = re.sub(r"!", '', str(number))
-    if str(number).isdigit():
-        for i in range(1, len(inputs)):
-            if int(i) != int(number):
-                arg = number_array(bot, inputs, i)
-                if string != '':
-                    string = str(string + " " + arg)
-                else:
-                    string = str(arg)
-    return string
-
-
-# range between
-def rangebetween_array(bot, inputs, number):
-    if not isinstance(inputs, list):
-        inputs = create_array(bot, inputs)
-    string = ''
-    rangea = 'error'
-    rangeb = 'handling'
-    if "^" in str(number):
-        rangea = number.split("^", 1)[0]
-        rangeb = number.split("^", 1)[1]
-    if not str(rangea).isdigit() or not str(rangeb).isdigit():
-        return string
-    return range_array(bot, inputs, rangea, rangeb)
-
-
-# inclusive forward
-def incrange_plus_array(bot, inputs, number):
-    if not isinstance(inputs, list):
-        inputs = create_array(bot, inputs)
-    string = ''
-    rangea = 'error'
-    rangeb = 'handling'
-    if str(number).endswith("+"):
-        rangea = re.sub(r"\+", '', str(number))
-        rangeb = len(inputs)
-    if not str(rangea).isdigit() or not str(rangeb).isdigit():
-        return string
-    return range_array(bot, inputs, rangea, rangeb)
-
-
-# inclusive reverse
-def incrange_minus_array(bot, inputs, number):
-    if not isinstance(inputs, list):
-        inputs = create_array(bot, inputs)
-    string = ''
-    rangea = 'error'
-    rangeb = 'handling'
-    if str(number).endswith("-"):
-        rangea = 1
-        rangeb = re.sub(r"-", '', str(number))
-    if not str(rangea).isdigit() or not str(rangeb).isdigit():
-        return string
-    return range_array(bot, inputs, rangea, rangeb)
-
-
-# excluding forward
-def excrange_plus_array(bot, inputs, number):
-    if not isinstance(inputs, list):
-        inputs = create_array(bot, inputs)
-    string = ''
-    rangea = 'error'
-    rangeb = 'handling'
-    if str(number).endswith(">"):
-        rangea = re.sub(r">", '', str(number))
-        rangea = int(rangea) + 1
-        rangeb = len(inputs)
-    if not str(rangea).isdigit() or not str(rangeb).isdigit():
-        return string
-    return range_array(bot, inputs, rangea, rangeb)
-
-
-# excluding reverse
-def excrange_minus_array(bot, inputs, number):
-    if not isinstance(inputs, list):
-        inputs = create_array(bot, inputs)
-    string = ''
-    rangea = 'error'
-    rangeb = 'handling'
-    if str(number).endswith("<"):
-        rangea = 1
-        rangeb = re.sub(r"<", '', str(number))
-        rangeb = int(rangeb) - 1
-    if not str(rangea).isdigit() or not str(rangeb).isdigit():
-        return string
-    return range_array(bot, inputs, rangea, rangeb)
 
 
 def array_compare(bot, indexitem, arraytoindex, arraytocompare):

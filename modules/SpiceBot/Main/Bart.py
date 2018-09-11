@@ -33,5 +33,5 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    answer = get_trigger_arg(bot, replies, 'random')
+    answer = spicemanip(bot, replies, 'random')
     osd(bot, trigger.sender, 'action', answer)

@@ -124,8 +124,8 @@ def spicemanip(bot, inputs, outputtask, output_type='default'):
 
     # verify output is correct
     if output_type == 'string':
-        if not isinstance(returnvalue, str) and not isinstance(returnvalue, basestring):
-            returnvalue = str(' '.join(returnvalue))
+        if isinstance(returnvalue, list):
+            returnvalue = ' '.join(returnvalue)
     elif output_type in ['list', 'array']:
         if not isinstance(returnvalue, list):
             returnvalue = list(returnvalue.split(" "))
@@ -162,7 +162,6 @@ def spicemanip_count(bot, inputs, outputtask, mainoutputtask, suboutputtask):
                 count += 1
         uniquecount.append(count)
     for inputsitem, unumber in zip(uniqueinputitems, uniquecount):
-        # bot.say(str(inputsitem) + "" + str(unumber))
         returndict[inputsitem] = unumber
     return returndict
 
@@ -223,7 +222,7 @@ def spicemanip_reverse(bot, inputs, outputtask, mainoutputtask, suboutputtask):
 def spicemanip_list(bot, inputs, outputtask, mainoutputtask, suboutputtask):
     if inputs == []:
         return ''
-    return str(', '.join(str(x) for x in inputs))
+    return ', '.join(str(x) for x in inputs)
 
 
 # comma seperated list with and
@@ -237,7 +236,7 @@ def spicemanip_andlist(bot, inputs, outputtask, mainoutputtask, suboutputtask):
     inputs.append(lastentry)
     if len(inputs) == 2:
         return ' '.join(inputs)
-    return str(', '.join(str(x) for x in inputs))
+    return ', '.join(str(x) for x in inputs)
 
 
 # comma seperated list with or
@@ -251,7 +250,7 @@ def spicemanip_orlist(bot, inputs, outputtask, mainoutputtask, suboutputtask):
     inputs.append(lastentry)
     if len(inputs) == 2:
         return ' '.join(inputs)
-    return str(', '.join(str(x) for x in inputs))
+    return ', '.join(str(x) for x in inputs)
 
 
 # exclude number
@@ -259,14 +258,14 @@ def spicemanip_exclude(bot, inputs, outputtask, mainoutputtask, suboutputtask):
     if inputs == []:
         return ''
     del inputs[int(mainoutputtask) - 1]
-    return str(' '.join(inputs))
+    return ' '.join(inputs)
 
 
 # Convert list to string
 def spicemanip_string(bot, inputs, outputtask, mainoutputtask, suboutputtask):
     if inputs == []:
         return ''
-    return str(' '.join(inputs))
+    return ' '.join(inputs)
 
 
 # Get number item from list

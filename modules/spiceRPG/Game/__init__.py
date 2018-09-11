@@ -1366,8 +1366,8 @@ Array/List/String Manipulation
 
 # Legacy
 def get_trigger_arg(bot, inputs, outputtask, output_type='default'):
-    return spicemanip(bot, inputs, outputtask, output_type)
-    # return get_trigger_arg_old(bot, inputs, outputtask)
+    # return spicemanip(bot, inputs, outputtask, output_type)
+    return get_trigger_arg_old(bot, inputs, outputtask)
 
 
 # Hub

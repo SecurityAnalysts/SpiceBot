@@ -7891,11 +7891,8 @@ def spicemanip(bot, inputs, outputtask, output_type='default'):
 
     # verify output is correct
     if output_type == 'string':
-        if not isinstance(returnvalue, str) and not isinstance(returnvalue, basestring):
-            try:
-                returnvalue = str(' '.join(returnvalue))
-            except TypeError:
-                returnvalue = str(returnvalue)
+        if isinstance(returnvalue, list):
+            returnvalue = ' '.join(returnvalue)
     elif output_type in ['list', 'array']:
         if not isinstance(returnvalue, list):
             returnvalue = list(returnvalue.split(" "))
@@ -7932,7 +7929,6 @@ def spicemanip_count(bot, inputs, outputtask, mainoutputtask, suboutputtask):
                 count += 1
         uniquecount.append(count)
     for inputsitem, unumber in zip(uniqueinputitems, uniquecount):
-        # bot.say(str(inputsitem) + "" + str(unumber))
         returndict[inputsitem] = unumber
     return returndict
 

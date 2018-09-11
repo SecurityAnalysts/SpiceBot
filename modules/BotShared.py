@@ -741,6 +741,8 @@ def spicemanip(bot, inputs, outputtask, output_type='default'):
         inputs = []
     if not isinstance(inputs, list):
         inputs = list(inputs.split(" "))
+        inputs = [x for x in inputs if x and x not in ['', ' ']]
+        inputs = [inputspart.strip() for inputspart in inputs]
 
     # Create return
     if outputtask == 'create':
@@ -761,6 +763,9 @@ def spicemanip(bot, inputs, outputtask, output_type='default'):
         mainoutputtask = str(outputtask).split("^", 1)[0]
         suboutputtask = str(outputtask).split("^", 1)[1]
         outputtask = 'rangebetween'
+    elif str(outputtask).startswith("split_"):
+        mainoutputtask = str(outputtask).replace("split_", "")
+        outputtask = 'split'
     elif str(outputtask).endswith(tuple(["!", "+", "-", "<", ">"])):
         mainoutputtask = str(outputtask)
         if str(outputtask).endswith("!"):
@@ -801,7 +806,22 @@ def spicemanip(bot, inputs, outputtask, output_type='default'):
     elif output_type in ['list', 'array']:
         if not isinstance(returnvalue, list):
             returnvalue = list(returnvalue.split(" "))
+            returnvalue = [x for x in returnvalue if x and x not in ['', ' ']]
+            returnvalue = [inputspart.strip() for inputspart in returnvalue]
     return returnvalue
+
+
+# split list by string
+def spicemanip_split(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    split_array = []
+    restring = ' '.join(inputs)
+    if mainoutputtask not in inputs:
+        split_array = [restring]
+    else:
+        split_array = restring.split(mainoutputtask)
+    split_array = [x for x in split_array if x and x not in ['', ' ']]
+    split_array = [inputspart.strip() for inputspart in split_array]
+    return split_array
 
 
 # dedupe list
@@ -1008,6 +1028,19 @@ def spicemanip_excrange_minus(bot, inputs, outputtask, mainoutputtask, suboutput
     if inputs == []:
         return ''
     return spicemanip_rangebetween(bot, inputs, outputtask, 1, int(mainoutputtask) - 1)
+
+
+def array_compare(bot, indexitem, arraytoindex, arraytocompare):
+    item = ''
+    for x, y in zip(arraytoindex, arraytocompare):
+        if x == indexitem:
+            item = y
+    return item
+
+
+def array_arrangesort(bot, sortbyarray, arrayb):
+    sortbyarray, arrayb = (list(x) for x in zip(*sorted(zip(sortbyarray, arrayb), key=itemgetter(0))))
+    return sortbyarray, arrayb
 
 
 """

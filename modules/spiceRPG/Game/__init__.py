@@ -114,18 +114,10 @@ def execute_main(bot, rpg, instigator, trigger, triggerargsarray):
     rpg.command_full_complete = spicemanip(bot, triggerargsarray, 0)
 
     # IF "&&" is in the full input, it is treated as multiple commands, and is split
-    rpg.multi_com_list = []
-
-    # Build array of commands used
-    if not [x for x in triggerargsarray if x == "&&"]:
-        rpg.multi_com_list.append(rpg.command_full_complete)
-    else:
-        command_full_split = rpg.command_full_complete.split("&&")
-        for command_split in command_full_split:
-            rpg.multi_com_list.append(command_split)
+    rpg.multi_com_list = spicemanip(bot, triggerargsarray, "split_&&")
+    rpg.commands_ran = []
 
     # Cycle through command array
-    rpg.commands_ran = []
     for command_split_partial in rpg.multi_com_list:
         rpg.triggerargsarray = spicemanip(bot, command_split_partial, 'create')
 
@@ -1374,6 +1366,8 @@ def spicemanip(bot, inputs, outputtask, output_type='default'):
         inputs = []
     if not isinstance(inputs, list):
         inputs = list(inputs.split(" "))
+        inputs = [x for x in inputs if x and x not in ['', ' ']]
+        inputs = [inputspart.strip() for inputspart in inputs]
 
     # Create return
     if outputtask == 'create':
@@ -1394,6 +1388,9 @@ def spicemanip(bot, inputs, outputtask, output_type='default'):
         mainoutputtask = str(outputtask).split("^", 1)[0]
         suboutputtask = str(outputtask).split("^", 1)[1]
         outputtask = 'rangebetween'
+    elif str(outputtask).startswith("split_"):
+        mainoutputtask = str(outputtask).replace("split_", "")
+        outputtask = 'split'
     elif str(outputtask).endswith(tuple(["!", "+", "-", "<", ">"])):
         mainoutputtask = str(outputtask)
         if str(outputtask).endswith("!"):
@@ -1434,7 +1431,22 @@ def spicemanip(bot, inputs, outputtask, output_type='default'):
     elif output_type in ['list', 'array']:
         if not isinstance(returnvalue, list):
             returnvalue = list(returnvalue.split(" "))
+            returnvalue = [x for x in returnvalue if x and x not in ['', ' ']]
+            returnvalue = [inputspart.strip() for inputspart in returnvalue]
     return returnvalue
+
+
+# split list by string
+def spicemanip_split(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    split_array = []
+    restring = ' '.join(inputs)
+    if mainoutputtask not in inputs:
+        split_array = [restring]
+    else:
+        split_array = restring.split(mainoutputtask)
+    split_array = [x for x in split_array if x and x not in ['', ' ']]
+    split_array = [inputspart.strip() for inputspart in split_array]
+    return split_array
 
 
 # dedupe list

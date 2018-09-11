@@ -46,7 +46,7 @@ reddit = praw.Reddit(client_id=CLIENTID,
           """)
 @sopel.module.thread(True)
 def mainfunctionnobeguine(bot, trigger):
-    triggerargsarray = get_trigger_arg(bot, trigger.group(0), 'create')
+    triggerargsarray = spicemanip(bot, trigger.group(0), 'create')
     execute_main(bot, trigger, triggerargsarray)
 
 
@@ -56,17 +56,17 @@ def execute_main(bot, trigger, triggerargsarray):
 
     rclass.channel_current = trigger.sender
 
-    rclass.urlinput = get_trigger_arg(bot, triggerargsarray, 1)
+    rclass.urlinput = spicemanip(bot, triggerargsarray, 1)
     if rclass.urlinput.endswith("/"):
-        searchterm = get_trigger_arg(bot, triggerargsarray, 2)
+        searchterm = spicemanip(bot, triggerargsarray, 2)
         rclass.urlinput = str(rclass.urlinput + searchterm)
         triggerargsarray.remove(triggerargsarray[0])
         triggerargsarray.remove(triggerargsarray[0])
         triggerargsarray.insert(0, rclass.urlinput)
 
     urlsplit = rclass.urlinput.split("/", 1)
-    rclass.urltype = get_trigger_arg(bot, urlsplit, 1)
-    rclass.urlsearch = get_trigger_arg(bot, urlsplit, 2)
+    rclass.urltype = spicemanip(bot, urlsplit, 1)
+    rclass.urlsearch = spicemanip(bot, urlsplit, 2)
     if rclass.urltype == 'r':
         rclass.urltypetxt = 'subreddit'
     elif rclass.urltype == 'u':
@@ -91,7 +91,7 @@ def execute_main(bot, trigger, triggerargsarray):
 def reddit_u(bot, triggerargsarray, rclass):
 
     subcommand_valid = ['check']
-    subcommand = get_trigger_arg(bot, [x for x in triggerargsarray if x in subcommand_valid], 1) or 'check'
+    subcommand = spicemanip(bot, [x for x in triggerargsarray if x in subcommand_valid], 1) or 'check'
 
     userreal = user_exists(bot, rclass, rclass.urlsearch)
     if not userreal:
@@ -105,7 +105,7 @@ def reddit_u(bot, triggerargsarray, rclass):
 def reddit_r(bot, triggerargsarray, rclass):
 
     subcommand_valid = ['check', 'hot', 'new', 'top', 'random', 'controversial', 'gilded', 'rising']
-    subcommand = get_trigger_arg(bot, [x for x in triggerargsarray if x in subcommand_valid], 1) or 'check'
+    subcommand = spicemanip(bot, [x for x in triggerargsarray if x in subcommand_valid], 1) or 'check'
 
     rclass.fullrurul = str(redditurl + rclass.urltype + "/" + rclass.urlsearch)
 
@@ -129,9 +129,9 @@ def reddit_r(bot, triggerargsarray, rclass):
         return
 
     if subcommand == 'random':
-        targnum = get_trigger_arg(bot, [x for x in triggerargsarray if str(x).isdigit()], 1) or 500
+        targnum = spicemanip(bot, [x for x in triggerargsarray if str(x).isdigit()], 1) or 500
     else:
-        targnum = get_trigger_arg(bot, [x for x in triggerargsarray if str(x).isdigit()], 1) or 1
+        targnum = spicemanip(bot, [x for x in triggerargsarray if str(x).isdigit()], 1) or 1
     targnum = int(targnum)
 
     if subcommand == 'new':

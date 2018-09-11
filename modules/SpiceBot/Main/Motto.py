@@ -26,8 +26,8 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
     inchannel = trigger.sender
 
-    command = get_trigger_arg(bot, triggerargsarray, 1)
-    inputstring = get_trigger_arg(bot, triggerargsarray, '2+')
+    command = spicemanip(bot, triggerargsarray, 1)
+    inputstring = spicemanip(bot, triggerargsarray, '2+')
     existingarray = get_database_value(bot, instigator, databasekey) or []
     if command == "add":
         if inputstring not in existingarray:
@@ -50,11 +50,11 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         message = "There are currently " + str(messagecount) + " mottos in the database."
         osd(bot, trigger.sender, 'say', message)
     elif command == "last":
-        message = get_trigger_arg(bot, existingarray, "last")
+        message = spicemanip(bot, existingarray, "last")
         osd(bot, trigger.sender, 'say', message)
 
     else:
-        motto = get_trigger_arg(bot, existingarray, "random") or 'You have no flair. Add some now!!'
+        motto = spicemanip(bot, existingarray, "random") or 'You have no flair. Add some now!!'
         osd(bot, trigger.sender, 'say', motto)
 
 

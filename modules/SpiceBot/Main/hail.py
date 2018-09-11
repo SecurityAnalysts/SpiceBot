@@ -20,6 +20,6 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    user = get_trigger_arg(bot, triggerargsarray, 1) or 'jimender2'
+    user = spicemanip(bot, triggerargsarray, 1) or 'jimender2'
     message = "ALL HAIL " + user
     osd(bot, trigger.sender, 'say', message)

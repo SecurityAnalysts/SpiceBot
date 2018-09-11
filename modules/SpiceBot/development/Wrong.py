@@ -25,4 +25,4 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    osd(bot, trigger.sender, 'say', get_trigger_arg(bot, wrongarray, 'random'))
+    osd(bot, trigger.sender, 'say', spicemanip(bot, wrongarray, 'random'))

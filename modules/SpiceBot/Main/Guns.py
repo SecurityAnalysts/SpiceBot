@@ -20,5 +20,5 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    target = get_trigger_arg(bot, triggerargsarray, 0) or trigger.nick
+    target = spicemanip(bot, triggerargsarray, 0) or trigger.nick
     osd(bot, botcom.channel_current, 'say', ["Guns don't kill people.", target + " kills people.", "With Guns."])

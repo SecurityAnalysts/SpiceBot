@@ -18,7 +18,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    current_translate = get_trigger_arg(bot, triggerargsarray, 0) or 0
+    current_translate = spicemanip(bot, triggerargsarray, 0) or 0
     if not str(current_translate).isdigit():
         osd(bot, trigger.sender, 'say', "Sorry. What you input is not binary")
 

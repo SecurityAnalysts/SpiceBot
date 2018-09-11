@@ -19,7 +19,7 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
-    target = get_trigger_arg(bot, triggerargsarray, 1)
+    target = spicemanip(bot, triggerargsarray, 1)
     if not target:
         message = instigator + " didn't choose the snowflake life, the snowflake life chose " + instigator + "."
     else:

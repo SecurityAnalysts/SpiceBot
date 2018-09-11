@@ -22,7 +22,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    command = get_trigger_arg(bot, triggerargsarray, '1+')
+    command = spicemanip(bot, triggerargsarray, '1+')
 
     instigator = trigger.nick
 
@@ -34,7 +34,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         numberOfMessages = (len(messages))
         i = 1
         while (i <= numberOfMessages):
-            message = get_trigger_arg(bot, messages, i)
+            message = spicemanip(bot, messages, i)
             osd(bot, trigger.sender, 'say', message)
             i = i + 1
         reset_database_value(bot, instigator, databasekey)

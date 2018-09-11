@@ -22,7 +22,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    commandused = get_trigger_arg(bot, triggerargsarray, 1)
+    commandused = spicemanip(bot, triggerargsarray, 1)
     if commandused == 'on':
         set_database_value(bot, bot.nick, 'testclock', 1)
     elif commandused == 'off':

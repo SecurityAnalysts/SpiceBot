@@ -40,7 +40,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     verify_ssl = bot.config.core.verify_ssl
     latest = get_info(verify_ssl=verify_ssl)
     maxcomics = latest['num']
-    target = get_trigger_arg(bot, triggerargsarray, 1)
+    target = spicemanip(bot, triggerargsarray, 1)
 
     if not target:
         mynumber = getnumber(maxcomics)

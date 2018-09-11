@@ -20,7 +20,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    person = get_trigger_arg(bot, triggerargsarray, 1)
+    person = spicemanip(bot, triggerargsarray, 1)
 
     if person == bot.nick:
         message = "Spicebot grabs " + trigger.nick + " with a hook and drags them out of the room because they tried to gong Spicebot."

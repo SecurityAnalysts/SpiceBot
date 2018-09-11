@@ -38,9 +38,9 @@ def spicebot_prerun(bot, trigger, commandused):
 
     # Custom args
     try:
-        triggerargsarray = get_trigger_arg(bot, trigger.group(2), 'create')
+        triggerargsarray = spicemanip(bot, trigger.group(2), 'create')
     except IndexError:
-        triggerargsarray = get_trigger_arg(bot, trigger.group(1), 'create')
+        triggerargsarray = spicemanip(bot, trigger.group(1), 'create')
 
     # Dyno Classes
     botcom = class_create('bot')
@@ -537,7 +537,7 @@ def database_initialize(bot, nick, array, database):
 def sayingsmodule(bot, databasekey, inputarray, thingtodo):
     """Handle the creation and manipulation of modules that return sayings."""
     response = "Something went wrong. Oops."
-    inputstring = get_trigger_arg(bot, inputarray, '2+')
+    inputstring = spicemanip(bot, inputarray, '2+')
     existingarray = get_database_value(bot, bot.nick, databasekey) or []
     if thingtodo == "initialise":
         database_initialize(bot, bot.nick, inputarray, databasekey)
@@ -557,9 +557,9 @@ def sayingsmodule(bot, databasekey, inputarray, thingtodo):
         messagecount = len(existingarray)
         response = "I'm seeing " + str(messagecount) + " responses in the database."
     elif thingtodo == "last":
-        response = get_trigger_arg(bot, existingarray, "last") or "I appear to have nothing for that."
+        response = spicemanip(bot, existingarray, "last") or "I appear to have nothing for that."
     else:
-        response = get_trigger_arg(bot, existingarray, "random") or ''
+        response = spicemanip(bot, existingarray, "random") or ''
         if response == '':
             response = "I'm afraid I couldn't find an entry for that."
     return response

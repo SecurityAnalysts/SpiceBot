@@ -19,7 +19,7 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     commandused = trigger.group(1)
-    target = get_trigger_arg(bot, triggerargsarray, '1+') or 'notarget'  # triggerargsarray 0 is the command itself
+    target = spicemanip(bot, triggerargsarray, '1+') or 'notarget'  # triggerargsarray 0 is the command itself
     if commandused == 'nuke':
         nukeit(bot, trigger, triggerargsarray)
     elif commandused == 'killit':

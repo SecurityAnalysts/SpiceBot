@@ -19,7 +19,7 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
-    policytype = get_trigger_arg(bot, triggerargsarray, 1) or "proof"
+    policytype = spicemanip(bot, triggerargsarray, 1) or "proof"
     if policytype == "evidence":
         message = "No evidence, no crime."
     else:

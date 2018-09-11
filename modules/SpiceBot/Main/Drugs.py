@@ -19,9 +19,9 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
 
-    locationorperson = get_trigger_arg(bot, triggerargsarray, 1)
-    person = get_trigger_arg(bot, triggerargsarray, 1) or trigger.nick
-    druglocation = get_trigger_arg(bot, triggerargsarray, '1+') or "somewhere tropical"
+    locationorperson = spicemanip(bot, triggerargsarray, 1)
+    person = spicemanip(bot, triggerargsarray, 1) or trigger.nick
+    druglocation = spicemanip(bot, triggerargsarray, '1+') or "somewhere tropical"
     drugdisplay = "to " + druglocation
     displaymsg = "Whoops, something went wrong. Not sure how that got fucked up."
 
@@ -33,7 +33,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     elif locationorperson:
         # input is person
         if locationorperson.lower() in [u.lower() for u in bot.users]:
-            druglocation = get_trigger_arg(bot, triggerargsarray, '2+') or "somewhere tropical"
+            druglocation = spicemanip(bot, triggerargsarray, '2+') or "somewhere tropical"
             drugdisplay = "to " + druglocation
             displaymsg = person + " should really consider selling everything and moving " + drugdisplay + " to sell drugs on a beach."
 

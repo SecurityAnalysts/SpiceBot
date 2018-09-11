@@ -25,10 +25,10 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     """Slap some bitch with a fish. Unless it's bear`. He gets fed a tasty fish."""
-    target = get_trigger_arg(bot, triggerargsarray, 1)
-    reason = get_trigger_arg(bot, triggerargsarray, '2+')
+    target = spicemanip(bot, triggerargsarray, 1)
+    reason = spicemanip(bot, triggerargsarray, '2+')
     message = "Whoops, something went wrong."
-    fishtype = get_trigger_arg(bot, fishtypes, 'random')
+    fishtype = spicemanip(bot, fishtypes, 'random')
     fishmsg = "a " + fishtype
     # Vowel awareness
     if fishtype.startswith(vowels):

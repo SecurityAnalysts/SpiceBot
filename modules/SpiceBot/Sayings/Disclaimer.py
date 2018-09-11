@@ -44,15 +44,15 @@ def mainfunction(bot, trigger):
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     """Display specific disclaimers (if they exist) or a generic one if not."""
     instigator = trigger.nick
-    person = get_trigger_arg(bot, [x for x in triggerargsarray if x in botcom.users_all], 1) or instigator
+    person = spicemanip(bot, [x for x in triggerargsarray if x in botcom.users_all], 1) or instigator
     if person in triggerargsarray:
         triggerargsarray.remove(person)
-    subdisclaimer = get_trigger_arg(bot, triggerargsarray, 1) or 'doctor'
+    subdisclaimer = spicemanip(bot, triggerargsarray, 1) or 'doctor'
 
     if subdisclaimer in specific_disclaimer.keys():
         message = specific_disclaimer[subdisclaimer].replace("{disclaimer_target}", person)
     elif subdisclaimer == 'options':
-        validoptions = get_trigger_arg(bot, specific_disclaimer.keys(), 'andlist')
+        validoptions = spicemanip(bot, specific_disclaimer.keys(), 'andlist')
         message = "Current options for this module are: " + validoptions
     else:
         message = "I hate to tell you this, but either I don't have a warning for that, or something is very borked right now."

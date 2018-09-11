@@ -21,7 +21,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    target = get_trigger_arg(bot, triggerargsarray, '1+') or ''
+    target = spicemanip(bot, triggerargsarray, '1+') or ''
     joke = getJoke()
     if joke:
         if target != bot.nick and target != '':

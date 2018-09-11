@@ -29,5 +29,5 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
                     "Quando omni flunkus, moritati.",
                     "I'm a man, but I can change, If I have to, I guess."
                     ]
-    redorgreen = get_trigger_arg(bot, redgreenlist, 'random')
+    redorgreen = spicemanip(bot, redgreenlist, 'random')
     osd(bot, trigger.sender, 'say', redorgreen)

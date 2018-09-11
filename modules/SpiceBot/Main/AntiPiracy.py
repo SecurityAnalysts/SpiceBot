@@ -21,5 +21,5 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    randompiracyslogan = get_trigger_arg(bot, piracysayings, "random")
+    randompiracyslogan = spicemanip(bot, piracysayings, "random")
     osd(bot, trigger.sender, 'say', randompiracyslogan)

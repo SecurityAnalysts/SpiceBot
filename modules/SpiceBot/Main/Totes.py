@@ -18,7 +18,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    command = get_trigger_arg(bot, triggerargsarray, 1)
+    command = spicemanip(bot, triggerargsarray, 1)
     if not command:
         rand = random.randint(1, 4)
         if rand == 1:

@@ -25,7 +25,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, arg, botcom, instigator):
-    mygame = get_trigger_arg(bot, arg, 1) or 'nocommand'
+    mygame = spicemanip(bot, arg, 1) or 'nocommand'
     if mygame == 'docs' or mygame == 'help':
         osd(bot, trigger.sender, 'say', "For help with this module, see here: " + wikiurl)
     elif mygame == 'slots':
@@ -72,7 +72,7 @@ def slots(bot, botcom, trigger, arg):
     player = trigger.nick
     channel = trigger.sender
     now = time.time()
-    bet = get_trigger_arg(bot, arg, '2') or 'nocommand'
+    bet = spicemanip(bot, arg, '2') or 'nocommand'
     if not bet.isdigit():
         bet = 1
     else:
@@ -101,9 +101,9 @@ def slots(bot, botcom, trigger, arg):
                     set_database_value(bot, player, 'gambletimer', now)
                     # add bet to casino
                     mywinnings = 0
-                    wheel1 = get_trigger_arg(bot, slotwheel, 'random')
-                    wheel2 = get_trigger_arg(bot, slotwheel, 'random')
-                    wheel3 = get_trigger_arg(bot, slotwheel, 'random')
+                    wheel1 = spicemanip(bot, slotwheel, 'random')
+                    wheel2 = spicemanip(bot, slotwheel, 'random')
+                    wheel3 = spicemanip(bot, slotwheel, 'random')
                     reel = [wheel1, wheel2, wheel3]
                     if bet < 2:
                         chipcount = " spicychip"
@@ -161,9 +161,9 @@ def roulette(bot, botcom, trigger, arg):
     callcheck = False
     player = trigger.nick
 
-    mybet = get_trigger_arg(bot, arg, 2) or 'nobet'
-    myitem = get_trigger_arg(bot, arg, 3) or 'noitem'
-    myitem2 = get_trigger_arg(bot, arg, 4) or 'noitem'
+    mybet = spicemanip(bot, arg, 2) or 'nobet'
+    myitem = spicemanip(bot, arg, 3) or 'noitem'
+    myitem2 = spicemanip(bot, arg, 4) or 'noitem'
 
     # __payouts___
     colorpayout = 2  # % of amount bet + amount bet
@@ -262,7 +262,7 @@ def roulette(bot, botcom, trigger, arg):
                     roulettearray.append(str(mybet))
                     roulettearray.append(str(mynumber))
                     roulettearray.append(mycolor)
-                    testmsg = get_trigger_arg(bot, roulettearray, "list")
+                    testmsg = spicemanip(bot, roulettearray, "list")
                     osd(bot, player, 'priv', "Your bet has been recorded")
                     set_database_value(bot, player, 'roulettearray', roulettearray)
                     numberofplayers = len(players)
@@ -293,7 +293,7 @@ def runroulette(bot):
         mywinnings = 0
         winners = []
         totalwon = 0
-        displaymessage = get_trigger_arg(bot, players, "list")
+        displaymessage = spicemanip(bot, players, "list")
 
         dispmsg = "Spicebot spins the wheel good luck to " + displaymessage
         osd(bot, channel, 'say', dispmsg)
@@ -305,11 +305,11 @@ def runroulette(bot):
             mycolor = ''
             playerarray = get_database_value(bot, player, 'roulettearray') or ''
             if not playerarray == '':
-                mybet = get_trigger_arg(bot, playerarray, 1) or 0
+                mybet = spicemanip(bot, playerarray, 1) or 0
                 mybet = int(mybet)
-                mynumber = get_trigger_arg(bot, playerarray, 2) or 0
+                mynumber = spicemanip(bot, playerarray, 2) or 0
                 mynumber = int(mynumber)
-                mycolor = get_trigger_arg(bot, playerarray, 3) or ''
+                mycolor = spicemanip(bot, playerarray, 3) or ''
 
                 if not mybet == 0:
                     if mynumber == winningnumber:
@@ -329,7 +329,7 @@ def runroulette(bot):
 
         reset_database_value(bot, 'casino', 'rouletteplayers')
         reset_database_value(bot, 'casino', 'counter')
-        winnerarray = get_trigger_arg(bot, winners, 'list')
+        winnerarray = spicemanip(bot, winners, 'list')
         if len(winners) < 1:
             dispmsg = "No winners this spin"
         elif len(winners) == 1:
@@ -352,7 +352,7 @@ def lottery(bot, botcom, trigger, arg):
         addbucks(bot, botcom, 'casino', 500)
         bankbalance = bank(bot, botcom, 'casino')
 
-    commandused = get_trigger_arg(bot, arg, 2) or 'nocommand'
+    commandused = spicemanip(bot, arg, 2) or 'nocommand'
     if not channel.startswith("#"):
         osd(bot, trigger.nick, 'notice', "lottery can only be used in a channel.")
     else:
@@ -365,7 +365,7 @@ def lottery(bot, botcom, trigger, arg):
             picks = []
             picklen = len(arg) + 1
             for i in range(0, picklen):
-                picker = get_trigger_arg(bot, arg, i)
+                picker = spicemanip(bot, arg, i)
                 if picker.isdigit():
                     picks.append(int(picker))
             if len(picks) != 5:
@@ -444,7 +444,7 @@ def lotterydrawing(bot):
                 osd(bot, player, 'priv', 'You are not a lottery winner')
 
         if totalwon > 0:
-            lottowinners = get_trigger_arg(bot, lotterywinners, "list")
+            lottowinners = spicemanip(bot, lotterywinners, "list")
             if len(lotterywinners) > 1:
                 msg = "Lottery winners: " + lottowinners + ", and the big winner was " + bigwinner + " winning " + str(bigwinpayout) + " in this drawing"
             else:
@@ -462,8 +462,8 @@ def blackjack(bot, trigger, arg):
     blackjackpayout = 2
     beatdealerpayout = 2
     payouton21 = 1
-    mychoice = get_trigger_arg(bot, arg, 2) or 'nocommand'
-    mychoice2 = get_trigger_arg(bot, arg, 3) or 'nocommand'
+    mychoice = spicemanip(bot, arg, 2) or 'nocommand'
+    mychoice2 = spicemanip(bot, arg, 3) or 'nocommand'
     if mychoice == 'nocommand':
         osd(bot, trigger.sender, 'say', "Use .gamble blackjack deal <bet> amount to start a new game")
 
@@ -593,7 +593,7 @@ def deal(bot, deck, cardcount):
     hand = []
 
     for i in range(cardcount):
-        card = get_trigger_arg(bot, deck, 'random')
+        card = spicemanip(bot, deck, 'random')
 
         hand.append(card)
     return hand
@@ -656,12 +656,12 @@ def blackjackstand(bot, player, myhand, dealerhand, payout):
 
 def blackjackscore(bot, hand):
     myscore = 0
-    # hand = get_trigger_arg(bot,hand,'list')
+    # hand = spicemanip(bot,hand,'list')
     i = 0
     myhand = []
     handlen = len(hand)
     for i in range(0, handlen):
-        card = get_trigger_arg(bot, hand, i)
+        card = spicemanip(bot, hand, i)
         if card.isdigit():
             myscore = myscore + int(card)
         elif(card == 'J' or card == 'Q' or card == 'K'):
@@ -705,8 +705,8 @@ def countdown(bot):
 
 def admincommands(bot, botcom, trigger, arg):
     player = trigger.nick
-    subcommand = get_trigger_arg(bot, arg, 2) or 'nocommand'
-    commandvalue = get_trigger_arg(bot, arg, 3) or 'nocommand'
+    subcommand = spicemanip(bot, arg, 2) or 'nocommand'
+    commandvalue = spicemanip(bot, arg, 3) or 'nocommand'
     if subcommand == 'slotadd':
         adjust_database_array(bot, 'casino', commandvalue, 'slotwheel', 'add')
         osd(bot, trigger.nick, 'priv', commandvalue + " added to slot wheel.")
@@ -727,7 +727,7 @@ def admincommands(bot, botcom, trigger, arg):
             osd(bot, trigger.nick, 'priv', "Slot keyword '" + commandvalue + "' added to slot wheel.")
     elif subcommand == 'slotlist':
         slotlist = get_database_value(bot, 'casino', 'slotwheel')
-        listslots = get_trigger_arg(bot, slotlist, 'list')
+        listslots = spicemanip(bot, slotlist, 'list')
         osd(bot, player, 'priv', "Slot wheel: " + listslots)
 
     elif subcommand == 'roulettereset':

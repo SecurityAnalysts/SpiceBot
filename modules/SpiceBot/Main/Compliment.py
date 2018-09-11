@@ -25,7 +25,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    requested = get_trigger_arg(bot, triggerargsarray, 0)
+    requested = spicemanip(bot, triggerargsarray, 0)
     myline = ''
     if not bot.nick.endswith(devbot):
         filetocheck = compliments  # Master branch
@@ -49,11 +49,11 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
                 if complimentnumber > numberoflines:
                     myline = "Please select a compliment number between 1 and " + str(numberoflines) + ""
                 else:
-                    myline = get_trigger_arg(bot, lines, complimentnumber)
+                    myline = spicemanip(bot, lines, complimentnumber)
             else:
                 try:
                     complimentnumber = w2n.word_to_num(str(requested))
-                    myline = get_trigger_arg(lines, complimentnumber)
+                    myline = spicemanip(lines, complimentnumber)
                 except ValueError:
                     myline = 'That doesnt appear to be a compliment number.'
     if not myline or myline == '\n':

@@ -12,8 +12,8 @@ from BotShared import *
 
 @sopel.module.commands('spicebot')
 def main_command(bot, trigger):
-    triggerargsarray = get_trigger_arg(bot, trigger.group(2), 'create')
-    subcommand = get_trigger_arg(bot, triggerargsarray, 1)
+    triggerargsarray = spicemanip(bot, trigger.group(2), 'create')
+    subcommand = spicemanip(bot, triggerargsarray, 1)
 
     if not subcommand:
         osd(bot, trigger.sender, 'say', "That's my name. Don't wear it out!")

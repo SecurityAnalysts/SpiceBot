@@ -26,8 +26,8 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
     inchannel = trigger.sender
 
-    command = get_trigger_arg(bot, triggerargsarray, 1)
-    inputstring = get_trigger_arg(bot, triggerargsarray, '2+')
+    command = spicemanip(bot, triggerargsarray, 1)
+    inputstring = spicemanip(bot, triggerargsarray, '2+')
     existingarray = get_database_value(bot, bot.nick, databasekey) or []
     if command == "add":
         if inputstring not in existingarray:
@@ -50,17 +50,17 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         message = "There are currently " + str(messagecount) + " responses for that in the database."
         osd(bot, trigger.sender, 'say', message)
     elif command == "last":
-        message = get_trigger_arg(bot, existingarray, "last")
+        message = spicemanip(bot, existingarray, "last")
         osd(bot, trigger.sender, 'say', message)
     elif command in ["crows", 'crow']:
         rand = random.randint(1, 5)
         if rand == 1:
             allUsers = [u.lower() for u in bot.users]
-            user = get_trigger_arg(bot, allUsers, "random") or 'spicebot'
+            user = spicemanip(bot, allUsers, "random") or 'spicebot'
             osd(bot, trigger.sender, 'say', "A murder of Crows swarms the room and carries " + user + " off.")
         elif rand == 2:
             allUsers = [u.lower() for u in bot.users]
-            user = get_trigger_arg(bot, allUsers, "random") or 'spicebot'
+            user = spicemanip(bot, allUsers, "random") or 'spicebot'
             osd(bot, trigger.sender, 'say', "A Crow flys down and pecks " + user + "s eyeballs out of their sockets.")
         else:
             osd(bot, trigger.sender, 'say', "A Murder of Crows swarms the room looking for dead bodies.")
@@ -68,11 +68,11 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
 
     # if all is fine
     else:
-        weapontype = get_trigger_arg(bot, existingarray, "random") or ''
+        weapontype = spicemanip(bot, existingarray, "random") or ''
         if weapontype == '':
             weapontype = "gun"
-        target = get_trigger_arg(bot, triggerargsarray, 1)
-        reason = get_trigger_arg(bot, triggerargsarray, '2+')
+        target = spicemanip(bot, triggerargsarray, 1)
+        reason = spicemanip(bot, triggerargsarray, '2+')
         msg = "a " + weapontype
 
         # No target specified

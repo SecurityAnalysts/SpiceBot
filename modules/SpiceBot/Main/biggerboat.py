@@ -20,7 +20,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    something = get_trigger_arg(bot, triggerargsarray, '1+')
+    something = spicemanip(bot, triggerargsarray, '1+')
     if not something:
         something = "boat"
     message = "We're gonna need a bigger " + something

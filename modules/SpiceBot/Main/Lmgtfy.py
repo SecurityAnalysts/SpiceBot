@@ -24,7 +24,7 @@ def mainfunction(bot, trigger):
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     """Let me just... google that for you."""
     # No input
-    target = get_trigger_arg(bot, triggerargsarray, 0)
+    target = spicemanip(bot, triggerargsarray, 0)
     if not target:
         return osd(bot, trigger.sender, 'say', 'http://google.com/')
     osd(bot, trigger.sender, 'say', 'http://lmgtfy.com/?q=' + target.replace(' ', '+'))

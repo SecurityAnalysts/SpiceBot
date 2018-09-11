@@ -24,8 +24,8 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    command = get_trigger_arg(bot, triggerargsarray, 1)
-    inputstring = get_trigger_arg(bot, triggerargsarray, '2+')
+    command = spicemanip(bot, triggerargsarray, 1)
+    inputstring = spicemanip(bot, triggerargsarray, '2+')
 
     if not command:
         rand = random.randint(1, 2)
@@ -73,7 +73,7 @@ def getIdea(bot, trigger, type):
             existingarray = "kissing your mommy goodbye"
         elif ideaType == "bad":
             existingarray = "killing your friends"
-    idea = get_trigger_arg(bot, existingarray, "random") or ''
+    idea = spicemanip(bot, existingarray, "random") or ''
     if ideaType == "good":
         message = idea + " is a good idea... (prolly)"
     elif ideaType == "bad":

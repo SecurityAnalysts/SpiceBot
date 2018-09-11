@@ -61,7 +61,7 @@ def execute_main(bot, trigger):
         return osd(bot, trigger.sender, 'say', "Due to abusing this module you have been banned from using it, %s" % instigator)
 
     # create array for input, determine that there is a request/report
-    triggerargsarray = get_trigger_arg(bot, trigger.group(2), 'create')
+    triggerargsarray = spicemanip(bot, trigger.group(2), 'create')
     if triggerargsarray == []:
         return osd(bot, trigger.sender, 'say', "What feature/issue do you want to post?")
 
@@ -81,7 +81,7 @@ def execute_main(bot, trigger):
     reqrepdict = github_types[reqreptype]
 
     # Special Handling for modules
-    subtype = get_trigger_arg(bot, triggerargsarray, 1)
+    subtype = spicemanip(bot, triggerargsarray, 1)
 
     # Duel/RPG
     if subtype in ["duel", ".duel", "rpg", ".rpg", "challenge", ".challenge"]:
@@ -99,7 +99,7 @@ def execute_main(bot, trigger):
 
     # manual assigning
     if not reqrepdict['assignee']:
-        assignee = get_trigger_arg(bot, [x for x in triggerargsarray if x.startswith("@")], 1) or None
+        assignee = spicemanip(bot, [x for x in triggerargsarray if x.startswith("@")], 1) or None
         if assignee:
             assignee = str(assignee).replace("@", "")
             if assignee in valid_colabs:
@@ -109,7 +109,7 @@ def execute_main(bot, trigger):
             del reqrepdict['assignee']
 
     # Body text
-    inputtext = get_trigger_arg(bot, triggerargsarray, 0)
+    inputtext = spicemanip(bot, triggerargsarray, 0)
     reqrepdict['body'] = instigator + " " + reqrepdict['body'] + ": " + inputtext
 
     # make it happen

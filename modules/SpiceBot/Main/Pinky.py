@@ -22,7 +22,7 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    item = get_trigger_arg(bot, triggerargsarray, '1+')
+    item = spicemanip(bot, triggerargsarray, '1+')
     if not item:
         message = "How can you have anything good if you don't eat your meat!?!"
     else:

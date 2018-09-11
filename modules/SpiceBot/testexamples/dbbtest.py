@@ -30,6 +30,14 @@ def mainfunction(bot, trigger):
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     osd(bot, trigger.sender, 'say', "This is deathbybandaid's test module")
 
+    arrayone = ['hand', 'foot', 'mouth']
+    arraytwo = ['glove', 'boot', 'muzzle']
+
+    riddleme = spicemanip(bot, ['foot', arrayone, arraytwo], 'index')
+    bot.say(str(riddleme))
+
+    return
+
     triggerargsarray = spicemanip(bot, trigger.group(2), 'create')
     bot.say(str(triggerargsarray))
 
@@ -100,6 +108,10 @@ def spicemanip(bot, inputs, outputtask, output_type='default'):
     # Convert outputtask to standard
     if outputtask in [0, 'complete']:
         outputtask = 'string'
+    elif outputtask == 'index':
+        mainoutputtask = inputs[1]
+        suboutputtask = inputs[2]
+        inputs = inputs[0]
     elif str(outputtask).isdigit():
         mainoutputtask, outputtask = int(outputtask), 'number'
     elif "^" in str(outputtask):
@@ -152,6 +164,15 @@ def spicemanip(bot, inputs, outputtask, output_type='default'):
             returnvalue = [x for x in returnvalue if x and x not in ['', ' ']]
             returnvalue = [inputspart.strip() for inputspart in returnvalue]
     return returnvalue
+
+
+# compare 2 lists, based on the location of an index item, passthrough needs to be [indexitem, arraytoindex, arraytocompare]
+def spicemanip_index(bot, indexitem, outputtask, arraytoindex, arraytocompare):
+    item = ''
+    for x, y in zip(arraytoindex, arraytocompare):
+        if x == indexitem:
+            item = y
+    return item
 
 
 # split list by string

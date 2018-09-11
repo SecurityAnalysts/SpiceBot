@@ -1382,6 +1382,10 @@ def spicemanip(bot, inputs, outputtask, output_type='default'):
     # Convert outputtask to standard
     if outputtask in [0, 'complete']:
         outputtask = 'string'
+    elif outputtask == 'index':
+        mainoutputtask = inputs[1]
+        suboutputtask = inputs[2]
+        inputs = inputs[0]
     elif str(outputtask).isdigit():
         mainoutputtask, outputtask = int(outputtask), 'number'
     elif "^" in str(outputtask):
@@ -1434,6 +1438,15 @@ def spicemanip(bot, inputs, outputtask, output_type='default'):
             returnvalue = [x for x in returnvalue if x and x not in ['', ' ']]
             returnvalue = [inputspart.strip() for inputspart in returnvalue]
     return returnvalue
+
+
+# compare 2 lists, based on the location of an index item, passthrough needs to be [indexitem, arraytoindex, arraytocompare]
+def spicemanip_index(bot, indexitem, outputtask, arraytoindex, arraytocompare):
+    item = ''
+    for x, y in zip(arraytoindex, arraytocompare):
+        if x == indexitem:
+            item = y
+    return item
 
 
 # split list by string
@@ -1653,7 +1666,6 @@ def spicemanip_excrange_minus(bot, inputs, outputtask, mainoutputtask, suboutput
     if inputs == []:
         return ''
     return spicemanip_rangebetween(bot, inputs, outputtask, 1, int(mainoutputtask) - 1)
-
 
 def array_compare(bot, indexitem, arraytoindex, arraytocompare):
     item = ''

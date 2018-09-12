@@ -13,10 +13,7 @@ import os
 moduledir = os.path.dirname(__file__)
 shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
-gifshareddir = os.path.dirname(os.path.dirname(__file__))
-sys.path.append(gifshareddir)
 from BotShared import *
-from GifShared import *
 
 # creds
 config = ConfigParser.ConfigParser()

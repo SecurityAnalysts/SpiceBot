@@ -31,9 +31,8 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    gif = getGif_giphy(bot, "Darwin Award", 'random')
-    if gif:
-        # TODO
-        osd(bot, trigger.sender, 'say', "Result no: %s: %s" % (randno, gif))
+    gif = getGif_all(bot, "Darwin Award", 'random')
+    if gif["querysuccess"]:
+        osd(bot, trigger.sender, 'say', "%s Result (#%s): %s" % (gif['gifapi'].title(), gif['returnnum'], gif['returnurl']))
     else:
         osd(bot, trigger.sender, 'action', 'is not a contender for the Darwin award, thank fuck.')

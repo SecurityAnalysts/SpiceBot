@@ -32,17 +32,10 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     query = spicemanip(bot, triggerargsarray, 0)
+    gifdict = getGif_all(bot, query, 'random')
 
-    gifapiresults = []
-    for currentapi in valid_gif_api:
-        gifdict = eval("getGif_" + currentapi + "(bot, query, 'random')")
-        if gifdict["querysuccess"]:
-            gifapiresults.append(gifdict)
-
-    if gifapiresults == []:
-        osd(bot, trigger.sender, 'say',  'No Results were found for ' + query + 'in any api')
+    if not gifdict["querysuccess"]:
+        osd(bot, trigger.sender, 'say',  'No Results were found for ' + query + ' in any api')
         return
-
-    gifdict = spicemanip(bot, gifapiresults, 'random')
 
     osd(bot, trigger.sender, 'say',  gifdict['gifapi'].title() + " Result (" + str(query) + " #" + str(gifdict["returnnum"]) + "): " + str(gifdict["returnurl"]))

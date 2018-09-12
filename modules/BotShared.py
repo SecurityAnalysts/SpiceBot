@@ -536,6 +536,8 @@ def database_initialize(bot, nick, array, database):
 
 def sayingsmodule(bot, databasekey, inputarray, thingtodo):
     """Handle the creation and manipulation of modules that return sayings."""
+    # Usage: message = sayingsmodule(bot, 'techsupport', triggerargsarray, 'random')
+    # Usage: message = sayingsmodule(bot, 'techsupport', triggerargsarray, 'add')
     response = "Something went wrong. Oops."
     inputstring = spicemanip(bot, inputarray, '2+')
     existingarray = get_database_value(bot, bot.nick, databasekey) or []
@@ -714,11 +716,6 @@ def osd(bot, target_array, text_type_array, text_array):
                 else:
                     bot.say(combinedline)
                 textpartsleft = textpartsleft - 1
-
-
-"""
-Array/List/String Manipulation
-"""
 
 
 """

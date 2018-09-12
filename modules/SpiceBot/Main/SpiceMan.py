@@ -32,4 +32,4 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     if not target:
         osd(bot, trigger.sender, 'say', "One small step for botkind; one giant leap for SkyNet!")
     else:
-        osd(bot, trigger.sender, 'say', "One small step for %s; one giant leap for morons!" % target)
+        osd(bot, trigger.sender, 'say', "One small step for %s; one giant leap for morons everywhere!" % target)

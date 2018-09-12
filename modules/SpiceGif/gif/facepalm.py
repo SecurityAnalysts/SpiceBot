@@ -31,7 +31,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     target = spicemanip(bot, triggerargsarray, 0)
     if not target:
         query = "facepalm"
-        gif, randno = getGif(query)
+        gif, randno = giphy_getGif(query)
         if gif:
             osd(bot, trigger.sender, 'say', "Result number " + str(randno) + ": " + gif)
         else:
@@ -42,17 +42,3 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         osd(bot, trigger.sender, 'say', "Commands: .facepalm help, .facepalm major, or .facepalm")
     else:
         osd(bot, trigger.sender, 'say', "You are really facepalming")
-
-
-def getGif(query):
-    api = 'Wi33J3WxSDxWsrxLREcQqmO3iJ0dk52N'
-    limit = 50
-    url = 'http://api.giphy.com/v1/gifs/search?q=' + str(query)+'&api_key=' + str(api) + '&limit=' + str(limit) + '&rating=r'
-    data = json.loads(urllib2.urlopen(url).read())
-    randno = randint(0, limit)
-    try:
-        id = data['data'][randno]['id']
-        gif = 'https://media2.giphy.com/media/'+id+'/giphy.gif'
-    except IndexError:
-        gif = ""
-    return gif, randno

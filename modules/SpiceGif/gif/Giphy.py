@@ -11,7 +11,10 @@ import os
 moduledir = os.path.dirname(__file__)
 shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
+gifshareddir = os.path.dirname(os.path.dirname(__file__))
+sys.path.append(gifshareddir)
 from BotShared import *
+from GifShared import *
 
 
 @sopel.module.commands('gif', 'giphy')
@@ -34,7 +37,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
         query = str(query)
         i = 0
         while i < 3:
-            gif, randno = getGif(query)
+            gif, randno = giphy_getGif(query)
             if gif:
                 osd(bot, trigger.sender, 'say',  "Giphy Result (" + str(target) + " #" + str(randno) + "): " + gif)
                 i = 5
@@ -48,20 +51,6 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
             osd(bot, trigger.sender, 'say', "Click at your own risk! " + gif)
     else:
         osd(bot, trigger.sender, 'say', "Tell me what you're looking for!")
-
-
-def getGif(query):
-    api = 'Wi33J3WxSDxWsrxLREcQqmO3iJ0dk52N'
-    limit = 50
-    url = 'http://api.giphy.com/v1/gifs/search?q=' + str(query)+'&api_key=' + str(api) + '&limit=' + str(limit) + '&rating=r'
-    data = json.loads(urllib2.urlopen(url).read())
-    randno = randint(0, limit)
-    try:
-        id = data['data'][randno]['id']
-        gif = 'https://media2.giphy.com/media/'+id+'/giphy.gif'
-    except IndexError:
-        gif = ""
-    return gif, randno
 
 
 def roulette():

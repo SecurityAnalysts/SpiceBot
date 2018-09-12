@@ -22,6 +22,9 @@ from GifShared import *
 config = ConfigParser.ConfigParser()
 config.read("/home/spicebot/spicebot.conf")
 
+# Valid Gif api's
+valid_gif_api = ['giphy', 'tenor']
+
 
 """
 Giphy
@@ -40,7 +43,8 @@ def getGif_giphy(bot, query, searchnum, searchlimit=giphylimit):
                     "querysuccess": False,
                     "returnnum": searchnum,
                     "returnurl": None,
-                    "error": None
+                    "error": None,
+                    "gifapi": 'giphy'
                     }
 
     # Make sure there is a valid input of query and search number
@@ -62,19 +66,24 @@ def getGif_giphy(bot, query, searchnum, searchlimit=giphylimit):
     url = 'http://api.giphy.com/v1/gifs/search?q=' + str(searchquery) + '&api_key=' + str(giphyapi) + '&limit=' + str(searchlimit) + '&rating=r'
     data = json.loads(urllib2.urlopen(url).read())
 
-    # Verifythere are results
-    resultsamount = data['pagination']['total_count']
-    returngifdict["resultsamount"] = resultsamount
-    if not resultsamount:
+    # Verify there are results
+    results = data['data']
+    resultsarray = []
+    for result in results:
+        cururl = result['url']
+        resultsarray.append(cururl)
+
+    resultsamount = len(resultsarray)
+    if resultsarray == []:
+        returngifdict["error"] = 'No Giphy Results were found for ' + returngifdict['query']
         return returngifdict
     returngifdict["querysuccess"] = True
 
-    if int(searchnum) > int(resultsamount):
-        searchnum = resultsamount
+    if int(searchnum) > int(resultsamount - 1):
+        searchnum = randint(0, resultsamount - 1)
     returngifdict["returnnum"] = searchnum
 
-    id = data['data'][searchnum]['id']
-    returngifdict["returnurl"] = 'https://media2.giphy.com/media/'+id+'/giphy.gif'
+    returngifdict["returnurl"] = resultsarray[searchnum]
 
     return returngifdict
 
@@ -95,7 +104,8 @@ def getGif_tenor(bot, query, searchnum, searchlimit=tenorlimit):
                     "querysuccess": False,
                     "returnnum": searchnum,
                     "returnurl": None,
-                    "error": None
+                    "error": None,
+                    "gifapi": 'tenor'
                     }
 
     # Make sure there is a valid input of query and search number
@@ -117,16 +127,23 @@ def getGif_tenor(bot, query, searchnum, searchlimit=tenorlimit):
     url = 'https://api.tenor.com/v1/search?q=' + str(searchquery) + '&key=' + str(tenorapi) + '&limit=' + str(searchlimit)  # + '&anon_id=r' + str(anon_id)
     data = json.loads(urllib2.urlopen(url).read())
 
-    # Verifythere are results
-    resultsamount = len(data['results'])
-    if not resultsamount:
+    # Verify there are results
+    results = data['results']
+    resultsarray = []
+    for result in results:
+        cururl = result['url']
+        resultsarray.append(cururl)
+
+    resultsamount = len(resultsarray)
+    if resultsarray == []:
+        returngifdict["error"] = 'No Tenor Results were found for ' + returngifdict['query']
         return returngifdict
     returngifdict["querysuccess"] = True
 
-    if int(searchnum) > int(resultsamount):
-        searchnum = resultsamount
+    if int(searchnum) > int(resultsamount - 1):
+        searchnum = randint(0, resultsamount - 1)
     returngifdict["returnnum"] = searchnum
 
-    returngifdict["returnurl"] = data['results'][searchnum]['media'][0]['gif']['url']
+    returngifdict["returnurl"] = resultsarray[searchnum]
 
     return returngifdict

@@ -28,30 +28,31 @@ valid_colabs = ['zsutton92', 'josh-cunning', 'Berserkir-Wolf', 'deathbybandaid',
 # Invalid Requests
 dontaskforthese = ['instakill', 'instant kill', 'random kill', 'random deaths', 'butterfingers', 'bad grenade', 'grenade failure', 'suicide', 'go off in', 'dud grenade']
 
-github_types = {
-                "feature": {
-                            "labels": ['Feature Request'],
-                            "title": 'Feature Request',
-                            "body": "requested",
-                            "assignee": False
-                            },
-                "issue": {
-                            "labels": ['Issue Report'],
-                            "title": 'Issue Report',
-                            "body": "found an issue",
-                            "assignee": False
-                            },
-                "wiki": {
-                            "labels": ['Wiki Update'],
-                            "title": 'Wiki Update Request',
-                            "body": "requested",
-                            "assignee": "Berserkir-Wolf"
-                            }
-}
-
 
 @sopel.module.commands('feature', 'feetcher', 'fr', 'bug', 'br', 'borked', 'issue', 'wiki')
 def execute_main(bot, trigger):
+
+    github_types = {
+                    "feature": {
+                                "labels": ['Feature Request'],
+                                "title": 'Feature Request',
+                                "body": "requested",
+                                "assignee": False
+                                },
+                    "issue": {
+                                "labels": ['Issue Report'],
+                                "title": 'Issue Report',
+                                "body": "found an issue",
+                                "assignee": False
+                                },
+                    "wiki": {
+                                "labels": ['Wiki Update'],
+                                "title": 'Wiki Update Request',
+                                "body": "requested",
+                                "assignee": "Berserkir-Wolf"
+                                }
+    }
+
     maincommand = trigger.group(1)
     instigator = trigger.nick
 

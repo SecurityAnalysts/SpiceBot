@@ -15,7 +15,13 @@ from BotShared import *
 def mainfunction(bot, trigger):
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'sysadmin')
     if not enablestatus:
-        execute_main(bot, trigger, triggerargsarray, botcom, instigator)
+        # IF "&&" is in the full input, it is treated as multiple commands, and is split
+        commands_array = spicemanip(bot, triggerargsarray, "split_&&")
+        if commands_array == []:
+            commands_array = [[]]
+        for command_split_partial in commands_array:
+            triggerargsarray_part = spicemanip(bot, command_split_partial, 'create')
+            execute_main(bot, trigger, triggerargsarray_part, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
@@ -30,29 +36,3 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     else:
         message = "Happy Sysadmin day"
     osd(bot, trigger.sender, 'say', message)
-
-
-# @sopel.module.interval(60)
-# def getpackt(bot):
-#     now = datetime.datetime.now(tz)
-#     if now.hour == int(packthour) and now.minute == int(packtminute):
-#         dispmsg = packt_osd(bot)
-#         for channel in bot.channels:
-#             osd(bot, channel, 'say', dispmsg)
-#
-#
-# def packt_osd(bot):
-#     dispmsg = []
-#     dispmsg.append("[Packt] " + getPacktTitle())
-#     dispmsg.append("Next Book: " + getpackttimediff(bot))
-#     dispmsg.append("URL: " + packturl)
-#     return dispmsg
-#
-#
-# def getpackttimediff(bot):
-#     nowtime = datetime.datetime.now(tz)
-#     tomorrow = nowtime + timedelta(days=1)
-#     packtnext = datetime.datetime(tomorrow.year, tomorrow.month, tomorrow.day, int(packthour), int(packtminute), 0, 0)
-#     timecompare = get_timeuntil(nowtime, packtnext)
-#     packttimediff = str(timecompare)
-#     return packttimediff

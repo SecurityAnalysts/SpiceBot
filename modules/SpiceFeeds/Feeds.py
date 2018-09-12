@@ -94,27 +94,37 @@ def autofeeds(bot):
 def mainfunction(bot, trigger):
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'feeds')
     if not enablestatus:
-        if trigger.group(1) == 'feeds':
-            execute_main(bot, trigger, triggerargsarray, botcom, instigator)
+        # IF "&&" is in the full input, it is treated as multiple commands, and is split
+        commands_array = spicemanip(bot, triggerargsarray, "split_&&")
+        if commands_array == []:
+            commands_array = [[]]
+        for command_split_partial in commands_array:
+            triggerargsarray_part = spicemanip(bot, command_split_partial, 'create')
+            execute_main(bot, trigger, triggerargsarray_part, botcom, instigator)
+
+
+def execute_mainb(bot, trigger, triggerargsarray, botcom, instigator):
+    if trigger.group(1) == 'feeds':
+        execute_mainb(bot, trigger, triggerargsarray, botcom, instigator)
+    else:
+        # feeds dynamic Class
+        feeds = class_create('feeds')
+        feeds = feeds_configs(bot, feeds)
+        feed = trigger.group(1)
+        if feed == 'spicewebby':
+            feed = 'spiceworkswebby'
+        elif feed == 'atwebby':
+            feed = 'actualtechwebby'
+        elif feed == 'onion':
+            feed = 'theonion'
+        dispmsg = feeds_display(bot, feed, feeds, 1) or []
+        if dispmsg == []:
+            osd(bot, botcom.channel_current, 'say', feed + " appears to have had an unknown error.")
         else:
-            # feeds dynamic Class
-            feeds = class_create('feeds')
-            feeds = feeds_configs(bot, feeds)
-            feed = trigger.group(1)
-            if feed == 'spicewebby':
-                feed = 'spiceworkswebby'
-            elif feed == 'atwebby':
-                feed = 'actualtechwebby'
-            elif feed == 'onion':
-                feed = 'theonion'
-            dispmsg = feeds_display(bot, feed, feeds, 1) or []
-            if dispmsg == []:
-                osd(bot, botcom.channel_current, 'say', feed + " appears to have had an unknown error.")
-            else:
-                osd(bot, botcom.channel_current, 'say', dispmsg)
+            osd(bot, botcom.channel_current, 'say', dispmsg)
 
 
-def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
+def execute_mainb(bot, trigger, triggerargsarray, botcom, instigator):
 
     # feeds dynamic Class
     feeds = class_create('feeds')

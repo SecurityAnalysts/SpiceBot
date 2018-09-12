@@ -24,7 +24,13 @@ sys.setdefaultencoding('utf-8')
 @sopel.module.commands('dbbtest')
 def mainfunction(bot, trigger):
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, trigger.group(1))
-    execute_main(bot, trigger, triggerargsarray, botcom, instigator)
+    # IF "&&" is in the full input, it is treated as multiple commands, and is split
+    commands_array = spicemanip(bot, triggerargsarray, "split_&&")
+    if commands_array == []:
+        commands_array = [[]]
+    for command_split_partial in commands_array:
+        triggerargsarray_part = spicemanip(bot, command_split_partial, 'create')
+        execute_main(bot, trigger, triggerargsarray_part, botcom, instigator)
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
@@ -181,6 +187,8 @@ def spicemanip_split(bot, inputs, outputtask, mainoutputtask, suboutputtask):
         split_array = restring.split(mainoutputtask)
     split_array = [x for x in split_array if x and x not in ['', ' ']]
     split_array = [inputspart.strip() for inputspart in split_array]
+    if split_array == []:
+        split_array = [[]]
     return split_array
 
 

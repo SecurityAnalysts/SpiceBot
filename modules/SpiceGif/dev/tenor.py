@@ -11,12 +11,13 @@ import os
 moduledir = os.path.dirname(__file__)
 shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
+gifshareddir = os.path.dirname(os.path.dirname(__file__))
+sys.path.append(gifshareddir)
 from BotShared import *
+from GifShared import *
 
-# author jimender2
 
-
-@sopel.module.commands('tmyk', 'themoreyouknow', 'myk', 'moreyouknow')
+@sopel.module.commands('tenor')
 def mainfunction(bot, trigger):
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, trigger.group(1))
     if not enablestatus:
@@ -30,18 +31,10 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    gif = magicFingers()  # TODO
-    if gif:
-        osd(bot, trigger.sender, 'say', gif)
-    else:
-        osd(bot, trigger.sender, 'action', 'the more you know... **magic fingers**')
+    query = spicemanip(bot, triggerargsarray, 0)
+    gifdict = getGif_tenor(bot, query, 'random')
+    if not gifdict["querysuccess"]:
+        osd(bot, trigger.sender, 'say',  str(gifdict["error"]))
+        return
 
-
-def magicFingers():
-    api = 'Wi33J3WxSDxWsrxLREcQqmO3iJ0dk52N'
-    url = 'http://api.giphy.com/v1/gifs/search?q=the%20more%20you%20know&api_key=' + api + '&limit=50'
-    data = json.loads(urllib2.urlopen(url).read())
-    randno = randint(0, 49)
-    id = data['data'][randno]['id']
-    gif = 'https://media2.giphy.com/media/'+id+'/giphy.gif'
-    return gif
+    osd(bot, trigger.sender, 'say',  "Tenor Result (" + str(query) + " #" + str(gifdict["returnnum"]) + "): " + str(gifdict["returnurl"]))

@@ -31,39 +31,10 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    target = spicemanip(bot, triggerargsarray, 0)
-    if target != "roulette":
-        query = target.replace(' ', '%20')
-        query = str(query)
-        i = 0
-        while i < 3:
-            gif, randno = giphy_getGif(query)
-            if gif:
-                osd(bot, trigger.sender, 'say',  "Giphy Result (" + str(target) + " #" + str(randno) + "): " + gif)
-                i = 5
-            else:
-                i = i + 1
-        if i == 3:
-            osd(bot, trigger.sender, 'say', "Hmm...Couldn't find a gif for that!")
-    elif target == "roulette":
-        gif = roulette()
-        if gif:
-            osd(bot, trigger.sender, 'say', "Click at your own risk! " + gif)
-    else:
-        osd(bot, trigger.sender, 'say', "Tell me what you're looking for!")
+    query = spicemanip(bot, triggerargsarray, 0)
+    gifdict = getGif_giphy(bot, query, 'random')
+    if not gifdict["querysuccess"]:
+        osd(bot, trigger.sender, 'say',  str(gifdict["error"]))
+        return
 
-
-def roulette():
-    api = 'Wi33J3WxSDxWsrxLREcQqmO3iJ0dk52N'
-    # randno = randint(0,9)
-    # if randno == 4:
-    url = 'http://api.giphy.com/v1/gifs/random?api_key=' + str(api) + '&rating=nsfw'
-    # else:
-    #    url = 'http://api.giphy.com/v1/gifs/random?api_key=' + str(api) + '&rating=g'
-    data = json.loads(urllib2.urlopen(url).read())
-    try:
-        id = data['data']['id']
-        gif = 'https://media2.giphy.com/media/'+id+'/giphy.gif'
-    except KeyError:
-        gif = ""
-    return gif
+    osd(bot, trigger.sender, 'say',  "Giphy Result (" + str(query) + " #" + str(gifdict["returnnum"]) + "): " + str(gifdict["returnurl"]))

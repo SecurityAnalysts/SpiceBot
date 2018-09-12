@@ -103,7 +103,7 @@ def mainfunction(bot, trigger):
             execute_main(bot, trigger, triggerargsarray_part, botcom, instigator)
 
 
-def execute_mainb(bot, trigger, triggerargsarray, botcom, instigator):
+def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     if trigger.group(1) == 'feeds':
         execute_mainb(bot, trigger, triggerargsarray, botcom, instigator)
     else:

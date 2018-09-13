@@ -16,12 +16,32 @@ rpg_game_dict = {
                 "game_loaded": False,
 
                 # Users list
-                "users": {
-                },
+                "users": {},
+
+                # channels list
+                "channels": {},
+
+                # channels list
+                "fartcenter": {},
 
                 # Maps list
                 "maps": {
-                }
+                        "Bouldersummit": {},  # 1
+                        "Cliffstall": {},  # 2
+                        "Whitfield": {},  # 3
+                        "Deepharbor": {},  # 4
+                        "Mightvale": {},  # 5
+                        "Winterkeep": {},  # 6
+                        "Boneshade": {},  # 7
+                        "Faymeadow": {},  # 8
+                        "Bonehollow": {},  # 9
+                        "Honeygulf": {},  # 10
+                        "Rimeshell": {},  # 11
+                        "Wolfbarrow": {},  # 12
+                        "Rivershield": {},  # 13
+                        "Millsummit": {},  # 14
+                        "Dryharbor": {}  # 15
+                        }
 
                 # end of dict
                 }

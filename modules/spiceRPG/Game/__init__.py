@@ -8,6 +8,7 @@ from sopel.formatting import bold
 import sopel
 from sopel import module, tools, formatting
 # Additional
+import collections
 import random
 from random import randint, randrange
 import time
@@ -115,39 +116,11 @@ def execute_start(bot, trigger, triggerargsarray, command_type):
     rpg_errors_end(bot, rpg)
 
     # Save open game dictionary at the end of each usage
+    rpg.gamedict['atestingstuff'] = True
     save_gamedict(bot, rpg)
 
     # Save any open user values
     save_user_dicts(bot, rpg)
-
-
-def save_gamedict(bot, rpg):
-
-    # copy dict to not overwrite
-    savedict = rpg.gamedict.copy()
-
-    # Values to not save to database
-    savedict_del = []
-    for dontsave in savedict_del:
-        if dontsave in savedict.keys():
-            del savedict[dontsave]
-
-    # save to database
-    set_database_value(bot, 'rpg_game_records', 'rpg_game_dict', savedict)
-
-
-def open_gamedict(bot, rpg):
-
-    # open global dict as part of rpg class
-    global rpg_game_dict
-    rpg.gamedict = rpg_game_dict
-
-    # copy dict to verify basics are there TODO
-
-    # don't pull from database if already open
-    if not rpg.gamedict["game_loaded"]:
-        rpg.gamedict = get_database_value(bot, 'rpg_game_records', 'rpg_game_dict') or rpg.gamedict
-        rpg.gamedict['game_loaded'] = True
 
 
 def execute_main(bot, rpg, instigator, trigger, triggerargsarray):
@@ -1792,6 +1765,11 @@ def adjust_database_array(bot, nick, entries, databasekey, adjustmentdirection):
         set_database_value(bot, nick, databasekey, adjustarray)
 
 
+"""
+User Dictionaries
+"""
+
+
 # Database Users
 def get_user_dict(bot, rpg, nick, dictkey):
 
@@ -1881,6 +1859,59 @@ def adjust_user_dict_array(bot, rpg, nick, dictkey, entries, adjustmentdirection
             if x in oldvalue:
                 oldvalue.remove(x)
     nickdict[dictkey] = oldvalue
+
+
+"""
+Game Dictionary
+"""
+
+
+def open_gamedict(bot, rpg):
+
+    # open global dict as part of rpg class
+    global rpg_game_dict
+    rpg.gamedict = rpg_game_dict
+
+    # don't pull from database if already open
+    if not rpg.gamedict["game_loaded"]:
+        opendict = rpg_game_dict.copy()
+        dbgamedict = get_database_value(bot, 'rpg_game_records', 'rpg_game_dict') or dict()
+        opendict = merge_gamedict(dbgamedict, opendict)
+        rpg.gamedict.update(opendict)
+        rpg.gamedict['game_loaded'] = True
+
+
+def save_gamedict(bot, rpg):
+
+    # copy dict to not overwrite
+    savedict = rpg.gamedict.copy()
+
+    # Values to not save to database
+    savedict_del = []
+    for dontsave in savedict_del:
+        if dontsave in savedict.keys():
+            del savedict[dontsave]
+
+    # save to database
+    set_database_value(bot, 'rpg_game_records', 'rpg_game_dict', savedict)
+
+
+def merge_gamedict(a, b, path=None):
+    "merges b into a"
+    if path is None:
+        path = []
+    for key in b:
+        if key in a:
+            if isinstance(a[key], dict) and isinstance(b[key], dict):
+                merge_gamedict(a[key], b[key], path + [str(key)])
+            elif a[key] == b[key]:
+                pass  # same leaf value
+            else:
+                a[key] = b[key]
+                # raise Exception('Conflict at %s' % '.'.join(path + [str(key)]))
+        else:
+            a[key] = b[key]
+    return a
 
 
 """

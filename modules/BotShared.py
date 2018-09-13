@@ -517,6 +517,97 @@ def adjust_database_array(bot, nick, entries, databasekey, adjustmentdirection):
         set_database_value(bot, nick, databasekey, adjustarray)
 
 
+# Database Users
+def get_user_dict(bot, rpg, nick, dictkey):
+
+    # check that db list is there
+    if not hasattr(rpg, 'userdb'):
+        rpg.userdb = class_create('userdblist')
+    if not hasattr(rpg.userdb, 'list'):
+        rpg.userdb.list = []
+
+    returnvalue = 0
+
+    # check if nick has been pulled from db already
+    if nick not in rpg.userdb.list:
+        rpg.userdb.list.append(nick)
+        nickdict = get_database_value(bot, nick, rpg.default) or dict()
+        createuserdict = str("rpg.userdb." + nick + " = nickdict")
+        exec(createuserdict)
+    else:
+        if not hasattr(rpg.userdb, nick):
+            nickdict = dict()
+        else:
+            nickdict = eval('rpg.userdb.' + nick)
+
+    if dictkey in nickdict.keys():
+        returnvalue = nickdict[dictkey]
+    else:
+        nickdict[dictkey] = 0
+        returnvalue = 0
+
+    return returnvalue
+
+
+# set a value
+def set_user_dict(bot, rpg, nick, dictkey, value):
+    currentvalue = get_user_dict(bot, rpg, nick, dictkey)
+    nickdict = eval('rpg.userdb.' + nick)
+    nickdict[dictkey] = value
+
+
+# reset a value
+def reset_user_dict(bot, rpg, nick, dictkey):
+    currentvalue = get_user_dict(bot, rpg, nick, dictkey)
+    nickdict = eval('rpg.userdb.' + nick)
+    if dictkey in nickdict:
+        del nickdict[dictkey]
+
+
+# add or subtract from current value
+def adjust_user_dict(bot, rpg, nick, dictkey, value):
+    oldvalue = get_user_dict(bot, rpg, nick, dictkey)
+    if not str(oldvalue).isdigit():
+        oldvalue = 0
+    nickdict = eval('rpg.userdb.' + nick)
+    nickdict[dictkey] = oldvalue + value
+
+
+# Save all database users in list
+def save_user_dicts(bot, rpg):
+
+    # check that db list is there
+    if not hasattr(rpg, 'userdb'):
+        rpg.userdb = class_create('userdblist')
+    if not hasattr(rpg.userdb, 'list'):
+        rpg.userdb.list = []
+
+    for nick in rpg.userdb.list:
+        if not hasattr(rpg.userdb, nick):
+            nickdict = dict()
+        else:
+            nickdict = eval('rpg.userdb.' + nick)
+        set_database_value(bot, nick, rpg.default, nickdict)
+
+
+# add or subtract from current value
+def adjust_user_dict_array(bot, rpg, nick, dictkey, entries, adjustmentdirection):
+    if not isinstance(entries, list):
+        entries = [entries]
+    oldvalue = get_user_dict(bot, rpg, nick, dictkey)
+    nickdict = eval('rpg.userdb.' + nick)
+    if not isinstance(oldvalue, list):
+        oldvalue = []
+    for x in entries:
+        if adjustmentdirection == 'add':
+            if x not in oldvalue:
+                oldvalue.append(x)
+        elif adjustmentdirection == 'del':
+            if x in oldvalue:
+                oldvalue.remove(x)
+    nickdict[dictkey] = oldvalue
+
+
 def database_initialize(bot, nick, array, database):
     databasekey = str(database)
     existingarray = get_database_value(bot, bot.nick, databasekey)

@@ -4,6 +4,29 @@ from __future__ import unicode_literals, absolute_import, print_function, divisi
 
 # pylama:ignore=W,E201,E202,E203,E221,E222,w292,E231
 
+
+"""
+Open Dictionary of Users and Locations
+"""
+
+
+rpg_game_dict = {
+
+                # Individual small
+                "game_loaded": False,
+
+                # Users list
+                "users": {
+                },
+
+                # Maps list
+                "maps": {
+                }
+
+                # end of dict
+                }
+
+
 """
 OSD
 """

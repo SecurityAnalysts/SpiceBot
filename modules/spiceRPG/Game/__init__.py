@@ -77,6 +77,9 @@ def execute_start(bot, trigger, triggerargsarray, command_type):
     rpg = class_create('rpg')
     rpg.default = 'rpg'
 
+    # Load Game Players and map
+    open_gamedict(bot, rpg)
+
     # Command type
     rpg.command_type = command_type
 
@@ -111,8 +114,40 @@ def execute_start(bot, trigger, triggerargsarray, command_type):
     # Error Display System Display
     rpg_errors_end(bot, rpg)
 
+    # Save open game dictionary at the end of each usage
+    save_gamedict(bot, rpg)
+
     # Save any open user values
     save_user_dicts(bot, rpg)
+
+
+def save_gamedict(bot, rpg):
+
+    # copy dict to not overwrite
+    savedict = rpg.gamedict.copy()
+
+    # Values to not save to database
+    savedict_del = []
+    for dontsave in savedict_del:
+        if dontsave in savedict.keys():
+            del savedict[dontsave]
+
+    # save to database
+    set_database_value(bot, 'rpg_game_records', 'rpg_game_dict', savedict)
+
+
+def open_gamedict(bot, rpg):
+
+    # open global dict as part of rpg class
+    global rpg_game_dict
+    rpg.gamedict = rpg_game_dict
+
+    # copy dict to verify basics are there TODO
+
+    # don't pull from database if already open
+    if not rpg.gamedict["game_loaded"]:
+        rpg.gamedict = get_database_value(bot, 'rpg_game_records', 'rpg_game_dict') or rpg.gamedict
+        rpg.gamedict['game_loaded'] = True
 
 
 def execute_main(bot, rpg, instigator, trigger, triggerargsarray):

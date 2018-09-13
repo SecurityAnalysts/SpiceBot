@@ -20,7 +20,7 @@ config = ConfigParser.ConfigParser()
 config.read("/home/spicebot/spicebot.conf")
 
 # Valid Gif api's
-valid_gif_api = ['giphy', 'tenor']
+valid_gif_api = ['giphy', 'tenor', 'gfycat']
 
 
 """
@@ -132,7 +132,7 @@ def getGif_tenor(bot, query, searchnum, searchlimit=tenorlimit):
     if searchnum == 'random':
         searchnum = randint(0, searchlimit)
 
-    url = 'https://api.tenor.com/v1/search?q=' + str(searchquery) + '&key=' + str(tenorapi) + '&limit=' + str(searchlimit)  # + '&anon_id=r' + str(anon_id)
+    url = 'https://api.tenor.com/v1/search?q=' + str(searchquery) + '&key=' + str(tenorapi) + '&limit=' + str(searchlimit)
     data = json.loads(urllib2.urlopen(url).read())
 
     # Verify there are results
@@ -145,6 +145,80 @@ def getGif_tenor(bot, query, searchnum, searchlimit=tenorlimit):
     resultsamount = len(resultsarray)
     if resultsarray == []:
         returngifdict["error"] = 'No Tenor Results were found for ' + returngifdict['query']
+        return returngifdict
+    returngifdict["querysuccess"] = True
+
+    allresults = []
+    tempresultnum = 0
+    for tempresult in resultsarray:
+        tempdict = returngifdict.copy()
+        tempdict["returnnum"] = tempresultnum
+        tempdict["returnurl"] = tempresult
+        tempresultnum += 1
+        allresults.append(tempdict)
+    returngifdict["allgifs"] = allresults
+
+    if int(searchnum) > int(resultsamount - 1):
+        searchnum = randint(0, resultsamount - 1)
+    returngifdict["returnnum"] = searchnum
+
+    returngifdict["returnurl"] = resultsarray[searchnum]
+
+    return returngifdict
+
+
+"""
+gfycat
+"""
+
+
+gfycatapi_id = config.get("gfycat", "client_id")
+gfycatapi_key = config.get("gfycat", "client_secret")
+gfycatlimit = 50
+
+
+def getGif_gfycat(bot, query, searchnum, searchlimit=gfycatlimit):
+
+    returngifdict = {
+                    "query": query,
+                    "searchquery": query,
+                    "querysuccess": False,
+                    "returnnum": searchnum,
+                    "returnurl": None,
+                    "error": None,
+                    "gifapi": 'gfycat',
+                    "allgifs": []
+                    }
+
+    # Make sure there is a valid input of query and search number
+    if not query:
+        returngifdict["error"] = 'No Query to Search'
+        return returngifdict
+    if not str(searchnum).isdigit() and searchnum != 'random':
+        returngifdict["error"] = 'No Search Number or Random Specified'
+        return returngifdict
+
+    # spaces in query
+    searchquery = query.replace(' ', '%20')
+    returngifdict["searchquery"] = searchquery
+
+    # Random
+    if searchnum == 'random':
+        searchnum = randint(0, searchlimit)
+
+    url = 'https://api.gfycat.com/v1/gfycats/search?search_text=' + str(searchquery) + '&count=' + str(searchlimit)
+    data = json.loads(urllib2.urlopen(url).read())
+
+    # Verify there are results
+    results = data['gfycats']
+    resultsarray = []
+    for result in results:
+        cururl = result['gifUrl']
+        resultsarray.append(cururl)
+
+    resultsamount = len(resultsarray)
+    if resultsarray == []:
+        returngifdict["error"] = 'No Gfycat Results were found for ' + returngifdict['query']
         return returngifdict
     returngifdict["querysuccess"] = True
 

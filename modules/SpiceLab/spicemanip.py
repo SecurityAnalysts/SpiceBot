@@ -39,10 +39,11 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     triggerargsarray = spicemanip(bot, trigger.group(2), 'create')
     bot.say(str(triggerargsarray))
 
-    commands_array = spicemanip(bot, triggerargsarray, "2+")
+    commands_array = spicemanip(bot, triggerargsarray, "sort")
     bot.say(str(commands_array))
 
-    return
+    commands_array = spicemanip(bot, triggerargsarray, "rsort")
+    bot.say(str(commands_array))
 
     return
 
@@ -201,6 +202,11 @@ def spicemanip_dedupe(bot, inputs, outputtask, mainoutputtask, suboutputtask):
 # Sort list
 def spicemanip_sort(bot, inputs, outputtask, mainoutputtask, suboutputtask):
     return sorted(inputs)
+
+
+# reverse sort list
+def spicemanip_rsort(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    return sorted(inputs)[::-1]
 
 
 # count items in list, return dictionary

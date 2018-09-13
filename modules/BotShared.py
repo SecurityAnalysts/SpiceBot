@@ -947,6 +947,11 @@ def spicemanip_sort(bot, inputs, outputtask, mainoutputtask, suboutputtask):
     return sorted(inputs)
 
 
+# reverse sort list
+def spicemanip_rsort(bot, inputs, outputtask, mainoutputtask, suboutputtask):
+    return sorted(inputs)[::-1]
+
+
 # count items in list, return dictionary
 def spicemanip_count(bot, inputs, outputtask, mainoutputtask, suboutputtask):
     returndict = dict()

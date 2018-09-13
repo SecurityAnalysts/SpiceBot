@@ -32,6 +32,25 @@ from .Global_Vars import *
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+"""
+MAJOR IDEA
+
+set basic dict values for users and maps globally
+
+if empty, read from database
+
+save dict to db after every run
+
+this will essentially keep all users in memory until the bot reboots, while still saving the database
+
+first rpg usage after bot restart will require a single db read
+
+1 db read per bot startup, 1 db write every usage to prevent data loss
+
+all data can be stored under a single usernick
+
+"""
+
 
 """
 Triggers for usage

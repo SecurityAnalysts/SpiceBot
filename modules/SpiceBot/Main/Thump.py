@@ -26,7 +26,7 @@ def mainfunction(bot, trigger):
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     instigator = trigger.nick
     target = spicemanip(bot, triggerargsarray, 1)
-    reason = spicemanip(bot, triggerargsarray, '2+')
+    reason = spicemanip(bot, triggerargsarray, '2+') or 'reasons.'
     if not target:
         osd(bot, trigger.sender, 'say', "Did you mean to thump somebody?")
     elif target.lower() not in [u.lower() for u in bot.users]:
@@ -34,7 +34,4 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     elif target == bot.nick:
         osd(bot, trigger.sender, 'say', "Well, that's not nice!")
     else:
-        if not reason:
-            osd(bot, trigger.sender, 'action', 'thumps ' + target + ' on behalf of ' + instigator)
-        else:
-            osd(bot, trigger.sender, 'action', 'thumps ' + target + ' on behalf of ' + instigator + " because " + reason)
+        osd(bot, trigger.sender, 'action', 'thumps ' + target + ' on behalf of ' + instigator + " because " + reason)

@@ -17,6 +17,7 @@ databasekey = 'murder'
 
 @sopel.module.commands('murder', 'moida')
 def mainfunction(bot, trigger):
+    """Check to see if module is enabled or called multiple times."""
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, 'murder')
     if not enablestatus:
         # IF "&&" is in the full input, it is treated as multiple commands, and is split
@@ -29,8 +30,8 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
+    """Retrieve a response based on the requested input string."""
     instigator = trigger.nick
-    inchannel = trigger.sender
 
     command = spicemanip(bot, triggerargsarray, 1)
     inputstring = spicemanip(bot, triggerargsarray, '2+')
@@ -105,6 +106,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
 
 
 def get_database_value(bot, nick, databasekey):
+    """Retrieve entry from database."""
     databasecolumn = str(databasekey)
     database_value = bot.db.get_nick_value(nick, databasecolumn) or 0
     return database_value

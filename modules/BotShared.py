@@ -518,27 +518,27 @@ def adjust_database_array(bot, nick, entries, databasekey, adjustmentdirection):
 
 
 # Database Users
-def get_user_dict(bot, rpg, nick, dictkey):
+def get_user_dict(bot, dynamic_class, nick, dictkey):
 
     # check that db list is there
-    if not hasattr(rpg, 'userdb'):
-        rpg.userdb = class_create('userdblist')
-    if not hasattr(rpg.userdb, 'list'):
-        rpg.userdb.list = []
+    if not hasattr(dynamic_class, 'userdb'):
+        dynamic_class.userdb = class_create('userdblist')
+    if not hasattr(dynamic_class.userdb, 'list'):
+        dynamic_class.userdb.list = []
 
     returnvalue = 0
 
     # check if nick has been pulled from db already
-    if nick not in rpg.userdb.list:
-        rpg.userdb.list.append(nick)
-        nickdict = get_database_value(bot, nick, rpg.default) or dict()
-        createuserdict = str("rpg.userdb." + nick + " = nickdict")
+    if nick not in dynamic_class.userdb.list:
+        dynamic_class.userdb.list.append(nick)
+        nickdict = get_database_value(bot, nick, dynamic_class.default) or dict()
+        createuserdict = str("dynamic_class.userdb." + nick + " = nickdict")
         exec(createuserdict)
     else:
-        if not hasattr(rpg.userdb, nick):
+        if not hasattr(dynamic_class.userdb, nick):
             nickdict = dict()
         else:
-            nickdict = eval('rpg.userdb.' + nick)
+            nickdict = eval('dynamic_class.userdb.' + nick)
 
     if dictkey in nickdict.keys():
         returnvalue = nickdict[dictkey]
@@ -550,52 +550,52 @@ def get_user_dict(bot, rpg, nick, dictkey):
 
 
 # set a value
-def set_user_dict(bot, rpg, nick, dictkey, value):
-    currentvalue = get_user_dict(bot, rpg, nick, dictkey)
-    nickdict = eval('rpg.userdb.' + nick)
+def set_user_dict(bot, dynamic_class, nick, dictkey, value):
+    currentvalue = get_user_dict(bot, dynamic_class, nick, dictkey)
+    nickdict = eval('dynamic_class.userdb.' + nick)
     nickdict[dictkey] = value
 
 
 # reset a value
-def reset_user_dict(bot, rpg, nick, dictkey):
-    currentvalue = get_user_dict(bot, rpg, nick, dictkey)
-    nickdict = eval('rpg.userdb.' + nick)
+def reset_user_dict(bot, dynamic_class, nick, dictkey):
+    currentvalue = get_user_dict(bot, dynamic_class, nick, dictkey)
+    nickdict = eval('dynamic_class.userdb.' + nick)
     if dictkey in nickdict:
         del nickdict[dictkey]
 
 
 # add or subtract from current value
-def adjust_user_dict(bot, rpg, nick, dictkey, value):
-    oldvalue = get_user_dict(bot, rpg, nick, dictkey)
+def adjust_user_dict(bot, dynamic_class, nick, dictkey, value):
+    oldvalue = get_user_dict(bot, dynamic_class, nick, dictkey)
     if not str(oldvalue).isdigit():
         oldvalue = 0
-    nickdict = eval('rpg.userdb.' + nick)
+    nickdict = eval('dynamic_class.userdb.' + nick)
     nickdict[dictkey] = oldvalue + value
 
 
 # Save all database users in list
-def save_user_dicts(bot, rpg):
+def save_user_dicts(bot, dynamic_class):
 
     # check that db list is there
-    if not hasattr(rpg, 'userdb'):
-        rpg.userdb = class_create('userdblist')
-    if not hasattr(rpg.userdb, 'list'):
-        rpg.userdb.list = []
+    if not hasattr(dynamic_class, 'userdb'):
+        dynamic_class.userdb = class_create('userdblist')
+    if not hasattr(dynamic_class.userdb, 'list'):
+        dynamic_class.userdb.list = []
 
-    for nick in rpg.userdb.list:
-        if not hasattr(rpg.userdb, nick):
+    for nick in dynamic_class.userdb.list:
+        if not hasattr(dynamic_class.userdb, nick):
             nickdict = dict()
         else:
-            nickdict = eval('rpg.userdb.' + nick)
-        set_database_value(bot, nick, rpg.default, nickdict)
+            nickdict = eval('dynamic_class.userdb.' + nick)
+        set_database_value(bot, nick, dynamic_class.default, nickdict)
 
 
 # add or subtract from current value
-def adjust_user_dict_array(bot, rpg, nick, dictkey, entries, adjustmentdirection):
+def adjust_user_dict_array(bot, dynamic_class, nick, dictkey, entries, adjustmentdirection):
     if not isinstance(entries, list):
         entries = [entries]
-    oldvalue = get_user_dict(bot, rpg, nick, dictkey)
-    nickdict = eval('rpg.userdb.' + nick)
+    oldvalue = get_user_dict(bot, dynamic_class, nick, dictkey)
+    nickdict = eval('dynamic_class.userdb.' + nick)
     if not isinstance(oldvalue, list):
         oldvalue = []
     for x in entries:
@@ -822,6 +822,10 @@ def get_trigger_arg(bot, inputs, outputtask, output_type='default'):
 # Hub
 def spicemanip(bot, inputs, outputtask, output_type='default'):
 
+    # TODO 'this*that' or '1*that' replace either all strings matching, or an index value
+    # TODO reverse sort z.sort(reverse = True)
+    # list.extend adds lists to eachother
+
     mainoutputtask, suboutputtask = None, None
 
     # Input needs to be a list, but don't split a word into letters
@@ -855,6 +859,8 @@ def spicemanip(bot, inputs, outputtask, output_type='default'):
         mainoutputtask = str(outputtask).split("^", 1)[0]
         suboutputtask = str(outputtask).split("^", 1)[1]
         outputtask = 'rangebetween'
+        if int(suboutputtask) < int(mainoutputtask):
+            mainoutputtask, suboutputtask = suboutputtask, mainoutputtask
     elif str(outputtask).startswith("split_"):
         mainoutputtask = str(outputtask).replace("split_", "")
         outputtask = 'split'
@@ -922,6 +928,8 @@ def spicemanip_split(bot, inputs, outputtask, mainoutputtask, suboutputtask):
         split_array = restring.split(mainoutputtask)
     split_array = [x for x in split_array if x and x not in ['', ' ']]
     split_array = [inputspart.strip() for inputspart in split_array]
+    if split_array == []:
+        split_array = [[]]
     return split_array
 
 
@@ -1090,7 +1098,7 @@ def spicemanip_rangebetween(bot, inputs, outputtask, mainoutputtask, suboutputta
     if suboutputtask == mainoutputtask:
         return spicemanip_number(bot, inputs, outputtask, mainoutputtask, suboutputtask)
     if suboutputtask < mainoutputtask:
-        mainoutputtask, suboutputtask = suboutputtask, mainoutputtask
+        return []
     if mainoutputtask < 0:
         mainoutputtask = 1
     if suboutputtask > len(inputs):

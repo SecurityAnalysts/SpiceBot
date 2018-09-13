@@ -15,32 +15,84 @@ rpg_game_dict = {
                 # Individual small
                 "game_loaded": False,
 
+                # Current Channel Tier
+                "tier_current": 0,
+
                 # Users list
                 "users": {},
 
                 # channels list
                 "channels": {},
 
-                # channels list
-                "fartcenter": {},
+                # Commands list
+                "commands": {},
 
                 # Maps list
                 "maps": {
-                        "Bouldersummit": {},  # 1
-                        "Cliffstall": {},  # 2
-                        "Whitfield": {},  # 3
-                        "Deepharbor": {},  # 4
-                        "Mightvale": {},  # 5
-                        "Winterkeep": {},  # 6
-                        "Boneshade": {},  # 7
-                        "Faymeadow": {},  # 8
-                        "Bonehollow": {},  # 9
-                        "Honeygulf": {},  # 10
-                        "Rimeshell": {},  # 11
-                        "Wolfbarrow": {},  # 12
-                        "Rivershield": {},  # 13
-                        "Millsummit": {},  # 14
-                        "Dryharbor": {}  # 15
+
+                        "Bouldersummit": {  # 1
+                                            "map_size": 10,
+                                         },
+
+
+                        "Cliffstall": {  # 2
+                                            "map_size": 11,
+                                         },
+
+                        "Whitfield": {  # 3
+                                            "map_size": 20,
+                                         },
+
+                        "Deepharbor": {  # 4
+                                            "map_size": 30,
+                                         },
+
+                        "Mightvale": {  # 5
+                                            "map_size": 40,
+                                         },
+
+                        "Winterkeep": {  # 6
+                                            "map_size": 50,
+                                         },
+
+                        "Boneshade": {  # 7
+                                            "map_size": 60,
+                                         },
+
+                        "Faymeadow": {  # 8
+                                            "map_size": 70,
+                                         },
+
+                        "Bonehollow": {  # 9
+                                            "map_size": 80,
+                                         },
+
+                        "Honeygulf": {  # 10
+                                            "map_size": 90,
+                                         },
+
+                        "Rimeshell": {  # 11
+                                            "map_size": 110,
+                                         },
+
+                        "Wolfbarrow": {  # 12
+                                            "map_size": 120,
+                                         },
+
+                        "Rivershield": {  # 13
+                                            "map_size": 130,
+                                         },
+
+                        "Millsummit": {  # 14
+                                            "map_size": 140,
+                                         },
+
+                        "Dryharbor": {  # 15
+                                            "map_size": 150,
+                                         }
+                        "adminville": {  # 15
+                                            "map_size": 150,
+                                         }
                         }
 
                 # end of dict

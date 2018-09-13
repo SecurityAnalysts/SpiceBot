@@ -39,13 +39,8 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     triggerargsarray = spicemanip(bot, trigger.group(2), 'create')
     bot.say(str(triggerargsarray))
 
-    commands_array = spicemanip(bot, triggerargsarray, "split_&&")
+    commands_array = spicemanip(bot, triggerargsarray, "2+")
     bot.say(str(commands_array))
-
-    for command_split_partial in commands_array:
-        bot.say(str(command_split_partial))
-        triggerargsarray_part = spicemanip(bot, command_split_partial, 'create')
-        bot.say(str(triggerargsarray_part))
 
     return
 
@@ -120,6 +115,8 @@ def spicemanip(bot, inputs, outputtask, output_type='default'):
         mainoutputtask = str(outputtask).split("^", 1)[0]
         suboutputtask = str(outputtask).split("^", 1)[1]
         outputtask = 'rangebetween'
+        if int(suboutputtask) < int(mainoutputtask):
+            mainoutputtask, suboutputtask = suboutputtask, mainoutputtask
     elif str(outputtask).startswith("split_"):
         mainoutputtask = str(outputtask).replace("split_", "")
         outputtask = 'split'
@@ -357,7 +354,7 @@ def spicemanip_rangebetween(bot, inputs, outputtask, mainoutputtask, suboutputta
     if suboutputtask == mainoutputtask:
         return spicemanip_number(bot, inputs, outputtask, mainoutputtask, suboutputtask)
     if suboutputtask < mainoutputtask:
-        mainoutputtask, suboutputtask = suboutputtask, mainoutputtask
+        return []
     if mainoutputtask < 0:
         mainoutputtask = 1
     if suboutputtask > len(inputs):

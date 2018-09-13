@@ -11,6 +11,7 @@ from BotShared import *
 
 # author = dysonparkes
 defaultoptions = ["User complained monitor was hurting their eyes. Cut out users eyes.", "User complained mouse was too small for their hand. Cut off half users hand to fit mouse."]
+databasekey = 'fixes'
 
 
 @sopel.module.commands('fix', 'user')
@@ -29,7 +30,6 @@ def mainfunction(bot, trigger):
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     """Retrieve a saying from the database."""
-    databasekey = 'fixes'
     command = spicemanip(bot, triggerargsarray, 1) or 'get'
     if not sayingscheck(bot, databasekey) and command != "add":
         sayingsmodule(bot, databasekey, defaultoptions, 'initialise')

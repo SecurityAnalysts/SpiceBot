@@ -6,7 +6,7 @@ import sys
 import os
 from random import randint
 moduledir = os.path.dirname(__file__)
-shareddir = os.path.dirname(os.path.dirname(__file__))
+shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
@@ -36,7 +36,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     if not sayingscheck(bot, databasekey) and command != "add":
         sayingsmodule(bot, databasekey, defaultoptions, 'initialise')
     message = sayingsmodule(bot, databasekey, triggerargsarray, command)
-    osd(bot, trigger.sender, 'say', ["message"])
+    osd(bot, trigger.sender, 'say', [message])
 
 
 @sopel.module.interval(60)

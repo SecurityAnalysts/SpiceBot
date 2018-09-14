@@ -272,12 +272,10 @@ def getGif_all(bot, query, searchnum, searchlimit=giphylimit):
 
     gifapiresults = []
     for currentapi in valid_gif_api:
-        gifdict = eval("getGif_" + currentapi + "(bot, query, 'random', searchlimit)")
-        if gifdict["querysuccess"]:
-            gifdictall = gifdict["allgifs"]
+        currentgifdict = eval("getGif_" + currentapi + "(bot, query, 'random', searchlimit)")
+        if currentgifdict["querysuccess"]:
+            gifdictall = currentgifdict["allgifs"]
             gifapiresults.extend(gifdictall)
-    random.shuffle(gifapiresults)
-    random.shuffle(gifapiresults)
 
     if gifapiresults == []:
         gifdict = {
@@ -289,11 +287,10 @@ def getGif_all(bot, query, searchnum, searchlimit=giphylimit):
                         "error": None,
                         "gifapi": None
                         }
-        gifapiresults.append(gifdict)
-
-    gifdict = spicemanip(bot, gifapiresults, 'random')
-    if not gifdict["querysuccess"]:
         gifdict["error"] = 'No Results were found for ' + query + ' in any api'
         return gifdict
 
+    random.shuffle(gifapiresults)
+    random.shuffle(gifapiresults)
+    gifdict = spicemanip(bot, gifapiresults, 'random')
     return gifdict

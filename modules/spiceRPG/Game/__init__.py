@@ -33,25 +33,6 @@ from .Global_Vars import *
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-"""
-MAJOR IDEA
-
-set basic dict values for users and maps globally
-
-if empty, read from database
-
-save dict to db after every run
-
-this will essentially keep all users in memory until the bot reboots, while still saving the database
-
-first rpg usage after bot restart will require a single db read
-
-1 db read per bot startup, 1 db write every usage to prevent data loss
-
-all data can be stored under a single usernick
-
-"""
-
 
 """
 Triggers for usage
@@ -92,7 +73,6 @@ def execute_start(bot, trigger, triggerargsarray, command_type):
     rpg.instigator = trigger.nick
 
     rpg.tier_current = rpg.gamedict['tier_current']
-    bot.say(str(rpg.tier_current))
 
     # Channel Listing
     rpg = rpg_command_channels(bot, rpg, trigger)
@@ -263,8 +243,8 @@ def command_process(bot, trigger, rpg, instigator):
         return rpg
 
     # Verify Game enabled in current channel
-    if rpg.channel_current not in rpg.channels_game_enabled and rpg.channel_real and rpg.command_main.lower() not in rpg_commands_valid_administrator:
-        if rpg.channels_game_enabled == []:
+    if rpg.channel_current not in rpg.gamedict['channels']['game_enabled'] and rpg.channel_real and rpg.command_main.lower() not in rpg_commands_valid_administrator:
+        if rpg.gamedict['channels']['game_enabled'] == []:
             errors(bot, rpg, 'commands', 1, 1)
             if rpg.instigator not in rpg.botadmins:
                 return rpg
@@ -713,7 +693,7 @@ def rpg_command_main_administrator(bot, rpg, instigator):
             return
 
         # Evaluate change
-        current_channel_facet = eval("rpg.channels_" + activation_type_db)
+        current_channel_facet = rpg.gamedict['channels'][activation_type_db]
         if activation_type == 'devmode':
             if activation_direction in activate_list:
                 current_channel_facet_error = 5
@@ -730,13 +710,13 @@ def rpg_command_main_administrator(bot, rpg, instigator):
             if channeltarget.lower() in [x.lower() for x in current_channel_facet]:
                 errors(bot, rpg, rpg.command_main, current_channel_facet_error, 1)
                 return
-            adjust_user_dict_array(bot, rpg, 'rpg_game_records', activation_type_db, [channeltarget], 'add')
+            rpg.gamedict['channels'][activation_type_db].append(channeltarget)
             osd(bot, channeltarget, 'say', "RPG " + activation_type + " has been enabled in " + channeltarget + "!")
         elif activation_direction in deactivate_list:
             if channeltarget.lower() not in [x.lower() for x in current_channel_facet]:
                 errors(bot, rpg, rpg.command_main, current_channel_facet_error, 1)
                 return
-            adjust_user_dict_array(bot, rpg, 'rpg_game_records', activation_type_db, [channeltarget], 'del')
+            rpg.gamedict['channels'][activation_type_db].remove(channeltarget)
             osd(bot, channeltarget, 'say', "RPG " + activation_type + " has been disabled in " + channeltarget + "!")
 
         if activation_type == 'game':
@@ -895,24 +875,26 @@ def rpg_command_main_usage(bot, rpg, instigator):  # TODO
 
 
 """
-Bot Start
+Bot Startup Monologue
 """
 
 
 @sopel.module.interval(1)  # TODO make this progress with the game
 def rpg_bot_start_script(bot):
+
+    # Create rp class
     rpg = class_create('rpg')
-    rpg.default = 'rpg'
-    channels_game_enabled = get_user_dict(bot, rpg, 'rpg_game_records', 'game_enabled') or []
-    for channel in bot.channels:
-        if channel in channels_game_enabled:
-            startupmonologue = str("startup_monologue_" + channel)
-            if startupmonologue not in bot.memory:
-                bot.memory[startupmonologue] = 1
-                startup_monologue = []
-                startup_monologue.append("The Spice Realms are vast; full of wonder, loot, monsters, and peril!")
-                startup_monologue.append("Will you, Brave Adventurers, be triumphant over the challenges that await?")
-                osd(bot, channel, 'notice', startup_monologue)
+
+    # Load Game Players and map
+    open_gamedict(bot, rpg)
+
+    for channel in rpg.gamedict['channels']['game_enabled']:
+        if channel not in rpg.gamedict["tempvals"]['startupmonologue']:
+            rpg.gamedict["tempvals"]['startupmonologue'].append(channel)
+            startup_monologue = []
+            startup_monologue.append("The Spice Realms are vast; full of wonder, loot, monsters, and peril!")
+            startup_monologue.append("Will you, Brave Adventurers, be triumphant over the challenges that await?")
+            osd(bot, channel, 'notice', startup_monologue)
 
 
 """
@@ -1030,7 +1012,7 @@ def rpg_errors_end(bot, rpg):
                     validcomslist = spicemanip(bot, rpg.valid_commands_all, 'list')
                     errormessage = str(errormessage.replace("$valid_coms", validcomslist))
                 if "$game_chans" in errormessage:
-                    gamechanlist = spicemanip(bot, rpg.channels_game_enabled, 'list')
+                    gamechanlist = spicemanip(bot, rpg.gamedict['channels']['game_enabled'], 'list')
                     errormessage = str(errormessage.replace("$game_chans", gamechanlist))
                 if "$valid_channels" in errormessage:
                     validchanlist = spicemanip(bot, rpg.channels_list, 'list')
@@ -1049,7 +1031,7 @@ def rpg_errors_end(bot, rpg):
                     devchans = spicemanip(bot, rpg.channels_devmode_enabled, 'list')
                     errormessage = str(errormessage.replace("$dev_chans", devchans))
                 if "$game_chans" in errormessage:
-                    gamechans = spicemanip(bot, rpg.channels_game_enabled, 'list')
+                    gamechans = spicemanip(bot, rpg.gamedict['channels']['game_enabled'], 'list')
                     errormessage = str(errormessage.replace("$game_chans", gamechans))
                 if "$current_chan" in errormessage:
                     if rpg.channel_real:
@@ -1139,10 +1121,10 @@ def rpg_command_channels(bot, rpg, trigger):
         rpg.channels_list.append(channel)
 
     # Game Enabled
-    rpg.channels_game_enabled = get_user_dict(bot, rpg, 'rpg_game_records', 'game_enabled') or []
+    rpg.channels_game_enabled = rpg.gamedict['channels']['game_enabled'] or []
 
     # Development mode
-    rpg.channels_devmode_enabled = get_user_dict(bot, rpg, 'rpg_game_records', 'dev_enabled') or []
+    rpg.channels_devmode_enabled = rpg.gamedict['channels']['devmode_enabled'] or []
     rpg.dev_bypass = 0
     if rpg.channel_current.lower() in [x.lower() for x in rpg.channels_devmode_enabled]:
         rpg.dev_bypass = 1
@@ -1883,7 +1865,7 @@ def open_gamedict(bot, rpg):
     if not rpg.gamedict["game_loaded"]:
         opendict = rpg_game_dict.copy()
         dbgamedict = get_database_value(bot, 'rpg_game_records', 'rpg_game_dict') or dict()
-        opendict = merge_gamedict(dbgamedict, opendict)
+        opendict = merge_gamedict(opendict, dbgamedict)
         rpg.gamedict.update(opendict)
         rpg.gamedict['game_loaded'] = True
 
@@ -1894,7 +1876,7 @@ def save_gamedict(bot, rpg):
     savedict = rpg.gamedict.copy()
 
     # Values to not save to database
-    savedict_del = []
+    savedict_del = ['tempvals']
     for dontsave in savedict_del:
         if dontsave in savedict.keys():
             del savedict[dontsave]
@@ -1915,7 +1897,6 @@ def merge_gamedict(a, b, path=None):
                 pass  # same leaf value
             else:
                 a[key] = b[key]
-                # raise Exception('Conflict at %s' % '.'.join(path + [str(key)]))
         else:
             a[key] = b[key]
     return a

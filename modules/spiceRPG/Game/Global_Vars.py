@@ -12,8 +12,13 @@ Open Dictionary of Users and Locations
 
 rpg_game_dict = {
 
-                # Individual small
+                # Indicate if we need to pull the dict from the database
                 "game_loaded": False,
+
+                "tempvals":{
+                            # startupmonologue
+                            "startupmonologue": []
+                            },
 
                 # Current Channel Tier
                 "tier_current": 0,
@@ -22,7 +27,11 @@ rpg_game_dict = {
                 "users": {},
 
                 # channels list
-                "channels": {},
+                "channels": {
+                                "game_enabled": [],
+                                "devmode_enabled": []
+
+                                },
 
                 # Commands list
                 "commands": {},

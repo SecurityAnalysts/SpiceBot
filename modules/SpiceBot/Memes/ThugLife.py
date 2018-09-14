@@ -28,7 +28,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     """Handle the main task itself."""
     target = spicemanip(bot, triggerargsarray, 1)
     isvalid, validmsg = targetcheck(bot, botcom, target, instigator)
-    message = "%s didn't choose the thug life, the thug life chose %s." % (instigator.default, instigator.default)
+    message = "%s didn't choose the thug life, the thug life chose %s." % (botcom.instigator, botcom.instigator)
     if not isvalid == 0:
-        message = "%s didn't choose the %s life, the %s life chose %s." % (instigator.default, target, target, instigator.default)
+        message = "%s didn't choose the %s life, the %s life chose %s." % (botcom.instigator, target, target, botcom.instigator)
     osd(bot, trigger.sender, 'say', message)

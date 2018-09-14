@@ -15,6 +15,9 @@ shareddir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(shareddir)
 from BotShared import *
 
+# author deathbybandaid
+
+
 # creds
 config = ConfigParser.ConfigParser()
 config.read("/home/spicebot/spicebot.conf")
@@ -247,6 +250,26 @@ All
 
 
 def getGif_all(bot, query, searchnum, searchlimit=giphylimit):
+
+    gifdict = {
+                    "query": query,
+                    "searchquery": query,
+                    "querysuccess": False,
+                    "returnnum": searchnum,
+                    "returnurl": None,
+                    "error": None,
+                    "gifapi": None,
+                    "allgifs": []
+                    }
+
+    # Make sure there is a valid input of query and search number
+    if not query:
+        gifdict["error"] = 'No Query to Search'
+        return gifdict
+    if not str(searchnum).isdigit() and searchnum != 'random':
+        gifdict["error"] = 'No Search Number or Random Specified'
+        return gifdict
+
     gifapiresults = []
     for currentapi in valid_gif_api:
         gifdict = eval("getGif_" + currentapi + "(bot, query, 'random', searchlimit)")
@@ -269,4 +292,8 @@ def getGif_all(bot, query, searchnum, searchlimit=giphylimit):
         gifapiresults.append(gifdict)
 
     gifdict = spicemanip(bot, gifapiresults, 'random')
+    if not gifdict["querysuccess"]:
+        gifdict["error"] = 'No Results were found for ' + query + ' in any api'
+        return gifdict
+
     return gifdict

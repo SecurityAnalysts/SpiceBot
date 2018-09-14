@@ -16,6 +16,8 @@ sys.path.append(gifshareddir)
 from BotShared import *
 from GifShared import *
 
+# author deathbybandaid
+
 
 @sopel.module.commands('gfycat')
 def mainfunction(bot, trigger):

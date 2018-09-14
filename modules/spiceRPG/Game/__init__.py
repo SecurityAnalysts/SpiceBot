@@ -88,8 +88,7 @@ def execute_start(bot, trigger, triggerargsarray, command_type):
     rpg.start = time.time()
 
     # instigator
-    instigator = class_create('instigator')
-    instigator.default = trigger.nick
+    instigator = class_create('instigator')  # TODO rm
     rpg.instigator = trigger.nick
 
     rpg.tier_current = rpg.gamedict['tier_current']
@@ -307,7 +306,7 @@ def command_run(bot, rpg, instigator):
     rpg.triggerargsarray.remove(rpg.command_main)
 
     # Check Initial Stamina
-    instigator.stamina = get_user_dict(bot, rpg, instigator.default, 'stamina') or 10
+    instigator.stamina = get_user_dict(bot, rpg, rpg.instigator, 'stamina') or 10
     rpg.staminarequired, rpg.staminacharge = 0, 0
     """ TODO track rpg.staminarequired  adding/subtracting in comparison to completion of any action, and error if not enough"""
 
@@ -320,7 +319,7 @@ def command_run(bot, rpg, instigator):
 
     # Deduct stamina from instigator
     # if rpg.staminarequired:
-    #    adjust_user_dict(bot, rpg, instigator.default, 'stamina', -abs(rpg.staminarequired))
+    #    adjust_user_dict(bot, rpg, rpg.instigator, 'stamina', -abs(rpg.staminarequired))
 
     # usage counter - instigator
     adjust_user_dict(bot, rpg, rpg.instigator, 'usage_' + rpg.command_main.lower(), 1)

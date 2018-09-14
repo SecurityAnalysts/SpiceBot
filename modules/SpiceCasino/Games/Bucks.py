@@ -159,7 +159,7 @@ def buckscheck(bot, botcom, target):
     validtargetmsg = []
     # target = target.lower()
     """ Target is instigator
-    if target == ''botcom.instigator.default'':
+    if target == ''botcom.botcom.instigator'':
         validtarget = 2
         validtargetmsg.append("Target is instigator")
         return validtarget, validtargetmsg

@@ -30,5 +30,5 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     if isvalid == 1:
         action = "applies the Cork of Sean to " + target
     else:
-        action = "applies the Cork of Sean to " + instigator.default
+        action = "applies the Cork of Sean to " + botcom.instigator
     osd(bot, botcom.channel_current, 'action', action)

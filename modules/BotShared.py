@@ -33,19 +33,18 @@ botdevteam = ['deathbybandaid', 'DoubleD', 'Mace_Whatdo', 'dysonparkes', 'PM', '
 # This runs for every custom module and decides if the module runs or not
 def spicebot_prerun(bot, trigger, commandused):
 
+    # Dyno Classes
+    botcom = class_create('bot')
+
     # Enable Status default is 1 = don't run
-    enablestatus = 1
+    botcom.enablestatus = 1
 
     # Custom args
     try:
-        triggerargsarray = spicemanip(bot, trigger.group(2), 'create')
+        botcom.triggerargsarray = spicemanip(bot, trigger.group(2), 'create')
     except IndexError:
-        triggerargsarray = spicemanip(bot, trigger.group(1), 'create')
+        botcom.triggerargsarray = spicemanip(bot, trigger.group(1), 'create')
 
-    # Dyno Classes
-    botcom = class_create('bot')
-    instigator = class_create('instigator')
-    instigator.default = trigger.nick
     botcom.instigator = trigger.nick
 
     # time
@@ -59,15 +58,15 @@ def spicebot_prerun(bot, trigger, commandused):
 
     # User was Blocked by a bot.admin or an OP
     blockedusersarray = get_database_value(bot, botcom.channel_current, 'users_blocked') or []
-    if instigator.default in blockedusersarray:
-        osd(bot, instigator.default, 'notice', "It looks like you have been blocked from using commands in " + botcom.channel_current+".")
-        return enablestatus, triggerargsarray, botcom, instigator
+    if botcom.instigator in blockedusersarray:
+        osd(bot, botcom.instigator, 'notice', "It looks like you have been blocked from using commands in " + botcom.channel_current+".")
+        return botcom.enablestatus, botcom.triggerargsarray, botcom, botcom.instigator
 
     # devmode bypass
     devenabledchannels = get_database_value(bot, bot.nick, 'channels_dev') or []
     if botcom.channel_current in devenabledchannels:
-        enablestatus = 0
-        return enablestatus, triggerargsarray, botcom, instigator
+        botcom.enablestatus = 0
+        return botcom.enablestatus, botcom.triggerargsarray, botcom, botcom.instigator
 
     # Channel activated status
     if botcom.channel_current.startswith("#"):
@@ -76,22 +75,22 @@ def spicebot_prerun(bot, trigger, commandused):
             if botcom.instigator in botcom.opadmin:
                 adjust_database_array(bot, botcom.channel_current, commandused, 'modules_enabled', 'add')
             else:
-                osd(bot, instigator.default, 'notice', "it looks like the " + str(commandused) + " command has not been enabled in " + botcom.channel_current+".")
-                return enablestatus, triggerargsarray, botcom, instigator
+                osd(bot, botcom.instigator, 'notice', "it looks like the " + str(commandused) + " command has not been enabled in " + botcom.channel_current+".")
+                return botcom.enablestatus, botcom.triggerargsarray, botcom, botcom.instigator
 
     # Bot Enabled Status (botcom.now in an array)
     botusersarray = get_database_value(bot, bot.nick, 'botusers') or []
 
-    if instigator.default not in botcom.users_all:
-        osd(bot, instigator.default, 'notice', "you have to run `" + bot.nick + " on` to allow her to listen to you. For help, see the wiki at https://github.com/SpiceBot/sopel-modules/wiki/Using-the-Bot.")
-        return enablestatus, triggerargsarray, botcom, instigator
+    if botcom.instigator not in botcom.users_all:
+        osd(bot, botcom.instigator, 'notice', "you have to run `" + bot.nick + " on` to allow her to listen to you. For help, see the wiki at https://github.com/SpiceBot/sopel-modules/wiki/Using-the-Bot.")
+        return botcom.enablestatus, botcom.triggerargsarray, botcom, botcom.instigator
 
-    enablestatus = 0
+    botcom.enablestatus = 0
     increment_counter(bot, trigger, commandused)
 
     # Send Status Forward
 
-    return enablestatus, triggerargsarray, botcom, instigator
+    return botcom.enablestatus, botcom.triggerargsarray, botcom, botcom.instigator
 
 
 """
@@ -246,7 +245,7 @@ def targetcheck(bot, botcom, target, instigator):
     target = target.lower()
 
     # Target is instigator
-    if target == instigator.default:
+    if target == botcom.instigator:
         validtarget = 2
         validtargetmsg.append("Target is instigator")
         return validtarget, validtargetmsg

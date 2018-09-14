@@ -89,8 +89,9 @@ rpg_game_dict = {
 
                         "Dryharbor": {  # 15
                                             "map_size": 150,
-                                         }
-                        "adminville": {  # 15
+                                         },
+
+                        "adminville": {  # admin
                                             "map_size": 150,
                                          }
                         }

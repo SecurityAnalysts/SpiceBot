@@ -26,5 +26,5 @@ def mainfunction(bot, trigger):
 
 
 def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
-    target = spicemanip(bot, triggerargsarray, 0) or instigator.default
+    target = spicemanip(bot, triggerargsarray, 0) or botcom.instigator
     osd(bot, trigger.sender, 'action', "tucks " + target + " into bed")

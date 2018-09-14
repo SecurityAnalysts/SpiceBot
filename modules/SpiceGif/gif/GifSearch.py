@@ -16,6 +16,8 @@ sys.path.append(gifshareddir)
 from BotShared import *
 from GifShared import *
 
+# author deathbybandaid
+
 
 @sopel.module.commands('gif')
 def mainfunction(bot, trigger):
@@ -35,7 +37,7 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
     gifdict = getGif_all(bot, query, 'random')
 
     if not gifdict["querysuccess"]:
-        osd(bot, trigger.sender, 'say',  'No Results were found for ' + query + ' in any api')
+        osd(bot, trigger.sender, 'say',  str(gifdict["error"]))
         return
 
     osd(bot, trigger.sender, 'say',  gifdict['gifapi'].title() + " Result (" + str(query) + " #" + str(gifdict["returnnum"]) + "): " + str(gifdict["returnurl"]))

@@ -45,7 +45,7 @@ def bot_command_process(bot, trigger, triggerargsarray):
     # Dyno Classes
     botcom = class_create('bot')
     instigator = class_create('instigator')
-    instigator.default = trigger.nick
+    botcom.instigator = trigger.nick
 
     # time
     botcom.now = time.time()
@@ -82,8 +82,8 @@ def bot_command_function_gitpull(bot, trigger, botcom, instigator):
 
 def bot_command_function_dir(bot, trigger, botcom, instigator):
 
-    if instigator.default not in botcom.opadmin:
-        osd(bot, instigator.default, 'notice', "You are unauthorized to use this function.")
+    if botcom.instigator not in botcom.opadmin:
+        osd(bot, botcom.instigator, 'notice', "You are unauthorized to use this function.")
         return
 
     botcom.directory = get_database_value(bot, bot.nick, 'current_admin_dir') or os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
@@ -100,8 +100,8 @@ def bot_command_function_dir(bot, trigger, botcom, instigator):
 
 def bot_command_function_cd(bot, trigger, botcom, instigator):
 
-    if instigator.default not in botcom.opadmin:
-        osd(bot, instigator.default, 'notice', "You are unauthorized to use this function.")
+    if botcom.instigator not in botcom.opadmin:
+        osd(bot, botcom.instigator, 'notice', "You are unauthorized to use this function.")
         return
 
     validfolderoptions = ['..', 'reset']
@@ -137,17 +137,17 @@ def bot_command_function_docs(bot, trigger, botcom, instigator):
 
 
 def bot_command_function_canyouseeme(bot, trigger, botcom, instigator):
-    osd(bot, botcom.channel_current, 'say', instigator.default + ", I can see you.")
+    osd(bot, botcom.channel_current, 'say', botcom.instigator + ", I can see you.")
 
 
 def bot_command_function_owner(bot, trigger, botcom, instigator):
     ownerlist = spicemanip(bot, botcom.owner, 'list')
-    osd(bot, instigator.default, 'notice', "Bot Owners are: " + ownerlist)
+    osd(bot, botcom.instigator, 'notice', "Bot Owners are: " + ownerlist)
 
 
 def bot_command_function_admin(bot, trigger, botcom, instigator):
     adminlist = spicemanip(bot, botcom.botadmins, 'list')
-    osd(bot, instigator.default, 'notice', "Bot Admin are: " + adminlist)
+    osd(bot, botcom.instigator, 'notice', "Bot Admin are: " + adminlist)
 
 
 def bot_command_function_gender(bot, trigger, botcom, instigator):
@@ -172,43 +172,43 @@ def bot_command_function_channel(bot, trigger, botcom, instigator):
     # OP list
     if subcommand.lower() == 'op':
         oplist = spicemanip(bot, botcom.chanops, 'list')
-        osd(bot, instigator.default, 'notice', "Channel Operators are: " + oplist)
+        osd(bot, botcom.instigator, 'notice', "Channel Operators are: " + oplist)
         return
 
     # Voice List
     if subcommand.lower() == 'voice':
         voicelist = spicemanip(bot, botcom.chanvoice, 'list')
-        osd(bot, instigator.default, 'notice', "Channel VOICE are: " + voicelist)
+        osd(bot, botcom.instigator, 'notice', "Channel VOICE are: " + voicelist)
         return
 
 
 def bot_command_function_on(bot, trigger, botcom, instigator):
 
-    target = spicemanip(bot, [x for x in botcom.triggerargsarray if x in botcom.users_all], 1) or instigator.default
-    if target != instigator.default and instigator.default not in botcom.opadmin:
-        osd(bot, instigator.default, 'notice', "You are unauthorized to use this function on other users.")
+    target = spicemanip(bot, [x for x in botcom.triggerargsarray if x in botcom.users_all], 1) or botcom.instigator
+    if target != botcom.instigator and botcom.instigator not in botcom.opadmin:
+        osd(bot, botcom.instigator, 'notice', "You are unauthorized to use this function on other users.")
         return
     bot_opted_users = get_database_value(bot, bot.nick, 'users_blocked') or []
     if target not in bot_opted_users:
-        if target == instigator.default:
-            osd(bot, instigator.default, 'notice', "It looks like you already have " + bot.nick + " " + botcom.command_main+".")
+        if target == botcom.instigator:
+            osd(bot, botcom.instigator, 'notice', "It looks like you already have " + bot.nick + " " + botcom.command_main+".")
         else:
-            osd(bot, instigator.default, 'notice', "It looks like " + target + " already has " + bot.nick + " " + botcom.command_main+".")
+            osd(bot, botcom.instigator, 'notice', "It looks like " + target + " already has " + bot.nick + " " + botcom.command_main+".")
         return
     adjust_database_array(bot, bot.nick, target, 'users_opted', 'add')
 
 
 def bot_command_function_off(bot, trigger, botcom, instigator):
-    target = spicemanip(bot, [x for x in botcom.triggerargsarray if x in botcom.users_all], 1) or instigator.default
-    if target != instigator.default and instigator.default not in botcom.opadmin:
-        osd(bot, instigator.default, 'notice', "You are unauthorized to use this function on other users.")
+    target = spicemanip(bot, [x for x in botcom.triggerargsarray if x in botcom.users_all], 1) or botcom.instigator
+    if target != botcom.instigator and botcom.instigator not in botcom.opadmin:
+        osd(bot, botcom.instigator, 'notice', "You are unauthorized to use this function on other users.")
         return
     bot_opted_users = get_database_value(bot, channeltarget, 'users_blocked') or []
     if target in bot_blocked_users:
-        if target == instigator.default:
-            osd(bot, instigator.default, 'notice', "It looks like you already have " + bot.nick + " " + botcom.command_main+".")
+        if target == botcom.instigator:
+            osd(bot, botcom.instigator, 'notice', "It looks like you already have " + bot.nick + " " + botcom.command_main+".")
         else:
-            osd(bot, instigator.default, 'notice', "It looks like " + target + " already has " + bot.nick + " " + botcom.command_main+".")
+            osd(bot, botcom.instigator, 'notice', "It looks like " + target + " already has " + bot.nick + " " + botcom.command_main+".")
         return
     adjust_database_array(bot, bot.nick, target, 'users_opted', 'del')
 
@@ -221,7 +221,7 @@ def bot_command_function_modules(bot, trigger, botcom, instigator):
         if botcom.channel_current.startswith('#'):
             channeltarget = botcom.channel_current
         else:
-            osd(bot, instigator.default, 'notice', "You must specify a valid channel.")
+            osd(bot, botcom.instigator, 'notice', "You must specify a valid channel.")
             return
 
     # SubCommand used
@@ -249,26 +249,26 @@ def bot_command_function_modules(bot, trigger, botcom, instigator):
                 botmessagearray.append(command+"[E]")
             else:
                 botmessagearray.append(command+"[A]")
-        osd(bot, instigator.default, 'notice', botmessagearray)
+        osd(bot, botcom.instigator, 'notice', botmessagearray)
 
     # Enable/Disable
     if subcommand == 'enable' or subcommand == 'disable':
 
-        if instigator.default not in botcom.opadmin:
-            osd(bot, instigator.default, 'notice', "You are unauthorized to use this function.")
+        if botcom.instigator not in botcom.opadmin:
+            osd(bot, botcom.instigator, 'notice', "You are unauthorized to use this function.")
             return
 
         module_adjust = spicemanip(bot, [x for x in botcom.triggerargsarray if x in bot_visible_coms or x == 'all'], 1) or 'no_module'
         if module_adjust == 'no_module':
-            osd(bot, instigator.default, 'notice', "What module do you want to "+str(subcommand)+" for " + channeltarget + "?")
+            osd(bot, botcom.instigator, 'notice', "What module do you want to "+str(subcommand)+" for " + channeltarget + "?")
             return
 
         if module_adjust in bot_enabled_coms and subcommand == 'enable' and module_adjust != 'all':
-            osd(bot, instigator.default, 'notice', "It looks like "+str(module_adjust)+" is already "+subcommand.lower()+"d for " + channeltarget + "?")
+            osd(bot, botcom.instigator, 'notice', "It looks like "+str(module_adjust)+" is already "+subcommand.lower()+"d for " + channeltarget + "?")
             return
 
         if module_adjust not in bot_enabled_coms and subcommand == 'disable' and module_adjust != 'all':
-            osd(bot, instigator.default, 'notice', "It looks like "+str(module_adjust)+" is already "+subcommand.lower()+"d for " + channeltarget + "?")
+            osd(bot, botcom.instigator, 'notice', "It looks like "+str(module_adjust)+" is already "+subcommand.lower()+"d for " + channeltarget + "?")
             return
 
         if module_adjust == 'all':
@@ -285,8 +285,8 @@ def bot_command_function_modules(bot, trigger, botcom, instigator):
 
 def bot_command_function_msg(bot, trigger, botcom, instigator):
 
-    if instigator.default not in botcom.opadmin:
-        osd(bot, instigator.default, 'notice', "You are unauthorized to use this function.")
+    if botcom.instigator not in botcom.opadmin:
+        osd(bot, botcom.instigator, 'notice', "You are unauthorized to use this function.")
         return
 
     # Channel
@@ -295,22 +295,22 @@ def bot_command_function_msg(bot, trigger, botcom, instigator):
         if botcom.channel_current.startswith('#'):
             channeltarget = botcom.channel_current
         else:
-            osd(bot, instigator.default, 'notice', "You must specify a valid channel.")
+            osd(bot, botcom.instigator, 'notice', "You must specify a valid channel.")
             return
     if channeltarget in botcom.triggerargsarray:
         botcom.triggerargsarray.remove(channeltarget)
 
     botmessage = spicemanip(bot, botcom.triggerargsarray, 0)
     if not botmessage:
-        osd(bot, instigator.default, 'notice', "You must specify a message.")
+        osd(bot, botcom.instigator, 'notice', "You must specify a message.")
         return
     osd(bot, channeltarget, 'say', botmessage)
 
 
 def bot_command_function_action(bot, trigger, botcom, instigator):
 
-    if instigator.default not in botcom.opadmin:
-        osd(bot, instigator.default, 'notice', "You are unauthorized to use this function.")
+    if botcom.instigator not in botcom.opadmin:
+        osd(bot, botcom.instigator, 'notice', "You are unauthorized to use this function.")
         return
 
     # Channel
@@ -319,22 +319,22 @@ def bot_command_function_action(bot, trigger, botcom, instigator):
         if botcom.channel_current.startswith('#'):
             channeltarget = botcom.channel_current
         else:
-            osd(bot, instigator.default, 'notice', "You must specify a valid channel.")
+            osd(bot, botcom.instigator, 'notice', "You must specify a valid channel.")
             return
     if channeltarget in botcom.triggerargsarray:
         botcom.triggerargsarray.remove(channeltarget)
 
     botmessage = spicemanip(bot, botcom.triggerargsarray, 0)
     if not botmessage:
-        osd(bot, instigator.default, 'notice', "You must specify a message.")
+        osd(bot, botcom.instigator, 'notice', "You must specify a message.")
         return
     osd(bot, channeltarget, 'action', botmessage)
 
 
 def bot_command_function_block(bot, trigger, botcom, instigator):
 
-    if instigator.default not in botcom.opadmin:
-        osd(bot, instigator.default, 'notice', "You are unauthorized to use this function.")
+    if botcom.instigator not in botcom.opadmin:
+        osd(bot, botcom.instigator, 'notice', "You are unauthorized to use this function.")
         return
 
     # Channel
@@ -343,7 +343,7 @@ def bot_command_function_block(bot, trigger, botcom, instigator):
         if botcom.channel_current.startswith('#'):
             channeltarget = botcom.channel_current
         else:
-            osd(bot, instigator.default, 'notice', "You must specify a valid channel.")
+            osd(bot, botcom.instigator, 'notice', "You must specify a valid channel.")
             return
     if channeltarget in botcom.triggerargsarray:
         botcom.triggerargsarray.remove(channeltarget)
@@ -382,7 +382,7 @@ def bot_command_function_block(bot, trigger, botcom, instigator):
                         blocknewlist.append(word)
 
         if blocknewlist == []:
-            osd(bot, instigator.default, 'notice', "No Valid Users found to block.")
+            osd(bot, botcom.instigator, 'notice', "No Valid Users found to block.")
             return
 
         blocknewlisttext = spicemanip(bot, blocknewlist, 'list')
@@ -409,8 +409,8 @@ def bot_command_function_github(bot, trigger, botcom, instigator):
 
     if main_subcommand == 'block':
 
-        if instigator.default not in botcom.opadmin:
-            osd(bot, instigator.default, 'notice', "You are unauthorized to use this function.")
+        if botcom.instigator not in botcom.opadmin:
+            osd(bot, botcom.instigator, 'notice', "You are unauthorized to use this function.")
             return
 
         # Channel
@@ -419,7 +419,7 @@ def bot_command_function_github(bot, trigger, botcom, instigator):
             if botcom.channel_current.startswith('#'):
                 channeltarget = botcom.channel_current
             else:
-                osd(bot, instigator.default, 'notice', "You must specify a valid channel.")
+                osd(bot, botcom.instigator, 'notice', "You must specify a valid channel.")
                 return
         if channeltarget in botcom.triggerargsarray:
             botcom.triggerargsarray.remove(channeltarget)
@@ -458,7 +458,7 @@ def bot_command_function_github(bot, trigger, botcom, instigator):
                             blocknewlist.append(word)
 
             if blocknewlist == []:
-                osd(bot, instigator.default, 'notice', "No Valid Users found to block from github.")
+                osd(bot, botcom.instigator, 'notice', "No Valid Users found to block from github.")
                 return
 
             blocknewlisttext = spicemanip(bot, blocknewlist, 'list')
@@ -475,8 +475,8 @@ def bot_command_function_github(bot, trigger, botcom, instigator):
 
 def bot_command_function_devmode(bot, trigger, botcom, instigator):
 
-    if instigator.default not in botcom.botadmins:
-        osd(bot, instigator.default, 'notice', "You are unauthorized to use this function.")
+    if botcom.instigator not in botcom.botadmins:
+        osd(bot, botcom.instigator, 'notice', "You are unauthorized to use this function.")
         return
 
     # Channel
@@ -485,7 +485,7 @@ def bot_command_function_devmode(bot, trigger, botcom, instigator):
         if botcom.channel_current.startswith('#'):
             channeltarget = botcom.channel_current
         else:
-            osd(bot, instigator.default, 'notice', "You must specify a valid channel.")
+            osd(bot, botcom.instigator, 'notice', "You must specify a valid channel.")
             return
     if channeltarget in botcom.triggerargsarray:
         botcom.triggerargsarray.remove(channeltarget)
@@ -494,7 +494,7 @@ def bot_command_function_devmode(bot, trigger, botcom, instigator):
     valid_subcommands = ['on', 'off']
     subcommand = spicemanip(bot, [x for x in botcom.triggerargsarray if x in valid_subcommands], 1)
     if not subcommand:
-        osd(bot, instigator.default, 'notice', "Do you want devmode on or off in " + channeltarget + "?")
+        osd(bot, botcom.instigator, 'notice', "Do you want devmode on or off in " + channeltarget + "?")
         return
 
     if subcommand == 'on':
@@ -526,11 +526,11 @@ def bot_command_function_update(bot, trigger, botcom, instigator):
 
     for targetbot in targetbots:
         targetbotadmins = bot_target_admins(bot, targetbot)
-        if instigator.default not in targetbotadmins:
+        if botcom.instigator not in targetbotadmins:
             targetbots.remove(targetbot)
 
     if targetbots == []:
-        osd(bot, instigator.default, 'notice', "You are unauthorized to use this function for the selected bots OR the bots directory is missing.")
+        osd(bot, botcom.instigator, 'notice', "You are unauthorized to use this function for the selected bots OR the bots directory is missing.")
         return
 
     # current bot should be last
@@ -562,18 +562,18 @@ def bot_command_function_restart(bot, trigger, botcom, instigator):
     targetbot = spicemanip(bot, [x for x in botcom.triggerargsarray if x in botcom.config_listing], 1) or bot.nick
 
     if targetbot == bot.nick:
-        if instigator.default not in botcom.botadmins:
-            osd(bot, instigator.default, 'notice', "You are unauthorized to use this function.")
+        if botcom.instigator not in botcom.botadmins:
+            osd(bot, botcom.instigator, 'notice', "You are unauthorized to use this function.")
             return
     else:
         targetbotadmins = bot_target_admins(bot, targetbot)
-        if instigator.default not in targetbotadmins:
-            osd(bot, instigator.default, 'notice', "You are unauthorized to use this function.")
+        if botcom.instigator not in targetbotadmins:
+            osd(bot, botcom.instigator, 'notice', "You are unauthorized to use this function.")
             return
 
     joindpath = os.path.join("/home/spicebot/.sopel/", targetbot)
     if not os.path.isdir(joindpath):
-        osd(bot, instigator.default, 'notice', "That doesn't appear to be a valid bot directory.")
+        osd(bot, botcom.instigator, 'notice', "That doesn't appear to be a valid bot directory.")
         return
 
     if targetbot != bot.nick:
@@ -581,7 +581,7 @@ def bot_command_function_restart(bot, trigger, botcom, instigator):
     else:
         dungeonmasterarray = ['spiceRPG', 'spiceRPGdev']
         if targetbot in dungeonmasterarray:
-            osd(bot, botcom.channel_list, 'say', "My Dungeon Master, " + instigator.default + ", commandeth me to restart. I shall return post haste!")
+            osd(bot, botcom.channel_list, 'say', "My Dungeon Master, " + botcom.instigator + ", commandeth me to restart. I shall return post haste!")
         else:
             osd(bot, botcom.channel_list, 'say', trigger.nick + " commanded me to restart. Be Back Soon!")
     restart(bot, botcom, trigger, targetbot)
@@ -589,8 +589,8 @@ def bot_command_function_restart(bot, trigger, botcom, instigator):
 
 def bot_command_function_permfix(bot, trigger, botcom, instigator):
 
-    if instigator.default not in botcom.botadmins:
-        osd(bot, instigator.default, 'notice', "You are unauthorized to use this function.")
+    if botcom.instigator not in botcom.botadmins:
+        osd(bot, botcom.instigator, 'notice', "You are unauthorized to use this function.")
         return
 
     os.system("sudo chown -R spicebot:sudo /home/spicebot/.sopel/")
@@ -599,8 +599,8 @@ def bot_command_function_permfix(bot, trigger, botcom, instigator):
 
 def bot_command_function_pip(bot, trigger, botcom, instigator):
 
-    if instigator.default not in botcom.botadmins:
-        osd(bot, instigator.default, 'notice', "You are unauthorized to use this function.")
+    if botcom.instigator not in botcom.botadmins:
+        osd(bot, botcom.instigator, 'notice', "You are unauthorized to use this function.")
         return
 
     pippackage = spicemanip(bot, botcom.triggerargsarray, '2+')
@@ -618,18 +618,18 @@ def bot_command_function_debug(bot, trigger, botcom, instigator):
     targetbot = spicemanip(bot, [x for x in botcom.triggerargsarray if x in botcom.config_listing], 1) or bot.nick
 
     if targetbot == bot.nick:
-        if instigator.default not in botcom.botadmins:
-            osd(bot, instigator.default, 'notice', "You are unauthorized to use this function.")
+        if botcom.instigator not in botcom.botadmins:
+            osd(bot, botcom.instigator, 'notice', "You are unauthorized to use this function.")
             return
     else:
         targetbotadmins = bot_target_admins(bot, targetbot)
-        if instigator.default not in targetbotadmins:
-            osd(bot, instigator.default, 'notice', "You are unauthorized to use this function.")
+        if botcom.instigator not in targetbotadmins:
+            osd(bot, botcom.instigator, 'notice', "You are unauthorized to use this function.")
             return
 
     joindpath = os.path.join("/home/spicebot/.sopel/", targetbot)
     if not os.path.isdir(joindpath):
-        osd(bot, instigator.default, 'notice', "That doesn't appear to be a valid bot directory.")
+        osd(bot, botcom.instigator, 'notice', "That doesn't appear to be a valid bot directory.")
         return
 
     debugloglinenumberarray = []

@@ -25,7 +25,7 @@ def execute_main(bot, trigger):
     # instigator
     instigator = class_create('instigator')
     osd(bot, trigger.sender, 'say', ".default before " + instigator.default)
-    instigator.default = trigger.nick
+    botcom.instigator = trigger.nick
     osd(bot, trigger.sender, 'say', ".default after " + instigator.default)
 
     osd(bot, trigger.sender, 'say', "string wrapped " + str(instigator))

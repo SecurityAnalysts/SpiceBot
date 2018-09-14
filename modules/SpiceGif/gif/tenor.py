@@ -17,6 +17,9 @@ from BotShared import *
 from GifShared import *
 
 
+# author deathbybandaid
+
+
 @sopel.module.commands('tenor')
 def mainfunction(bot, trigger):
     enablestatus, triggerargsarray, botcom, instigator = spicebot_prerun(bot, trigger, trigger.group(1))

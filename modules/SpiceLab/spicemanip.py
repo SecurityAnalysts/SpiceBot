@@ -80,8 +80,6 @@ def execute_main(bot, trigger, triggerargsarray, botcom, instigator):
 def spicemanip(bot, inputs, outputtask, output_type='default'):
 
     # TODO 'this*that' or '1*that' replace either all strings matching, or an index value
-    # TODO reverse sort z.sort(reverse = True)
-    # list.extend adds lists to eachother
 
     mainoutputtask, suboutputtask = None, None
 
